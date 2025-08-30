@@ -13,4 +13,10 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
+
+  # Mission Control for job monitoring (admin only)
+  # authenticate :user, ->(user) { user.admin? } do
+    mount MissionControl::Jobs::Engine, at: "/jobs"
+  # end
+
 end

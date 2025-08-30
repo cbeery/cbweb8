@@ -23,5 +23,12 @@ module Cbweb8
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # Use SolidQueue for ActiveJob
+    config.active_job.queue_adapter = :solid_queue
+    
+    # SolidQueue configuration
+    config.solid_queue.connects_to = { database: { writing: :primary } }
+    
   end
 end

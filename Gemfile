@@ -74,3 +74,7 @@ gem "mission_control-jobs"
 
 # AWS for Active Storage
 gem "aws-sdk-s3", require: false
+
+# SMTP2GO for email
+gem "smtp2go"
+

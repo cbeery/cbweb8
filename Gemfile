@@ -78,4 +78,16 @@ gem "aws-sdk-s3", require: false
 # SMTP2GO for email
 gem "smtp2go"
 
+# Required for Rails 8? Not sure here.
 gem "csv"
+
+# Devise for login
+gem "devise"
+
+
+
+
+
+
+
+

@@ -69,6 +69,15 @@ Rails.application.configure do
   #   authentication: :plain
   # }
 
+  # Setup mail with SMTP2GO
+  config.action_mailer.delivery_method = :smtp2go
+  config.action_mailer.smtp2go_settings = {
+    api_key: ENV['SMTP2GO_API_KEY']
+  }
+  config.action_mailer.default_url_options = { host: ENV['APP_DOMAIN'] }
+  config.action_mailer.perform_deliveries = true
+  config.action_mailer.raise_delivery_errors = false
+
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
   config.i18n.fallbacks = true

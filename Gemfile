@@ -78,3 +78,4 @@ gem "aws-sdk-s3", require: false
 # SMTP2GO for email
 gem "smtp2go"
 
+gem "csv"

@@ -1,4 +1,77 @@
-<div>
-  <h1 class="font-bold text-4xl">cbweb8</h1>
-  <p>In app/views/home/index.html.erb</p>
+<div class="mx-auto max-w-7xl">
+  <!-- Main Card Container -->
+  <div class="overflow-hidden bg-white shadow-xl sm:rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <h1 class="text-3xl font-bold text-gray-900 mb-8">Welcome to MyApp</h1>
+      
+      <% if user_signed_in? %>
+        <p class="text-lg text-gray-600 mb-6">Hello, <%= current_user.display_name %>!</p>
+      <% end %>
+      
+      <!-- Grid of smaller cards inside main card -->
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        
+        <!-- Card 1 -->
+        <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
+          <div class="px-4 py-5 sm:p-6">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dt class="text-sm font-medium text-gray-500 truncate">Total Users</dt>
+                <dd class="text-lg font-medium text-gray-900"><%= User.count %></dd>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
+          <div class="px-4 py-5 sm:p-6">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dt class="text-sm font-medium text-gray-500 truncate">Active Jobs</dt>
+                <dd class="text-lg font-medium text-gray-900">
+                  <%= SolidQueue::Job.where(finished_at: nil).count rescue 0 %>
+                </dd>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
+          <div class="px-4 py-5 sm:p-6">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dt class="text-sm font-medium text-gray-500 truncate">Status</dt>
+                <dd class="text-lg font-medium text-green-600">Active</dd>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional content section -->
+      <div class="mt-8 border-t border-gray-200 pt-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Recent Activity</h2>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-gray-600">No recent activity to display.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

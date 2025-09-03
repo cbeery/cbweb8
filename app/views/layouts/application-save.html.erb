@@ -26,16 +26,6 @@
                 <%= link_to "MyApp", root_path, class: "text-xl font-bold text-gray-900" %>
               </div>
             </div>
-            <div class="flex items-center space-x-4">
-              <% if user_signed_in? %>
-                <span class="text-gray-700">Hi, <%= current_user.name || current_user.email %></span>
-                <%= link_to "Dashboard", root_path, class: "text-gray-700 hover:text-gray-900" %>
-                <%= link_to "Admin", admin_root_path, class: "text-gray-700 hover:text-gray-900" if current_user.admin? %>
-                <%= button_to "Sign Out", destroy_user_session_path, method: :delete, class: "text-gray-700 hover:text-gray-900" %>
-              <% else %>
-                <%= link_to "Sign In", new_user_session_path, class: "text-gray-700 hover:text-gray-900" %>
-              <% end %>
-            </div>
           </div>
         </div>
       </nav>

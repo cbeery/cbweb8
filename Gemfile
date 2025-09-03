@@ -89,6 +89,14 @@ gem "omniauth"
 gem "omniauth-google-oauth2"
 gem "omniauth-rails_csrf_protection"
 
+# Pagination
+gem "kaminari"
+
+# HTTP client
+gem "httparty"
+
+# RSS feeds
+gem "feedjira"
 
 
 

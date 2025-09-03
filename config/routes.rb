@@ -1,8 +1,17 @@
 Rails.application.routes.draw do
-  devise_for :users
-  get "home/index"
   root "home#index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+
+  devise_for :users, controllers: { 
+    omniauth_callbacks: 'users/omniauth_callbacks' 
+  }
+
+  # Mission Control for job monitoring (admin only)
+  # authenticate :user, ->(user) { user.admin? } do
+    mount MissionControl::Jobs::Engine, at: "/jobs"
+  # end
+
+  get "home/index"
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
@@ -14,10 +23,5 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
-
-  # Mission Control for job monitoring (admin only)
-  # authenticate :user, ->(user) { user.admin? } do
-    mount MissionControl::Jobs::Engine, at: "/jobs"
-  # end
 
 end

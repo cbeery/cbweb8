@@ -107,7 +107,8 @@ Rails.application.configure do
 
   # Ensure you're compiling assets
   config.assets.compile = false  # Set to true if you want Rails to compile missing assets
-
+  config.assets.digest = true
+  
   # Set your production host for Action Mailer, Action Cable, etc.
   config.hosts << "your-app-name.onrender.com"  # Will update this later
   config.hosts << "cbweb8.onrender.com"

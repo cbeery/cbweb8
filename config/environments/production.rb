@@ -115,7 +115,8 @@ Rails.application.configure do
   config.hosts << "curt.beery.co"
 
   # Ensure proper asset serving
-  config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present? || ENV['RENDER'].present?
+  # config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present? || ENV['RENDER'].present?
+  config.public_file_server.enabled = true
 
   # Use environment variable for secret key base
   config.secret_key_base = ENV['SECRET_KEY_BASE']

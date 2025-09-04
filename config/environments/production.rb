@@ -110,6 +110,8 @@ Rails.application.configure do
 
   # Set your production host for Action Mailer, Action Cable, etc.
   config.hosts << "your-app-name.onrender.com"  # Will update this later
+  config.hosts << "cbweb8.onrender.com"
+  config.hosts << "curt.beery.co"
 
   # Ensure proper asset serving
   config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present? || ENV['RENDER'].present?

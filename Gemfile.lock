@@ -513,6 +513,7 @@ DEPENDENCIES
   jbuilder
   kamal
   kaminari
+  mini_magick
   mission_control-jobs
   omniauth
   omniauth-google-oauth2

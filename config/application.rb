@@ -30,5 +30,7 @@ module Cbweb8
     # SolidQueue configuration
     config.solid_queue.connects_to = { database: { writing: :primary } }
     
+    # Image processing
+    config.active_storage.variant_processor = :mini_magick
   end
 end

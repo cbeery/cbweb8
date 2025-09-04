@@ -98,7 +98,8 @@ gem "httparty"
 # RSS feeds
 gem "feedjira"
 
-
+# Mini Magick for image processing
+gem "mini_magick"
 
 
 

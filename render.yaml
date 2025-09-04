@@ -1,0 +1,35 @@
+databases:
+  - name: cbweb8-db
+    databaseName: cbweb8_production
+    plan: starter  # 'free' or 'starter' for paid plan
+    user: cbweb8
+
+services:
+  - type: web
+    name: cbweb8
+    runtime: ruby
+    plan: starter  # 'free' or 'starter' for paid plan
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec puma -C config/puma.rb"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cbweb8-db
+          property: connectionString
+      - key: RAILS_MASTER_KEY
+        sync: false  # You'll set this manually
+      - key: WEB_CONCURRENCY
+        value: 2  # Number of Puma workers
+      - key: RAILS_MAX_THREADS
+        value: 5
+      - key: RAILS_ENV
+        value: production
+      - key: RACK_ENV
+        value: production
+      - key: NODE_ENV
+        value: production
+      - key: RAILS_SERVE_STATIC_FILES
+        value: true
+      - key: RAILS_LOG_TO_STDOUT
+        value: true
+healthCheckPath: /up  # Rails 8 has this built-in

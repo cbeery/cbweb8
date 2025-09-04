@@ -96,4 +96,19 @@ Rails.application.configure do
   #
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+
+  # Recommended by Claude for Render deployment...
+
+  # Ensure you're compiling assets
+  config.assets.compile = false  # Set to true if you want Rails to compile missing assets
+
+  # Set your production host for Action Mailer, Action Cable, etc.
+  config.hosts << "your-app-name.onrender.com"  # Will update this later
+
+  # Ensure proper asset serving
+  config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present? || ENV['RENDER'].present?
+
+  # Use environment variable for secret key base
+  config.secret_key_base = ENV['SECRET_KEY_BASE']
+
 end

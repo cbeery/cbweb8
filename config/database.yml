@@ -99,9 +99,14 @@ production:
   #   database: cbweb8_production_cable
   #   migrations_paths: db/cable_migrate
 
-cable:
+queue:
   <<: *default
   database: cbweb8_production
   username: cbweb8
   password: <%= ENV["CBWEB8_DATABASE_PASSWORD"] %>
-  
+
+cable:
+  <<: *default  
+  database: cbweb8_production
+  username: cbweb8
+  password: <%= ENV["CBWEB8_DATABASE_PASSWORD"] %>  

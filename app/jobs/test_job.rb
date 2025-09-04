@@ -15,6 +15,6 @@ class TestJob < ApplicationJob
     # - Processing data
     # - Making API calls
     
-    "Job completed successfully with message: #{message}"
+    puts "Job completed successfully with message: #{message}"
   end
 end

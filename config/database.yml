@@ -110,3 +110,11 @@ cable:
   database: cbweb8_production
   username: cbweb8
   password: <%= ENV["CBWEB8_DATABASE_PASSWORD"] %>  
+
+cache:
+  <<: *default  
+  database: cbweb8_production
+  username: cbweb8
+  password: <%= ENV["CBWEB8_DATABASE_PASSWORD"] %>  
+
+  

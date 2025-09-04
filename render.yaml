@@ -1,7 +1,7 @@
 databases:
   - name: cbweb8-db
     databaseName: cbweb8_production
-    plan: starter  # 'free' or 'starter' for paid plan
+    plan: basic  # 'free' or 'basic' for paid plan
     user: cbweb8
 
 services:

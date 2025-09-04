@@ -86,8 +86,6 @@ production:
     database: cbweb8_production
     username: cbweb8
     password: <%= ENV["CBWEB8_DATABASE_PASSWORD"] %>
-  cable:
-    primary: true  # This tells it to use the primary database
   # cache:
   #   <<: *primary_production
   #   database: cbweb8_production_cache

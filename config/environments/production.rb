@@ -70,9 +70,15 @@ Rails.application.configure do
   # }
 
   # Setup mail with SMTP2GO
-  config.action_mailer.delivery_method = :smtp2go
-  config.action_mailer.smtp2go_settings = {
-    api_key: ENV['SMTP2GO_API_KEY']
+  # Setup mail with SMTP2GO
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address: 'mail.smtp2go.com',
+    port: 2525,
+    user_name: 'api',
+    password: ENV['SMTP2GO_API_KEY'],
+    authentication: :plain,
+    enable_starttls_auto: true
   }
   config.action_mailer.default_url_options = { host: ENV['APP_DOMAIN'] }
   config.action_mailer.perform_deliveries = true

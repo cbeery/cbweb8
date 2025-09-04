@@ -33,8 +33,9 @@ module Cbweb8
     # Image processing
     config.active_storage.variant_processor = :mini_magick
 
-    # Solid Cache configuration (if you're using it)
-    config.solid_cache.connects_to = { database: { writing: :primary } }
+# Just disable ActionCable
+config.action_cable.mount_path = nil
+
 
   end
 end

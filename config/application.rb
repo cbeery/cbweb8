@@ -33,9 +33,6 @@ module Cbweb8
     # Image processing
     config.active_storage.variant_processor = :mini_magick
 
-    # Solid Cable configuration
-    config.solid_cable.connects_to = { database: { writing: :primary } }
-
     # Solid Cache configuration (if you're using it)
     config.solid_cache.connects_to = { database: { writing: :primary } }
 

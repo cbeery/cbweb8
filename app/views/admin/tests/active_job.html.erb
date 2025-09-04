@@ -1,4 +1,54 @@
-<div>
-  <h1 class="font-bold text-4xl">Admin::Tests#active_job</h1>
-  <p>Find me in app/views/admin/tests/active_job.html.erb</p>
+<div class="bg-white shadow sm:rounded-lg">
+  <div class="px-4 py-5 sm:p-6">
+    <h3 class="text-lg font-medium leading-6 text-gray-900">ActiveJob Test</h3>
+    <div class="mt-2 max-w-xl text-sm text-gray-500">
+      <p>Test ActiveJob with SolidQueue processing.</p>
+    </div>
+    
+    <%= form_with url: admin_test_job_path, local: true, class: "mt-5" do |form| %>
+      <div class="space-y-4">
+        <div>
+          <%= form.label :message, "Test Message", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.text_field :message, 
+              placeholder: "Enter a test message", 
+              class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+        </div>
+        
+        <div>
+          <%= form.submit "Queue Test Job", 
+              class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+        </div>
+      </div>
+    <% end %>
+    
+    <div class="mt-8 border-t border-gray-200 pt-5">
+      <h4 class="text-md font-medium text-gray-900 mb-2">Job Queue Status</h4>
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Pending Jobs</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <%= SolidQueue::Job.where(finished_at: nil).count rescue "N/A" %>
+          </dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Completed Jobs (last 24h)</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <%= SolidQueue::Job.where("finished_at > ?", 24.hours.ago).count rescue "N/A" %>
+          </dd>
+        </div>
+      </dl>
+      
+      <div class="mt-4">
+        <%= link_to "View Mission Control →", jobs_path, 
+            class: "text-indigo-600 hover:text-indigo-500" %>
+      </div>
+    </div>
+    
+    <div class="mt-6 bg-gray-50 rounded-lg p-4">
+      <p class="text-sm text-gray-600">
+        <strong>To start the job processor:</strong><br>
+        Run <code class="bg-gray-200 px-1 py-0.5 rounded">bundle exec rake solid_queue:start</code> in another terminal
+      </p>
+    </div>
+  </div>
 </div>

@@ -117,4 +117,7 @@ Rails.application.configure do
   # Use environment variable for secret key base
   config.secret_key_base = ENV['SECRET_KEY_BASE']
 
+  # Disable http auth for Mission Control in Prod (VERY temp)
+  config.mission_control.jobs.http_basic_auth_enabled = false  
+
 end

@@ -1,48 +1,133 @@
 <!DOCTYPE html>
 <html class="h-full bg-gray-50">
   <head>
-    <title><%= content_for(:title) || "MyApp" %></title>
+    <title><%= content_for(:title) || "curt.beery.co" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="turbo-cache-control" content="no-cache">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     
-    <%# stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
-    <!-- # Inter font -->
+    <!-- Inter font -->
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
   </head>
 
   <body class="h-full">
     <div class="min-h-full">
-      <!-- Navigation -->
-      <nav class="bg-white shadow-sm">
+      <!-- Site Header with Nav Trigger -->
+      <header class="mb-4">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div class="flex h-16 justify-between">
-            <div class="flex">
-              <div class="flex flex-shrink-0 items-center">
-                <%= link_to "MyApp", root_path, class: "text-xl font-bold text-gray-900" %>
+          <div class="py-2 flex justify-end">
+            <button 
+              id="nav-trigger"
+              class="group flex items-center space-x-1 hover:opacity-70 transition-opacity duration-200"
+              aria-label="Open navigation"
+            >
+              <h1 class="text-sm font-medium text-gray-700">curt.beery.co</h1>
+              <svg class="w-3 h-3 text-gray-500 transition-transform duration-200 group-hover:translate-y-0.5" 
+                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Full-screen Navigation Overlay -->
+      <nav 
+        id="nav-overlay" 
+        class="fixed inset-0 z-50 bg-white bg-opacity-85 backdrop-blur-sm transform -translate-y-full transition-transform duration-300 ease-in-out"
+        style="display: none;"
+      >
+        <div class="min-h-full flex flex-col">
+          <!-- Navigation Header -->
+          <div class="flex items-center justify-between p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">Navigation</h2>
+            <button 
+              id="nav-close" 
+              class="p-2 rounded-md hover:bg-gray-100 transition-colors duration-200"
+              aria-label="Close navigation"
+            >
+              <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Navigation Content -->
+          <div class="flex-1 p-6">
+            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl">
+              
+              <!-- Main Navigation Section -->
+              <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Main</h3>
+                <nav class="space-y-3">
+                  <%= link_to root_path, class: "block text-gray-700 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md transition-colors duration-200" do %>
+                    Home
+                  <% end %>
+                  
+                  <% if user_signed_in? %>
+                    <%= link_to root_path, class: "block text-gray-700 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md transition-colors duration-200" do %>
+                      Dashboard
+                    <% end %>
+                  <% end %>
+                </nav>
+              </div>
+
+              <!-- Account Section -->
+              <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Account</h3>
+                <nav class="space-y-3">
+                  <% if user_signed_in? %>
+                    <div class="px-3 py-2 text-sm text-gray-600 bg-gray-50 rounded-md">
+                      Hi, <%= current_user.name || current_user.email %>
+                    </div>
+                    
+                    <% if current_user.admin? %>
+                      <%= link_to admin_root_path, class: "block text-gray-700 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md transition-colors duration-200" do %>
+                        Admin Panel
+                      <% end %>
+                    <% end %>
+                    
+                    <%= button_to destroy_user_session_path, method: :delete, 
+                        class: "w-full text-left text-gray-700 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md transition-colors duration-200" do %>
+                      Sign Out
+                    <% end %>
+                  <% else %>
+                    <%= link_to new_user_session_path, class: "block text-gray-700 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md transition-colors duration-200" do %>
+                      Sign In
+                    <% end %>
+                  <% end %>
+                </nav>
+              </div>
+
+              <!-- Future sections can go here -->
+              <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Resources</h3>
+                <nav class="space-y-3">
+                  <a href="#" class="block text-gray-400 px-3 py-2 rounded-md">
+                    Coming soon...
+                  </a>
+                </nav>
               </div>
             </div>
-            <div class="flex items-center space-x-4">
-              <% if user_signed_in? %>
-                <span class="text-gray-700">Hi, <%= current_user.name || current_user.email %></span>
-                <%= link_to "Dashboard", root_path, class: "text-gray-700 hover:text-gray-900" %>
-                <%= link_to "Admin", admin_root_path, class: "text-gray-700 hover:text-gray-900" if current_user.admin? %>
-                <%= button_to "Sign Out", destroy_user_session_path, method: :delete, class: "text-gray-700 hover:text-gray-900" %>
-              <% else %>
-                <%= link_to "Sign In", new_user_session_path, class: "text-gray-700 hover:text-gray-900" %>
-              <% end %>
-            </div>
+          </div>
+
+          <!-- Navigation Footer -->
+          <div class="border-t border-gray-200 p-6">
+            <p class="text-sm text-gray-500">
+              Press <kbd class="px-2 py-1 bg-gray-100 rounded text-xs">ESC</kbd> to close or 
+              <kbd class="px-2 py-1 bg-gray-100 rounded text-xs">Cmd/Ctrl + K</kbd> to open
+            </p>
           </div>
         </div>
       </nav>
 
       <!-- Flash messages -->
       <% if notice.present? %>
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-4">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-4">
           <div class="rounded-md bg-green-50 p-4">
             <div class="flex">
               <div class="ml-3">
@@ -54,7 +139,7 @@
       <% end %>
       
       <% if alert.present? %>
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-4">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-4">
           <div class="rounded-md bg-red-50 p-4">
             <div class="flex">
               <div class="ml-3">
@@ -65,12 +150,75 @@
         </div>
       <% end %>
 
-      <!-- Main content -->
+      <!-- Main content wrapped in card -->
       <main>
-        <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <%= yield %>
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="overflow-hidden bg-white shadow-xl sm:rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+              <%= yield %>
+            </div>
+          </div>
         </div>
       </main>
     </div>
+
+    <!-- Navigation JavaScript -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const navTrigger = document.getElementById('nav-trigger');
+        const navOverlay = document.getElementById('nav-overlay');
+        const navClose = document.getElementById('nav-close');
+
+        function openNav() {
+          navOverlay.style.display = 'block';
+          // Force a reflow before adding the class
+          navOverlay.offsetHeight;
+          navOverlay.classList.remove('-translate-y-full');
+          navOverlay.classList.add('translate-y-0');
+          document.body.style.overflow = 'hidden';
+        }
+
+        function closeNav() {
+          navOverlay.classList.remove('translate-y-0');
+          navOverlay.classList.add('-translate-y-full');
+          document.body.style.overflow = '';
+          
+          // Hide the overlay after animation completes
+          setTimeout(() => {
+            navOverlay.style.display = 'none';
+          }, 300);
+        }
+
+        // Event listeners
+        navTrigger.addEventListener('click', openNav);
+        navClose.addEventListener('click', closeNav);
+
+        // Close on escape key
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape' && navOverlay.style.display !== 'none') {
+            closeNav();
+          }
+        });
+
+        // Open on Cmd/Ctrl + K
+        document.addEventListener('keydown', function(e) {
+          if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+            e.preventDefault();
+            if (navOverlay.style.display === 'none') {
+              openNav();
+            } else {
+              closeNav();
+            }
+          }
+        });
+
+        // Close when clicking outside nav content
+        navOverlay.addEventListener('click', function(e) {
+          if (e.target === navOverlay) {
+            closeNav();
+          }
+        });
+      });
+    </script>
   </body>
 </html>

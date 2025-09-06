@@ -1,0 +1,23 @@
+// Import your custom variables first
+@import "variables";
+@import "mixins";
+
+// Import Tailwind (if you want to customize it)
+// This is optional - you already have the tailwind.css loaded separately
+
+// Import your custom components
+@import "components/buttons";
+@import "components/forms";
+@import "components/cards";
+
+// Import layouts
+@import "layouts/header";
+@import "layouts/footer";
+
+// Import utilities
+@import "utilities/helpers";
+
+// Your custom global styles
+body {
+  font-family: $primary-font;
+}

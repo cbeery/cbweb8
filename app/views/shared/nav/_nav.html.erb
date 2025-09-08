@@ -1,0 +1,90 @@
+<!-- Full-screen Navigation Overlay -->
+<nav 
+  id="nav-overlay" 
+  class="fixed inset-0 z-50 backdrop-blur-sm transform -translate-y-full transition-transform duration-300 ease-in-out"
+  style="display: none; background-color: rgba(255, 252, 254, 0.85);"
+>
+  <div class="min-h-full flex flex-col">
+    <!-- Navigation Header -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+      <h2 class="text-xl font-semibold text-gray-900">Navigation</h2>
+      <button 
+        id="nav-close" 
+        class="p-2 rounded-md hover:bg-gray-100 transition-colors duration-200"
+        aria-label="Close navigation"
+      >
+        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Navigation Content -->
+    <div class="flex-1 p-6">
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl">
+        
+        <!-- Main Navigation Section -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Main</h3>
+          <nav class="space-y-3">
+            <%= link_to root_path, class: "block text-gray-700 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md transition-colors duration-200" do %>
+              Home
+            <% end %>
+            
+            <% if user_signed_in? %>
+              <%= link_to root_path, class: "block text-gray-700 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md transition-colors duration-200" do %>
+                Dashboard
+              <% end %>
+            <% end %>
+          </nav>
+        </div>
+
+        <!-- Account Section -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Account</h3>
+          <nav class="space-y-3">
+            <% if user_signed_in? %>
+              <div class="px-3 py-2 text-sm text-gray-600 bg-gray-50 rounded-md">
+                Hi, <%= current_user.name || current_user.email %>
+              </div>
+              
+              <% if current_user.admin? %>
+                <%= link_to admin_root_path, class: "block text-gray-700 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md transition-colors duration-200" do %>
+                  Admin Panel
+                <% end %>
+              <% end %>
+              
+              <%= button_to destroy_user_session_path, method: :delete, 
+                  class: "w-full text-left text-gray-700 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md transition-colors duration-200" do %>
+                Sign Out
+              <% end %>
+            <% else %>
+              <%= link_to new_user_session_path, class: "block text-gray-700 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md transition-colors duration-200" do %>
+                Sign In
+              <% end %>
+            <% end %>
+          </nav>
+        </div>
+
+        <!-- Future sections can go here -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Resources</h3>
+          <nav class="space-y-3">
+            <a href="#" class="block text-gray-400 px-3 py-2 rounded-md">
+              Coming soon...
+            </a>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Footer -->
+    <div class="border-t border-gray-200 p-6">
+      <p class="text-sm text-gray-500">
+        Press <kbd class="px-2 py-1 bg-gray-100 rounded text-xs">ESC</kbd> to close or 
+        <kbd class="px-2 py-1 bg-gray-100 rounded text-xs">Cmd/Ctrl + K</kbd> to open
+      </p>
+    </div>
+  </div>
+</nav>
+

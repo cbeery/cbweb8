@@ -1,0 +1,87 @@
+<!-- Full-screen Admin Navigation Overlay -->
+<nav 
+  id="admin-nav-overlay" 
+  class="fixed inset-0 z-50 backdrop-blur-sm transform -translate-y-full transition-transform duration-300 ease-in-out"
+  style="display: none; background-color: rgba(55, 65, 81, 0.95);"
+>
+  <div class="min-h-full flex flex-col">
+    <!-- Navigation Header -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-600">
+      <h2 class="text-xl font-semibold text-white">Admin Navigation</h2>
+      <button 
+        id="admin-nav-close" 
+        class="p-2 rounded-md hover:bg-gray-600 transition-colors duration-200"
+        aria-label="Close admin navigation"
+      >
+        <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Navigation Content -->
+    <div class="flex-1 p-6">
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl">
+        
+        <!-- Admin Tools Section -->
+        <div>
+          <h3 class="text-lg font-medium text-white mb-4">Admin Tools</h3>
+          <nav class="space-y-3">
+            <%= link_to admin_root_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
+              Dashboard
+            <% end %>
+            
+            <%= link_to admin_test_s3_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
+              S3 Test
+            <% end %>
+            
+            <%= link_to admin_test_job_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
+              Job Test
+            <% end %>
+            
+            <%= link_to mission_control_jobs.root_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
+              Jobs Monitor
+            <% end %>
+          </nav>
+        </div>
+
+        <!-- Account Section -->
+        <div>
+          <h3 class="text-lg font-medium text-white mb-4">Account</h3>
+          <nav class="space-y-3">
+            <div class="px-3 py-2 text-sm text-gray-300 bg-gray-600 rounded-md">
+              Hi, <%= current_user.display_name %>
+            </div>
+            
+            <%= link_to root_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
+              Main Site
+            <% end %>
+            
+            <%= button_to destroy_user_session_path, method: :delete, 
+                class: "w-full text-left text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
+              Sign Out
+            <% end %>
+          </nav>
+        </div>
+
+        <!-- System Section -->
+        <div>
+          <h3 class="text-lg font-medium text-white mb-4">System</h3>
+          <nav class="space-y-3">
+            <a href="#" class="block text-gray-400 px-3 py-2 rounded-md">
+              More tools coming...
+            </a>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Footer -->
+    <div class="border-t border-gray-600 p-6">
+      <p class="text-sm text-gray-400">
+        Press <kbd class="px-2 py-1 bg-gray-600 rounded text-xs text-gray-300">ESC</kbd> to close or 
+        <kbd class="px-2 py-1 bg-gray-600 rounded text-xs text-gray-300">Cmd/Ctrl + K</kbd> to open
+      </p>
+    </div>
+  </div>
+</nav>

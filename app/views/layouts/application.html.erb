@@ -20,7 +20,20 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   </head>
 
-  <body class="h-full">
+  <body class="h-full" 
+      data-controller="breakpoint" 
+      data-breakpoint-enabled-value="<%= ENV['BREAKPOINT_BANNER_ENABLED'] == 'true' %>">
+
+<!-- Breakpoint Banner -->
+<div data-breakpoint-target="banner" 
+     class="fixed top-0 left-0 right-0 z-50 bg-blue-600 text-white text-xs font-mono h-6 flex items-center justify-center shadow-sm transition-transform duration-200 ease-in-out">
+  <span>
+    Current breakpoint: <span data-breakpoint-target="currentBreakpoint" class="font-bold">sm</span> | 
+    <span data-breakpoint-target="windowSize" class="opacity-75">0px</span>
+  </span>
+</div>
+
+
     <div class="min-h-full">
 
       <%= render partial: 'shared/header/header' %>

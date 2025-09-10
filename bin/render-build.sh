@@ -5,6 +5,8 @@ set -o errexit
 # Install dependencies
 bundle install
 
+bundle exec rails tailwindcss:build
+
 # Precompile assets
 bundle exec rails assets:precompile
 

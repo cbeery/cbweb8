@@ -56,6 +56,12 @@ export default class extends Controller {
         // Check if enabled via Rails environment variable
         const railsEnabled = this.enabledValue
         
+        console.log('Checking initial state:', {
+            urlParam: showBanner,
+            storedState: storedState,
+            railsEnabled: railsEnabled
+        })
+        
         if (showBanner !== null) {
             this.isVisible = showBanner === 'true'
             localStorage.setItem('breakpoint-banner-enabled', this.isVisible)
@@ -68,6 +74,7 @@ export default class extends Controller {
             this.isVisible = false // Default to hidden
         }
         
+        console.log('Final visibility decision:', this.isVisible)
         this.updateVisibility()
     }
 

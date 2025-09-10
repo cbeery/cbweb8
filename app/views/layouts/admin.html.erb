@@ -14,7 +14,9 @@
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
   </head>
 
-  <body class="h-full">
+  <body class="h-full"<% if ENV['SHOW_BREAKPOINTS'] == 'true' %> data-controller="breakpoint"<% end %>>
+    <%= render partial: 'shared/breakpoint_banner' if ENV['SHOW_BREAKPOINTS'] == 'true'%>
+
     <div class="min-h-full">
       <%= render partial: 'shared/header/admin_header' %>
       <%= render partial: 'shared/nav/admin_nav' %>

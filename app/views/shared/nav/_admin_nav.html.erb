@@ -1,6 +1,5 @@
 <!-- Admin Navigation Overlay with Stimulus -->
 <nav 
-  data-controller="navigation"
   data-navigation-target="overlay"
   data-action="click->navigation#clickOutside keydown@window->navigation#handleKeydown"
   class="fixed inset-0 z-50 backdrop-blur-sm transform -translate-y-full transition-transform duration-300 ease-in-out"
@@ -11,7 +10,7 @@
     <div class="flex items-center justify-between p-6 border-b border-gray-600">
       <h2 class="text-xl font-semibold text-white">Admin Navigation</h2>
       <button 
-        id="admin-nav-close" 
+        data-action="click->navigation#close"
         class="p-2 rounded-md hover:bg-gray-600 transition-colors duration-200"
         aria-label="Close admin navigation"
       >

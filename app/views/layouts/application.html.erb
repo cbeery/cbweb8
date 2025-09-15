@@ -20,7 +20,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   </head>
 
-  <body class="h-full" data-controller="navigation"<% if ENV['SHOW_BREAKPOINTS'] == 'true' %> data-controller="breakpoint navigation"<% end %>>
+  <body class="h-full" data-controller="navigation">
 
     <%= render partial: 'shared/breakpoint_banner' if ENV['SHOW_BREAKPOINTS'] == 'true'%>
 

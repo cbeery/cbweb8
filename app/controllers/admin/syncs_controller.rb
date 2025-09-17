@@ -55,4 +55,4 @@ class Admin::SyncsController < Admin::BaseController
     
     redirect_to admin_sync_path(sync_status)
   end
-  
+end

@@ -1,0 +1,135 @@
+<!-- app/views/admin/syncs/index.html.erb -->
+<div class="container-fluid">
+  <div class="page-header">
+    <h1>Data Syncs</h1>
+    
+    <!-- Test Sync Section -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h3>Test Sync Service</h3>
+      </div>
+      <div class="card-body">
+        <p>Run test syncs to verify the system is working correctly:</p>
+        
+        <div class="btn-group" role="group">
+          <%= button_to "Quick Test (10 items)", 
+              admin_syncs_path(source: 'test', scenario: 'quick'),
+              method: :post,
+              class: "btn btn-outline-primary" %>
+              
+          <%= button_to "Normal Test (50 items)", 
+              admin_syncs_path(source: 'test', scenario: 'normal'),
+              method: :post,
+              class: "btn btn-outline-primary" %>
+              
+          <%= button_to "Slow Test (100 items)", 
+              admin_syncs_path(source: 'test', scenario: 'slow'),
+              method: :post,
+              class: "btn btn-outline-warning" %>
+              
+          <%= button_to "Error Test", 
+              admin_syncs_path(source: 'test', scenario: 'error_prone'),
+              method: :post,
+              class: "btn btn-outline-danger" %>
+              
+          <%= button_to "Will Fail Test", 
+              admin_syncs_path(source: 'test', scenario: 'will_fail'),
+              method: :post,
+              class: "btn btn-outline-danger" %>
+              
+          <%= button_to "Unknown Count Test", 
+              admin_syncs_path(source: 'test', scenario: 'unknown_count'),
+              method: :post,
+              class: "btn btn-outline-info" %>
+        </div>
+        
+        <div class="mt-2 text-muted">
+          <small>
+            <strong>Quick:</strong> 10 items, fast processing<br>
+            <strong>Normal:</strong> 50 items, 10% failure rate<br>
+            <strong>Slow:</strong> 100 items, slow processing<br>
+            <strong>Error:</strong> 20 items, 30% failure rate<br>
+            <strong>Will Fail:</strong> Crashes after 5 items<br>
+            <strong>Unknown:</strong> Random count, no progress bar
+          </small>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Real Services -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h3>Production Services</h3>
+      </div>
+      <div class="card-body">
+        <div class="sync-controls">
+          <% @available_sources.reject { |s| s == 'test' }.each do |source| %>
+            <%= button_to "Sync #{source.titleize}", 
+                admin_syncs_path(source: source),
+                method: :post,
+                class: "btn btn-primary me-2" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Recent Syncs Table -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Recent Syncs</h3>
+    </div>
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>Status</th>
+            <th>Progress</th>
+            <th>Stats</th>
+            <th>Started</th>
+            <th>Duration</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @sync_statuses.each do |sync| %>
+            <tr>
+              <td><%= sync.source_type.titleize %></td>
+              <td>
+                <span class="badge bg-<%= status_color(sync.status) %>">
+                  <%= sync.status.titleize %>
+                </span>
+              </td>
+              <td>
+                <% if sync.has_progress? %>
+                  <%= sync.processed_items %> / <%= sync.total_items %>
+                <% else %>
+                  <%= sync.processed_items %> items
+                <% end %>
+              </td>
+              <td>
+                <small>
+                  C: <%= sync.created_count %> 
+                  U: <%= sync.updated_count %> 
+                  F: <%= sync.failed_count %>
+                </small>
+              </td>
+              <td><%= sync.started_at&.strftime("%m/%d %H:%M") || "-" %></td>
+              <td>
+                <% if sync.started_at && sync.completed_at %>
+                  <%= distance_of_time_in_words(sync.started_at, sync.completed_at) %>
+                <% else %>
+                  -
+                <% end %>
+              </td>
+              <td>
+                <%= link_to "View", admin_sync_path(sync), class: "btn btn-sm btn-outline-secondary" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

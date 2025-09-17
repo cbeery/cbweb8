@@ -1,0 +1,70 @@
+<!-- app/views/admin/log_entries/index.html.erb -->
+<div class="container-fluid">
+  <h1>System Logs</h1>
+  
+  <%= form_with url: admin_log_entries_path, method: :get, local: true, class: "mb-4" do |f| %>
+    <div class="row g-2">
+      <div class="col-auto">
+        <%= f.select :category, 
+            options_for_select(@categories, params[:category]),
+            { include_blank: 'All Categories' },
+            class: 'form-select' %>
+      </div>
+      <div class="col-auto">
+        <%= f.select :level,
+            options_for_select(@levels, params[:level]),
+            { include_blank: 'All Levels' },
+            class: 'form-select' %>
+      </div>
+      <div class="col-auto">
+        <%= f.date_field :date_from, value: params[:date_from], class: 'form-control' %>
+      </div>
+      <div class="col-auto">
+        <%= f.date_field :date_to, value: params[:date_to], class: 'form-control' %>
+      </div>
+      <div class="col-auto">
+        <%= f.submit 'Filter', class: 'btn btn-primary' %>
+      </div>
+    </div>
+  <% end %>
+  
+  <div class="table-responsive">
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Category</th>
+          <th>Level</th>
+          <th>Message</th>
+          <th>Context</th>
+          <th>User</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @logs.each do |log| %>
+          <tr class="<%= 'table-danger' if log.level == 'error' %>">
+            <td class="text-nowrap"><%= log.created_at.strftime("%m/%d %H:%M:%S") %></td>
+            <td><span class="badge bg-secondary"><%= log.category %></span></td>
+            <td><span class="<%= log.level_class %>"><%= log.icon %></span></td>
+            <td><%= truncate(log.message, length: 100) %></td>
+            <td>
+              <% if log.loggable %>
+                <%= link_to log.loggable_type, 
+                    polymorphic_path([:admin, log.loggable]) rescue log.loggable_type %>
+                #<%= log.loggable_id %>
+              <% end %>
+            </td>
+            <td><%= log.user&.name || log.user&.email %></td>
+            <td>
+              <%= link_to 'View', admin_log_entry_path(log), 
+                  class: 'btn btn-sm btn-outline-secondary' %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  
+  <%= paginate @logs %>
+</div>

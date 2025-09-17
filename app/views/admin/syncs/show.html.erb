@@ -1,0 +1,55 @@
+<!-- app/views/admin/syncs/show.html.erb -->
+<%= turbo_stream_from "sync_status_#{@sync_status.id}" %>
+<%= turbo_stream_from "sync_status_#{@sync_status.id}_logs" %>
+
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><%= @sync_status.source_type.titleize %> Sync</h1>
+    <%= link_to "← Back to Syncs", admin_syncs_path, class: "btn btn-secondary" %>
+  </div>
+
+  <!-- Status Card -->
+  <div id="sync_status_<%= @sync_status.id %>">
+    <%= render 'status_detail', sync_status: @sync_status %>
+  </div>
+
+  <!-- Log Entries -->
+  <div class="card mt-4">
+    <div class="card-header">
+      <h3>Activity Log</h3>
+    </div>
+    <div class="card-body">
+      <div class="log-container" style="max-height: 500px; overflow-y: auto;">
+        <div id="sync_log_entries">
+          <%= render partial: 'log_entry', 
+                     collection: @log_entries, 
+                     as: :log_entry %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .log-container {
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 0.9rem;
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 4px;
+  }
+  
+  .log-entry {
+    padding: 0.25rem 0;
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  .log-entry:last-child {
+    border-bottom: none;
+  }
+  
+  .timestamp {
+    color: #6c757d;
+    margin-right: 1rem;
+  }
+</style>

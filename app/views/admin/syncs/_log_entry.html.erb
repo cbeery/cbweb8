@@ -1,0 +1,13 @@
+<!-- app/views/admin/syncs/_log_entry.html.erb -->
+<div class="log-entry">
+  <span class="timestamp"><%= log_entry.created_at.strftime("%H:%M:%S") %></span>
+  <span class="<%= log_entry.level_class %>">
+    <%= log_entry.icon %> <%= log_entry.message %>
+  </span>
+  <% if log_entry.data.present? %>
+    <details class="d-inline ms-2">
+      <summary class="text-muted small">details</summary>
+      <pre class="small mt-1"><%= JSON.pretty_generate(log_entry.data) %></pre>
+    </details>
+  <% end %>
+</div>

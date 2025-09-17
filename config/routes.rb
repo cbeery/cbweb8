@@ -14,7 +14,18 @@ Rails.application.routes.draw do
     post 'test/s3', to: 'tests#s3_create'
     get 'test/job', to: 'tests#active_job'
     post 'test/job', to: 'tests#trigger_job'
-  end
+
+    # Syncs
+    resources :syncs, only: [:index, :show, :create] do
+      member do
+        post :retry
+      end
+    end
+    
+    # Log Entries
+    resources :log_entries, only: [:index, :show]
+
+  end # namespace :admin
 
   # Mission Control for job monitoring (admin only)
   authenticate :user, ->(user) { user.admin? } do
@@ -23,4 +34,5 @@ Rails.application.routes.draw do
 
   # Health check for deployment
   get "up" => "rails/health#show", as: :rails_health_check
+
 end

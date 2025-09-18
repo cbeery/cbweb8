@@ -37,6 +37,7 @@ class Admin::SyncsController < Admin::BaseController
     sync_status = SyncStatus.create!(
       source_type: 'test',
       interactive: true,
+      user: current_user,
       metadata: { 
         scenario: scenario,
         triggered_by: current_user.email,

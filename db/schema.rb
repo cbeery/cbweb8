@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_17_193400) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_18_182949) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -206,8 +206,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_17_193400) do
     t.datetime "completed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "user_id"
     t.index ["source_type", "created_at"], name: "index_sync_statuses_on_source_type_and_created_at"
     t.index ["source_type"], name: "index_sync_statuses_on_source_type"
+    t.index ["user_id"], name: "index_sync_statuses_on_user_id"
   end
 
   create_table "uploads", force: :cascade do |t|
@@ -243,4 +245,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_17_193400) do
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "sync_statuses", "users"
 end

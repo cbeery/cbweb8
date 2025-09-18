@@ -1,0 +1,111 @@
+<!-- app/views/admin/log_entries/index.html.erb -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <h1 class="text-3xl font-bold text-gray-900 py-6">System Logs</h1>
+  
+  <%= form_with url: admin_log_entries_path, method: :get, local: true, class: "mb-6" do |f| %>
+    <div class="flex flex-wrap gap-2">
+      <div>
+        <%= f.select :category, 
+            options_for_select(@categories, params[:category]),
+            { include_blank: 'All Categories' },
+            class: 'block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm' %>
+      </div>
+      <div>
+        <%= f.select :level,
+            options_for_select(@levels, params[:level]),
+            { include_blank: 'All Levels' },
+            class: 'block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm' %>
+      </div>
+      <div>
+        <%= f.date_field :date_from, value: params[:date_from], 
+            class: 'block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm' %>
+      </div>
+      <div>
+        <%= f.date_field :date_to, value: params[:date_to], 
+            class: 'block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm' %>
+      </div>
+      <div>
+        <%= f.submit 'Filter', 
+            class: 'px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors' %>
+      </div>
+    </div>
+  <% end %>
+  
+  <div class="bg-white shadow overflow-hidden rounded-lg">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Time
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Category
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Level
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Message
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Context
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              User
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @logs.each do |log| %>
+            <tr class="<%= 'bg-red-50' if log.level == 'error' %> hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <%= log.created_at.strftime("%m/%d %H:%M:%S") %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                  <%= log.category %>
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="<%= log.level == 'error' ? 'text-red-600' : 
+                                log.level == 'warning' ? 'text-yellow-600' : 
+                                log.level == 'info' ? 'text-blue-600' : 
+                                'text-gray-600' %>">
+                  <%= log.icon %>
+                </span>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-900">
+                <div class="max-w-xs truncate">
+                  <%= truncate(log.message, length: 100) %>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <% if log.loggable %>
+                  <%= link_to log.loggable_type, 
+                      polymorphic_path([:admin, log.loggable]),
+                      class: "text-indigo-600 hover:text-indigo-900" rescue log.loggable_type %>
+                  <span class="text-gray-400">#<%= log.loggable_id %></span>
+                <% end %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <%= log.user&.name || log.user&.email %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <%= link_to 'View', admin_log_entry_path(log), 
+                    class: 'text-indigo-600 hover:text-indigo-900' %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <div class="mt-6">
+    <%= paginate @logs %>
+  </div>
+</div>

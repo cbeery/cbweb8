@@ -33,8 +33,8 @@ module Cbweb8
     # Image processing
     config.active_storage.variant_processor = :mini_magick
 
-    # Just disable ActionCable
-    config.action_cable.mount_path = nil
+    # Fuckin' ActionCable
+    config.action_cable.mount_path = "/cable"
 
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_04_202222) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_17_193400) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_04_202222) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "log_entries", force: :cascade do |t|
+    t.string "loggable_type"
+    t.bigint "loggable_id"
+    t.string "category", null: false
+    t.string "level", default: "info"
+    t.string "event"
+    t.text "message"
+    t.jsonb "data", default: {}
+    t.bigint "user_id"
+    t.datetime "created_at", null: false
+    t.index ["category", "created_at"], name: "index_log_entries_on_category_and_created_at"
+    t.index ["category", "level", "created_at"], name: "index_log_entries_on_category_and_level_and_created_at"
+    t.index ["loggable_type", "loggable_id", "created_at"], name: "index_log_entries_on_loggable_and_created"
+    t.index ["loggable_type", "loggable_id"], name: "index_log_entries_on_loggable"
+    t.index ["user_id"], name: "index_log_entries_on_user_id"
   end
 
   create_table "solid_cable_messages", force: :cascade do |t|
@@ -173,6 +190,26 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_04_202222) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
+  create_table "sync_statuses", force: :cascade do |t|
+    t.string "source_type", null: false
+    t.string "status", default: "pending"
+    t.integer "total_items"
+    t.integer "processed_items", default: 0
+    t.integer "created_count", default: 0
+    t.integer "updated_count", default: 0
+    t.integer "failed_count", default: 0
+    t.integer "skipped_count", default: 0
+    t.text "error_message"
+    t.jsonb "metadata", default: {}
+    t.boolean "interactive", default: false
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["source_type", "created_at"], name: "index_sync_statuses_on_source_type_and_created_at"
+    t.index ["source_type"], name: "index_sync_statuses_on_source_type"
+  end
+
   create_table "uploads", force: :cascade do |t|
     t.string "title"
     t.datetime "created_at", null: false
@@ -199,6 +236,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_04_202222) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "log_entries", "users"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

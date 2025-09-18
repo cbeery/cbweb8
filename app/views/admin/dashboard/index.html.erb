@@ -32,6 +32,27 @@
               class: "mt-3 inline-block text-indigo-600 hover:text-indigo-500" %>
         </div>
       </div>
+
+      <!-- Syncs -->
+      <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg font-medium text-gray-900">Sync Service</h3>
+          <p class="mt-1 text-sm text-gray-600">Sync jobs</p>
+          <%= link_to "Data Syncs →", admin_syncs_path, 
+              class: "mt-3 inline-block text-indigo-600 hover:text-indigo-500" %>
+        </div>
+      </div>
+
+      <!-- Log -->
+      <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg font-medium text-gray-900">Log Entries</h3>
+          <p class="mt-1 text-sm text-gray-600">Log entries</p>
+          <%= link_to "Open Log →", admin_log_entries_path, 
+              class: "mt-3 inline-block text-indigo-600 hover:text-indigo-500" %>
+        </div>
+      </div>
+
     </div>
     
     <div class="mt-8 border-t border-gray-200 pt-8">

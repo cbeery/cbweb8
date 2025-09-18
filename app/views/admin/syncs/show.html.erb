@@ -1,4 +1,5 @@
 <!-- app/views/admin/syncs/show.html.erb -->
+<% content_for :title, "Sync Status (#{@sync_status.id})" %>
 <%= turbo_stream_from "sync_status_#{@sync_status.id}" %>
 <%= turbo_stream_from "sync_status_#{@sync_status.id}_logs" %>
 

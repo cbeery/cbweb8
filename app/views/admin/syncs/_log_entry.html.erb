@@ -2,7 +2,7 @@
 <div class="py-2 border-b border-gray-200 last:border-b-0">
   <div class="flex items-start">
     <span class="text-gray-500 mr-4 text-xs">
-      <%= log_entry.created_at.strftime("%H:%M:%S") %>
+      <%= local_time log_entry.created_at, format: "%H:%M:%S" %>
     </span>
     <div class="flex-1">
       <span class="<%= log_entry.level == 'error' ? 'text-red-600' : 

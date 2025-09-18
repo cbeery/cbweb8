@@ -1,0 +1,12 @@
+@keyframes highlight {
+  0% {
+    background-color: #fef3c7; /* amber-100 */
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.highlight-new {
+  animation: highlight 0.8s ease-out;
+}

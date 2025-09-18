@@ -101,3 +101,6 @@ gem "mini_magick"
 # Dart Sass
 gem "dartsass-rails"
 
+# Local time display
+gem "local_time"
+

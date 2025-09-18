@@ -159,7 +159,7 @@ module Sync
     def broadcast_status
       return unless broadcast_enabled
       
-      Turbo::StreamsChannel.broadcast_replace_to(
+      Turbo::StreamsChannel.broadcast_update_to(
         "sync_status_#{sync_status.id}",
         target: "sync_status_#{sync_status.id}",
         partial: "admin/syncs/status_detail",

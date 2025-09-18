@@ -1,5 +1,5 @@
 # app/services/sync/letterboxd_service.rb
-require 'rss'
+# require 'rss'
 require 'open-uri'
 
 module Sync

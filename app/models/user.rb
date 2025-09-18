@@ -4,6 +4,9 @@ class User < ApplicationRecord
          :omniauthable, omniauth_providers: [:google_oauth2]
 
   validates :name, presence: true, length: { minimum: 2, maximum: 100 }
+
+  has_many :sync_statuses, dependent: :nullify
+  has_many :log_entries, dependent: :nullify
   
   # Display name with fallback to email
   def display_name

@@ -1,7 +1,8 @@
 # app/models/sync_status.rb
 class SyncStatus < ApplicationRecord
   has_many :log_entries, as: :loggable, dependent: :destroy
-  
+  belongs_to :user, optional: true 
+
   scope :recent, -> { where(created_at: 1.day.ago..).order(created_at: :desc) }
   scope :interactive, -> { where(interactive: true) }
   
@@ -36,7 +37,7 @@ class SyncStatus < ApplicationRecord
   end
 
   def log(level, message, **data)
-    entry = LogEntry.sync(level, message, sync_status: self, **data)
+    entry = LogEntry.sync(level, message, sync_status: self, user: user, **data)
     broadcast_log_entry(entry) if interactive?
     entry
   end

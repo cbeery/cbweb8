@@ -1,4 +1,3 @@
-// fade_in_controller.js
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
@@ -7,11 +6,10 @@ export default class extends Controller {
       mutations.forEach((mutation) => {
         mutation.addedNodes.forEach((node) => {
           if (node.nodeType === 1) {
-            node.classList.add('fade-in-new')
+            node.classList.add('highlight-new')
             
-            // Remove class after animation completes
             node.addEventListener('animationend', () => {
-              node.classList.remove('fade-in-new')
+              node.classList.remove('highlight-new')
             }, { once: true })
           }
         })

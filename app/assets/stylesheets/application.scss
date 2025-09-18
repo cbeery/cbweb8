@@ -16,23 +16,9 @@
 
 // Import utilities
 @import "utilities/helpers";
+@import "utilities/effects";
 
 // Your custom global styles
 body {
   font-family: $primary-font;
-}
-
-@keyframes slideInFade {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.fade-in-new {
-  animation: slideInFade 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }

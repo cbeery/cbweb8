@@ -53,7 +53,7 @@ class SyncStatus < ApplicationRecord
   private
 
   def broadcast_log_entry(entry)
-    Turbo::StreamsChannel.broadcast_append_to(
+    Turbo::StreamsChannel.broadcast_prepend_to(
       "sync_status_#{id}_logs",
       target: "sync_log_entries",
       partial: "admin/syncs/log_entry",

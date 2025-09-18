@@ -40,9 +40,18 @@
               Job Test
             <% end %>
             
-            <%= link_to mission_control_jobs.root_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
+            <%= link_to mission_control_jobs.root_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200", target: '_blank' do %>
               Jobs Monitor
             <% end %>
+
+            <%= link_to admin_log_entries_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
+              Log
+            <% end %>
+
+            <%= link_to admin_syncs_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
+              Data Syncs
+            <% end %>
+
           </nav>
         </div>
 

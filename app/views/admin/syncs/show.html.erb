@@ -24,7 +24,7 @@
     </div>
     <div class="p-6">
       <div class="bg-gray-50 rounded-lg p-4 font-mono text-sm">
-        <div id="sync_log_entries">
+        <div id="sync_log_entries" data-controller="fade-in">
           <%= render partial: 'log_entry', 
                      collection: @log_entries, 
                      as: :log_entry %>

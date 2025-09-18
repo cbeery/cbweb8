@@ -1,13 +1,22 @@
 <!-- app/views/admin/syncs/_log_entry.html.erb -->
-<div class="log-entry">
-  <span class="timestamp"><%= log_entry.created_at.strftime("%H:%M:%S") %></span>
-  <span class="<%= log_entry.level_class %>">
-    <%= log_entry.icon %> <%= log_entry.message %>
-  </span>
-  <% if log_entry.data.present? %>
-    <details class="d-inline ms-2">
-      <summary class="text-muted small">details</summary>
-      <pre class="small mt-1"><%= JSON.pretty_generate(log_entry.data) %></pre>
-    </details>
-  <% end %>
+<div class="py-2 border-b border-gray-200 last:border-b-0">
+  <div class="flex items-start">
+    <span class="text-gray-500 mr-4 text-xs">
+      <%= log_entry.created_at.strftime("%H:%M:%S") %>
+    </span>
+    <div class="flex-1">
+      <span class="<%= log_entry.level == 'error' ? 'text-red-600' : 
+                      log_entry.level == 'warning' ? 'text-yellow-600' : 
+                      log_entry.level == 'success' ? 'text-green-600' : 
+                      'text-gray-700' %>">
+        <%= log_entry.icon %> <%= log_entry.message %>
+      </span>
+      <% if log_entry.data.present? %>
+        <details class="inline-block ml-2">
+          <summary class="text-gray-500 text-xs cursor-pointer hover:text-gray-700">details</summary>
+          <pre class="mt-2 text-xs bg-white p-2 rounded border border-gray-200"><%= JSON.pretty_generate(log_entry.data) %></pre>
+        </details>
+      <% end %>
+    </div>
+  </div>
 </div>

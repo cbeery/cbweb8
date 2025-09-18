@@ -2,10 +2,13 @@
 <%= turbo_stream_from "sync_status_#{@sync_status.id}" %>
 <%= turbo_stream_from "sync_status_#{@sync_status.id}_logs" %>
 
-<div class="container-fluid">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><%= @sync_status.source_type.titleize %> Sync</h1>
-    <%= link_to "← Back to Syncs", admin_syncs_path, class: "btn btn-secondary" %>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="flex justify-between items-center mb-6 py-6">
+    <h1 class="text-3xl font-bold text-gray-900">
+      <%= @sync_status.source_type.titleize %> Sync
+    </h1>
+    <%= link_to "← Back to Syncs", admin_syncs_path, 
+        class: "px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors" %>
   </div>
 
   <!-- Status Card -->
@@ -14,12 +17,12 @@
   </div>
 
   <!-- Log Entries -->
-  <div class="card mt-4">
-    <div class="card-header">
-      <h3>Activity Log</h3>
+  <div class="bg-white rounded-lg shadow mt-6">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-semibold text-gray-900">Activity Log</h3>
     </div>
-    <div class="card-body">
-      <div class="log-container" style="max-height: 500px; overflow-y: auto;">
+    <div class="p-6">
+      <div class="bg-gray-50 rounded-lg p-4 max-h-[500px] overflow-y-auto font-mono text-sm">
         <div id="sync_log_entries">
           <%= render partial: 'log_entry', 
                      collection: @log_entries, 
@@ -29,27 +32,3 @@
     </div>
   </div>
 </div>
-
-<style>
-  .log-container {
-    font-family: 'Monaco', 'Courier New', monospace;
-    font-size: 0.9rem;
-    background: #f8f9fa;
-    padding: 1rem;
-    border-radius: 4px;
-  }
-  
-  .log-entry {
-    padding: 0.25rem 0;
-    border-bottom: 1px solid #e9ecef;
-  }
-  
-  .log-entry:last-child {
-    border-bottom: none;
-  }
-  
-  .timestamp {
-    color: #6c757d;
-    margin-right: 1rem;
-  }
-</style>

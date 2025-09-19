@@ -7,23 +7,33 @@
     paginator:     the paginator that renders the pagination tags inside
 -%>
 <%= paginator.render do -%>
-  <nav class="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
-    <div class="-mt-px flex w-0 flex-1">
-      <%= first_page_tag unless current_page.first? %>
+  <nav class="flex items-center justify-between py-3" aria-label="Pagination">
+    <!-- Mobile pagination -->
+    <div class="flex flex-1 justify-between sm:hidden">
       <%= prev_page_tag unless current_page.first? %>
-    </div>
-    <div class="hidden md:-mt-px md:flex">
-      <% each_page do |page| %>
-        <% if page.display_tag? %>
-          <%= page_tag page %>
-        <% elsif !page.was_truncated? %>
-          <%= gap_tag %>
-        <% end %>
-      <% end %>
-    </div>
-    <div class="-mt-px flex w-0 flex-1 justify-end">
       <%= next_page_tag unless current_page.last? %>
-      <%= last_page_tag unless current_page.last? %>
+    </div>
+    
+    <!-- Desktop pagination -->
+    <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+      <!-- Pagination controls only (removed the info text that was causing issues) -->
+      <div>
+        <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+          <%= first_page_tag unless current_page.first? %>
+          <%= prev_page_tag unless current_page.first? %>
+          
+          <% each_page do |page| %>
+            <% if page.display_tag? %>
+              <%= page_tag page %>
+            <% elsif !page.was_truncated? %>
+              <%= gap_tag %>
+            <% end %>
+          <% end %>
+          
+          <%= next_page_tag unless current_page.last? %>
+          <%= last_page_tag unless current_page.last? %>
+        </nav>
+      </div>
     </div>
   </nav>
 <% end -%>

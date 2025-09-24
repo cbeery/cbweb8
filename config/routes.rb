@@ -25,6 +25,8 @@ Rails.application.routes.draw do
     # Log Entries
     resources :log_entries, only: [:index, :show]
 
+    resources :movies, only: [:index, :show]
+
   end # namespace :admin
 
   # Mission Control for job monitoring (admin only)

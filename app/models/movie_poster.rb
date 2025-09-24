@@ -1,0 +1,2 @@
+class MoviePoster < ApplicationRecord
+end

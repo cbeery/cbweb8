@@ -1,4 +1,3 @@
-# app/services/sync/letterboxd_service.rb
 require 'feedjira'
 require 'open-uri'
 
@@ -12,6 +11,8 @@ require 'open-uri'
 # Uses Letterboxd's structured RSS fields when available:
 # - letterboxd:watchedDate, filmTitle, filmYear, memberRating, rewatch
 # - tmdb:movieId for potential TMDB integration
+#
+# Also extracts and downloads movie posters from RSS content
 module Sync
   class LetterboxdService < BaseService
     def source_type
@@ -97,6 +98,11 @@ module Sync
           new_rating: movie_data[:rating]
         )
       end
+      
+      # Handle movie poster
+      if movie_data[:poster_url].present?
+        create_or_update_poster(movie, movie_data[:poster_url])
+      end
 
       # Create or update viewing
       viewing = Viewing.find_or_initialize_by(
@@ -158,12 +164,17 @@ module Sync
 
     def parse_letterboxd_entry(entry)
       # Try to use structured Letterboxd fields first
-      if entry.respond_to?(:fields) && entry.fields.is_a?(Hash)
+      parsed_data = if entry.respond_to?(:fields) && entry.fields.is_a?(Hash)
         parse_with_structured_fields(entry)
       else
         # Fallback to parsing from raw XML if needed
         parse_from_raw_xml(entry)
       end
+      
+      # Extract poster URL from content/summary
+      parsed_data[:poster_url] = extract_poster_url(entry)
+      
+      parsed_data
     end
     
     def parse_with_structured_fields(entry)
@@ -293,6 +304,87 @@ module Sync
       else
         entry.url
       end
+    end
+    
+    def extract_poster_url(entry)
+      # Letterboxd includes poster images in the content/summary
+      # Look for img tags in both summary and content
+      content = entry.summary || entry.content
+      return nil if content.blank?
+      
+      # Try to find Letterboxd CDN image URLs
+      # Common patterns:
+      # - https://a.ltrbxd.com/resized/[...].jpg (poster images)
+      # - https://s.ltrbxd.com/[...].jpg (static images)
+      # - data-film-poster attribute sometimes contains the URL
+      
+      # First try to find ltrbxd.com images
+      if content =~ /https?:\/\/[as]\.ltrbxd\.com\/[^"'\s>]+/
+        url = $&
+        # Clean up the URL - remove any resize parameters to get higher quality
+        # Letterboxd URLs like: https://a.ltrbxd.com/resized/sm/upload/[...]-0-230-0-345-crop.jpg
+        # Can be converted to: https://a.ltrbxd.com/resized/film-poster/[...].jpg
+        
+        # If it's a resized URL, try to get a larger version
+        if url.include?('/resized/sm/')
+          url = url.gsub('/resized/sm/', '/resized/film-poster/')
+                   .gsub(/-\d+-\d+-\d+-\d+-crop/, '')
+        end
+        
+        return url
+      end
+      
+      # Fallback: try to find any img src
+      if content =~ /<img[^>]+src=["']([^"']+)["']/
+        url = $1
+        # Only use it if it looks like a movie poster (not icons, avatars, etc.)
+        if url.include?('ltrbxd.com') || url.include?('letterboxd.com')
+          return url
+        end
+      end
+      
+      nil
+    rescue StandardError => e
+      Rails.logger.warn "Failed to extract poster URL: #{e.message}"
+      nil
+    end
+    
+    def create_or_update_poster(movie, poster_url)
+      # Check if we already have this poster URL
+      existing_poster = movie.movie_posters.find_by(url: poster_url)
+      
+      if existing_poster
+        log(:info, "Poster already exists for movie", 
+          movie: movie.title,
+          poster_url: poster_url
+        )
+        return existing_poster
+      end
+      
+      # Check if movie has any posters
+      has_posters = movie.movie_posters.exists?
+      
+      # Create new poster
+      poster = movie.movie_posters.create!(
+        url: poster_url,
+        primary: !has_posters, # Make it primary if it's the first poster
+        source: 'letterboxd'
+      )
+      
+      log(:success, "Created poster for movie", 
+        movie: movie.title,
+        poster_url: poster_url,
+        primary: poster.primary
+      )
+      
+      poster
+    rescue StandardError => e
+      log(:error, "Failed to create poster", 
+        movie: movie.title,
+        poster_url: poster_url,
+        error: e.message
+      )
+      nil
     end
     
     def film_entry?(entry)

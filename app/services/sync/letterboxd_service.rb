@@ -2,15 +2,6 @@
 require 'feedjira'
 require 'open-uri'
 
-# Syncs movie viewings from Letterboxd RSS feed
-# 
-# Normal sync: Only processes new entries since last sync
-# Re-sync mode: Re-processes all recent entries to catch rating updates
-#   To trigger re-sync: sync_status.metadata['resync_recent'] = true
-#
-# Note: Letterboxd RSS doesn't update entries when ratings change,
-# so rating updates are only caught during re-sync or when the RSS
-# feed happens to include older entries
 module Sync
   class LetterboxdService < BaseService
     def source_type
@@ -43,31 +34,7 @@ module Sync
         )
       )
       
-      # Check if we're doing a full re-sync of recent items
-      if sync_status.metadata['resync_recent']
-        log(:info, "Re-syncing recent entries to catch updates")
-        feed.entries
-      else
-        # Normal sync - only process truly new entries
-        filter_new_entries(feed.entries)
-      end
-    end
-    
-    def filter_new_entries(entries)
-      last_seen_id = sync_status.metadata['last_entry_id']
-      last_seen_date = sync_status.metadata['last_entry_date']
-      
-      return entries if last_seen_id.nil? && last_seen_date.nil?
-      
-      # Filter to only entries we haven't seen before
-      entries.select do |entry|
-        entry_id = entry.entry_id || entry.id
-        entry_date = entry.published
-        
-        # Include if it's newer than our last seen entry
-        (entry_date && last_seen_date && entry_date > Time.parse(last_seen_date)) ||
-        (entry_id && entry_id != last_seen_id)
-      end
+      feed.entries
     end
 
     def process_item(entry)

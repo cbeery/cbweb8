@@ -73,33 +73,22 @@ class Admin::SyncsController < Admin::BaseController
       redirect_to admin_syncs_path and return
     end
     
-    # Build metadata
-    metadata = {
-      triggered_by: current_user.email,
-      manual_sync: true,
-      triggered_at: Time.current.iso8601
-    }
-    
-    # Add resync flag for Letterboxd if requested
-    if source == 'letterboxd' && params[:resync_recent] == 'true'
-      metadata[:resync_recent] = true
-    end
-    
     # Create sync status record
     sync_status = SyncStatus.create!(
       source_type: source,
       interactive: true,
       user: current_user,
-      metadata: metadata
+      metadata: {
+        triggered_by: current_user.email,
+        manual_sync: true,
+        triggered_at: Time.current.iso8601
+      }
     )
     
     # Log the sync initiation
-    log_message = "#{source.capitalize} sync triggered manually"
-    log_message += " (re-syncing recent entries)" if metadata[:resync_recent]
-    
     LogEntry.sync(
       :info,
-      log_message,
+      "#{source.capitalize} sync triggered manually",
       sync_status: sync_status,
       user: current_user
     )

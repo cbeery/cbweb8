@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_18_182949) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_24_200945) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -57,6 +57,39 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_18_182949) do
     t.index ["loggable_type", "loggable_id", "created_at"], name: "index_log_entries_on_loggable_and_created"
     t.index ["loggable_type", "loggable_id"], name: "index_log_entries_on_loggable"
     t.index ["user_id"], name: "index_log_entries_on_user_id"
+  end
+
+  create_table "movie_posters", force: :cascade do |t|
+    t.bigint "movie_id", null: false
+    t.text "url"
+    t.boolean "primary", default: false
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "source"
+    t.index ["movie_id", "primary"], name: "index_movie_posters_on_movie_id_and_primary"
+    t.index ["movie_id", "url"], name: "index_movie_posters_on_movie_id_and_url", unique: true
+    t.index ["movie_id"], name: "index_movie_posters_on_movie_id"
+    t.index ["position"], name: "index_movie_posters_on_position"
+  end
+
+  create_table "movies", force: :cascade do |t|
+    t.string "title", null: false
+    t.string "director"
+    t.integer "year"
+    t.decimal "rating", precision: 2, scale: 1
+    t.decimal "score", precision: 5, scale: 2
+    t.string "letterboxd_id"
+    t.string "tmdb_id"
+    t.datetime "last_synced_at"
+    t.text "review"
+    t.text "url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["letterboxd_id"], name: "index_movies_on_letterboxd_id", unique: true
+    t.index ["title"], name: "index_movies_on_title"
+    t.index ["tmdb_id"], name: "index_movies_on_tmdb_id"
+    t.index ["year"], name: "index_movies_on_year"
   end
 
   create_table "solid_cable_messages", force: :cascade do |t|
@@ -236,9 +269,24 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_18_182949) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "viewings", force: :cascade do |t|
+    t.bigint "movie_id", null: false
+    t.date "viewed_on", null: false
+    t.boolean "rewatch", default: false
+    t.text "notes"
+    t.string "location"
+    t.string "format"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["movie_id", "viewed_on"], name: "index_viewings_on_movie_id_and_viewed_on"
+    t.index ["movie_id"], name: "index_viewings_on_movie_id"
+    t.index ["viewed_on"], name: "index_viewings_on_viewed_on"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "log_entries", "users"
+  add_foreign_key "movie_posters", "movies"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
@@ -246,4 +294,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_18_182949) do
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "sync_statuses", "users"
+  add_foreign_key "viewings", "movies"
 end

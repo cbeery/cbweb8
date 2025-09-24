@@ -16,6 +16,12 @@ class Admin::SyncsController < Admin::BaseController
   def create
     source = params[:source]
     
+    # Validate source
+    unless sync_sources.include?(source)
+      flash[:error] = "Invalid sync source: #{source}"
+      redirect_to admin_syncs_path and return
+    end
+    
     # Special handling for test service
     if source == 'test'
       create_test_sync
@@ -55,5 +61,68 @@ class Admin::SyncsController < Admin::BaseController
     SyncJob.perform_later('Sync::TestService', sync_status.id, broadcast: true)
     
     redirect_to admin_sync_path(sync_status)
+  end
+  
+  def create_normal_sync(source)
+    # Determine service class name
+    service_class = "Sync::#{source.camelize}Service"
+    
+    # Validate service exists
+    unless service_exists?(service_class)
+      flash[:error] = "Sync service not implemented: #{source}"
+      redirect_to admin_syncs_path and return
+    end
+    
+    # Build metadata
+    metadata = {
+      triggered_by: current_user.email,
+      manual_sync: true,
+      triggered_at: Time.current.iso8601
+    }
+    
+    # Add resync flag for Letterboxd if requested
+    if source == 'letterboxd' && params[:resync_recent] == 'true'
+      metadata[:resync_recent] = true
+    end
+    
+    # Create sync status record
+    sync_status = SyncStatus.create!(
+      source_type: source,
+      interactive: true,
+      user: current_user,
+      metadata: metadata
+    )
+    
+    # Log the sync initiation
+    log_message = "#{source.capitalize} sync triggered manually"
+    log_message += " (re-syncing recent entries)" if metadata[:resync_recent]
+    
+    LogEntry.sync(
+      :info,
+      log_message,
+      sync_status: sync_status,
+      user: current_user
+    )
+    
+    # Enqueue the sync job with broadcast enabled for real-time updates
+    SyncJob.perform_later(service_class, sync_status.id, broadcast: true)
+    
+    # Add success message
+    flash[:success] = "#{source.capitalize} sync started successfully"
+    
+    # Redirect to the sync status page to monitor progress
+    redirect_to admin_sync_path(sync_status)
+    
+  rescue StandardError => e
+    Rails.logger.error "Failed to create sync for #{source}: #{e.message}"
+    flash[:error] = "Failed to start sync: #{e.message}"
+    redirect_to admin_syncs_path
+  end
+  
+  def service_exists?(service_class)
+    service_class.constantize
+    true
+  rescue NameError
+    false
   end
 end

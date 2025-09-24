@@ -61,12 +61,18 @@
       </div>
       <div class="p-6">
         <div class="flex flex-wrap gap-2">
+
           <% @available_sources.reject { |s| s == 'test' }.each do |source| %>
             <%= button_to "Sync #{source.titleize}", 
                 admin_syncs_path(source: source),
                 method: :post,
                 class: "px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors" %>
           <% end %>
+
+            <%= button_to "Letterboxd RE-SYNC", 
+                admin_syncs_path(source: 'letterboxd', resync_recent: true),
+                method: :post,
+                class: "px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors" %>
         </div>
       </div>
     </div>

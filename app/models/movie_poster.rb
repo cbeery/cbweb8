@@ -11,7 +11,7 @@ class MoviePoster < ApplicationRecord
   
   # Callbacks
   before_validation :set_position, on: :create
-  # after_create :download_image_from_url, if: :url?
+  after_create :download_image_from_url, if: :url?
   after_save :ensure_single_primary
   
   def display_image_url
@@ -34,11 +34,11 @@ class MoviePoster < ApplicationRecord
     self.position ||= (movie.movie_posters.maximum(:position) || 0) + 1
   end
   
-  # def download_image_from_url
-  #   return unless url.present?
+  def download_image_from_url
+    return unless url.present?
     
-  #   DownloadPosterJob.perform_later(self)
-  # end
+    DownloadPosterJob.perform_later(self)
+  end
   
   def ensure_single_primary
     return unless primary?

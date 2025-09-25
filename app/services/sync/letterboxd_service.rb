@@ -1,18 +1,9 @@
+# app/services/sync/letterboxd_service.rb
+
 require 'feedjira'
 require 'open-uri'
+require 'nokogiri'
 
-# Syncs movie viewings from Letterboxd RSS feed
-# 
-# Only processes diary entries (with watchedDate), skipping:
-# - Reviews without logged viewings
-# - Lists (/list/)
-# - Articles/Journal entries (/journal/)
-#
-# Uses Letterboxd's structured RSS fields when available:
-# - letterboxd:watchedDate, filmTitle, filmYear, memberRating, rewatch
-# - tmdb:movieId for potential TMDB integration
-#
-# Also extracts and downloads movie posters from RSS content
 module Sync
   class LetterboxdService < BaseService
     def source_type
@@ -29,9 +20,11 @@ module Sync
       
       log(:info, "Fetching RSS feed", url: rss_url)
       
-      # Parse feed with Feedjira
-      xml = URI.open(rss_url).read
-      feed = Feedjira.parse(xml)
+      # Store the raw XML for custom parsing
+      @raw_xml = URI.open(rss_url).read
+      
+      # Parse feed with Feedjira for basic structure
+      feed = Feedjira.parse(@raw_xml)
       
       # Store feed metadata
       sync_status.update!(
@@ -40,10 +33,13 @@ module Sync
           feed_title: feed.title,
           feed_description: feed.description,
           last_build_date: feed.last_built || feed.last_modified,
-          feed_url: feed.feed_url,
+          feed_url: feed.url,
           etag: feed.etag
         )
       )
+      
+      # Parse the raw XML to get custom fields
+      @xml_doc = Nokogiri::XML(@raw_xml)
       
       feed.entries
     end
@@ -59,7 +55,7 @@ module Sync
         return :skipped
       end
       
-      # Parse the RSS entry using structured fields when available
+      # Parse the RSS entry with custom field extraction
       movie_data = parse_letterboxd_entry(entry)
       
       # Skip entries without a watched date (reviews without viewings)
@@ -71,6 +67,14 @@ module Sync
         return :skipped
       end
       
+      # Log TMDB ID if found
+      # if movie_data[:tmdb_id]
+      #   log(:info, "Found TMDB ID", 
+      #     title: movie_data[:title],
+      #     tmdb_id: movie_data[:tmdb_id]
+      #   )
+      # end
+      
       # Find or create movie
       movie = Movie.find_or_create_by(
         title: movie_data[:title],
@@ -79,13 +83,20 @@ module Sync
         m.letterboxd_id = movie_data[:letterboxd_id]
         m.url = movie_data[:film_url]
         m.tmdb_id = movie_data[:tmdb_id] if movie_data[:tmdb_id]
-        log(:info, "Creating new movie", title: m.title, year: m.year)
+        log(:info, "Creating new movie", 
+          title: m.title, 
+          year: m.year,
+          tmdb_id: m.tmdb_id
+        )
       end
       
       # Update TMDB ID if we have it and it's missing
       if movie_data[:tmdb_id] && movie.tmdb_id.blank?
         movie.update!(tmdb_id: movie_data[:tmdb_id])
-        log(:info, "Added TMDB ID to movie", movie: movie.title, tmdb_id: movie_data[:tmdb_id])
+        log(:info, "Added TMDB ID to movie", 
+          movie: movie.title, 
+          tmdb_id: movie_data[:tmdb_id]
+        )
       end
       
       # Always update movie rating if provided (to catch rating changes)
@@ -149,13 +160,9 @@ module Sync
     end
 
     def describe_item(entry)
-      # Extract meaningful description based on entry type
       if film_entry?(entry)
-        # Extract movie title from entry title
-        # Letterboxd format is usually "Movie Title, Year - ★★★★"
         entry.title.split(' - ').first || entry.title
       else
-        # For non-film entries, just use the title as-is
         "#{detect_entry_type(entry).capitalize}: #{entry.title}"
       end
     end
@@ -163,98 +170,66 @@ module Sync
     private
 
     def parse_letterboxd_entry(entry)
-      # Try to use structured Letterboxd fields first
-      parsed_data = if entry.respond_to?(:fields) && entry.fields.is_a?(Hash)
-        parse_with_structured_fields(entry)
+      # Find the corresponding item in the XML document by matching the guid
+      item_node = @xml_doc.xpath("//item[guid[text()='#{entry.entry_id}']]").first
+      
+      # Extract custom fields from the XML node
+      custom_data = if item_node
+        {
+          watched_date: item_node.xpath("letterboxd:watchedDate", 
+            'letterboxd' => 'https://letterboxd.com').text.presence,
+          film_title: item_node.xpath("letterboxd:filmTitle", 
+            'letterboxd' => 'https://letterboxd.com').text.presence,
+          film_year: item_node.xpath("letterboxd:filmYear", 
+            'letterboxd' => 'https://letterboxd.com').text.presence,
+          member_rating: item_node.xpath("letterboxd:memberRating", 
+            'letterboxd' => 'https://letterboxd.com').text.presence,
+          rewatch: item_node.xpath("letterboxd:rewatch", 
+            'letterboxd' => 'https://letterboxd.com').text.presence,
+          tmdb_id: item_node.xpath("tmdb:movieId", 
+            'tmdb' => 'https://themoviedb.org').text.presence
+        }
       else
-        # Fallback to parsing from raw XML if needed
-        parse_from_raw_xml(entry)
+        {}
       end
       
-      # Extract poster URL from content/summary
+      parsed_data = {
+        title: custom_data[:film_title] || parse_title_from_text(entry.title),
+        year: custom_data[:film_year]&.to_i || parse_year_from_text(entry.title),
+        rating: parse_rating_value(custom_data[:member_rating]) || parse_rating_from_text(entry.title),
+        viewed_on: parse_watched_date(custom_data[:watched_date]) || entry.published&.to_date,
+        review: parse_review(entry.summary || entry.content),
+        rewatch: custom_data[:rewatch] == 'Yes',
+        letterboxd_id: extract_letterboxd_id(entry),
+        film_url: extract_film_url(entry),
+        tmdb_id: custom_data[:tmdb_id]
+      }
+      
+      # Extract poster URL from content
       parsed_data[:poster_url] = extract_poster_url(entry)
+      
+      # Debug logging
+      # if custom_data[:tmdb_id].present?
+      #   log(:debug, "Successfully extracted TMDB ID from XML", 
+      #     tmdb_id: custom_data[:tmdb_id],
+      #     title: parsed_data[:title]
+      #   )
+      # end
       
       parsed_data
     end
     
-    def parse_with_structured_fields(entry)
-      fields = entry.fields
-      
-      {
-        title: fields['letterboxd:filmTitle'] || parse_title_from_text(entry.title),
-        year: fields['letterboxd:filmYear']&.to_i || parse_year_from_text(entry.title),
-        rating: parse_rating_value(fields['letterboxd:memberRating']),
-        viewed_on: parse_watched_date(fields['letterboxd:watchedDate']),
-        review: parse_review(entry.summary || entry.content),
-        rewatch: fields['letterboxd:rewatch'] == 'Yes',
-        letterboxd_id: extract_letterboxd_id(entry),
-        film_url: extract_film_url(entry),
-        tmdb_id: fields['tmdb:movieId']
-      }
-    end
-    
-    def parse_from_raw_xml(entry)
-      # Access the raw XML if Feedjira doesn't parse custom namespaces
-      xml = entry.to_s
-      
-      # Extract custom namespace fields using regex
-      watched_date = xml.match(/<letterboxd:watchedDate>(.+?)<\/letterboxd:watchedDate>/m)&.[](1)
-      film_title = xml.match(/<letterboxd:filmTitle>(.+?)<\/letterboxd:filmTitle>/m)&.[](1)
-      film_year = xml.match(/<letterboxd:filmYear>(\d+)<\/letterboxd:filmYear>/m)&.[](1)
-      member_rating = xml.match(/<letterboxd:memberRating>([\d.]+)<\/letterboxd:memberRating>/m)&.[](1)
-      rewatch = xml.match(/<letterboxd:rewatch>(Yes|No)<\/letterboxd:rewatch>/m)&.[](1)
-      tmdb_id = xml.match(/<tmdb:movieId>(\d+)<\/tmdb:movieId>/m)&.[](1)
-      
-      {
-        title: film_title || parse_title_from_text(entry.title),
-        year: film_year&.to_i || parse_year_from_text(entry.title),
-        rating: parse_rating_value(member_rating) || parse_rating_from_text(entry.title),
-        viewed_on: parse_watched_date(watched_date) || entry.published&.to_date,
-        review: parse_review(entry.summary || entry.content),
-        rewatch: rewatch == 'Yes',
-        letterboxd_id: extract_letterboxd_id(entry),
-        film_url: extract_film_url(entry),
-        tmdb_id: tmdb_id
-      }
-    rescue StandardError => e
-      # Final fallback to basic parsing
-      Rails.logger.warn "Failed to parse with XML, using basic parsing: #{e.message}"
-      parse_basic(entry)
-    end
-    
-    def parse_basic(entry)
-      # Original parsing logic as final fallback
-      title_match = entry.title.match(/^(.+?),\s*(\d{4})/)
-      title = title_match ? title_match[1] : entry.title.split(' - ').first
-      year = title_match ? title_match[2].to_i : nil
-      
-      {
-        title: title,
-        year: year,
-        rating: parse_rating_from_text(entry.title),
-        viewed_on: entry.published&.to_date,
-        review: parse_review(entry.summary || entry.content),
-        rewatch: false,  # Can't determine from basic parsing
-        letterboxd_id: extract_letterboxd_id(entry),
-        film_url: extract_film_url(entry),
-        tmdb_id: nil
-      }
-    end
-    
     def parse_title_from_text(text)
-      # Extract title from "Movie Title, Year - ★★★★" format
       title_match = text.match(/^(.+?),\s*\d{4}/)
       title_match ? title_match[1] : text.split(' - ').first
     end
     
     def parse_year_from_text(text)
-      # Extract year from "Movie Title, Year - ★★★★" format
       year_match = text.match(/,\s*(\d{4})/)
       year_match ? year_match[1].to_i : nil
     end
     
     def parse_rating_from_text(text)
-      # Count stars in title text
       stars = text.scan('★').count
       half_star = text.include?('½')
       
@@ -291,9 +266,8 @@ module Sync
     
     def extract_letterboxd_id(entry)
       # Extract film slug from URL
-      # Format: https://letterboxd.com/username/film/movie-slug/
       if entry.url =~ %r{/film/([^/]+)/?}
-        $1.split('/').first  # Remove any trailing path segments like /1/
+        $1.split('/').first
       end
     end
     
@@ -307,25 +281,14 @@ module Sync
     end
     
     def extract_poster_url(entry)
-      # Letterboxd includes poster images in the content/summary
-      # Look for img tags in both summary and content
       content = entry.summary || entry.content
       return nil if content.blank?
       
-      # Try to find Letterboxd CDN image URLs
-      # Common patterns:
-      # - https://a.ltrbxd.com/resized/[...].jpg (poster images)
-      # - https://s.ltrbxd.com/[...].jpg (static images)
-      # - data-film-poster attribute sometimes contains the URL
-      
-      # First try to find ltrbxd.com images
+      # Look for Letterboxd CDN image URLs
       if content =~ /https?:\/\/[as]\.ltrbxd\.com\/[^"'\s>]+/
         url = $&
-        # Clean up the URL - remove any resize parameters to get higher quality
-        # Letterboxd URLs like: https://a.ltrbxd.com/resized/sm/upload/[...]-0-230-0-345-crop.jpg
-        # Can be converted to: https://a.ltrbxd.com/resized/film-poster/[...].jpg
         
-        # If it's a resized URL, try to get a larger version
+        # Get a larger version if it's a resized URL
         # if url.include?('/resized/sm/')
         #   url = url.gsub('/resized/sm/', '/resized/film-poster/')
         #            .gsub(/-\d+-\d+-\d+-\d+-crop/, '')
@@ -337,73 +300,44 @@ module Sync
       # Fallback: try to find any img src
       if content =~ /<img[^>]+src=["']([^"']+)["']/
         url = $1
-        # Only use it if it looks like a movie poster (not icons, avatars, etc.)
-        if url.include?('ltrbxd.com') || url.include?('letterboxd.com')
+        if url.include?('ltrbxd.com') || url.include?('film-poster')
           return url
         end
       end
       
       nil
-    rescue StandardError => e
-      Rails.logger.warn "Failed to extract poster URL: #{e.message}"
-      nil
-    end
-    
-    def create_or_update_poster(movie, poster_url)
-      # Check if we already have this poster URL
-      existing_poster = movie.movie_posters.find_by(url: poster_url)
-      
-      if existing_poster
-        log(:info, "Poster already exists for movie", 
-          movie: movie.title,
-          poster_url: poster_url
-        )
-        return existing_poster
-      end
-      
-      # Check if movie has any posters
-      has_posters = movie.movie_posters.exists?
-      
-      # Create new poster
-      poster = movie.movie_posters.create!(
-        url: poster_url,
-        primary: !has_posters, # Make it primary if it's the first poster
-        source: 'letterboxd'
-      )
-      
-      log(:success, "Created poster for movie", 
-        movie: movie.title,
-        poster_url: poster_url,
-        primary: poster.primary
-      )
-      
-      poster
-    rescue StandardError => e
-      log(:error, "Failed to create poster", 
-        movie: movie.title,
-        poster_url: poster_url,
-        error: e.message
-      )
-      nil
     end
     
     def film_entry?(entry)
-      # Check if this is a film-related entry
-      # Film entries have /film/ in the URL
-      entry.url.include?('/film/')
+      # Film entries have /film/ in the URL and not /list/ or /journal/
+      entry.url.include?('/film/') && entry.url !~ /\/(list|journal)\//
     end
     
     def detect_entry_type(entry)
-      # Detect the type of entry based on URL pattern
       case entry.url
-      when %r{/list/}
+      when /\/list\//
         'list'
-      when %r{/journal/}
-        'article'
-      when %r{/film/}
+      when /\/journal\//
+        'journal'
+      when /\/film\//
         'film'
       else
         'unknown'
+      end
+    end
+    
+    def create_or_update_poster(movie, poster_url)
+      poster = movie.movie_posters.find_or_initialize_by(url: poster_url)
+      
+      if poster.new_record?
+        poster.source = 'letterboxd'
+        poster.primary = movie.movie_posters.empty?
+        poster.save!
+        
+        log(:info, "Added poster for movie", 
+          movie: movie.title,
+          url: poster_url
+        )
       end
     end
   end

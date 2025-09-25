@@ -101,6 +101,16 @@
               </div>
             <% end %>
             
+            <% if @movie.tmdb_id.present? %>
+              <div class="flex">
+                <span class="text-gray-500 w-32">TMDB:</span>
+                <%= link_to @movie.tmdb_id, 
+                    "https://www.themoviedb.org/movie/#{@movie.tmdb_id}",
+                    target: "_blank",
+                    class: "text-indigo-600 hover:text-indigo-800" %>
+              </div>
+            <% end %>
+            
             <% if @movie.url.present? %>
               <div class="flex">
                 <span class="text-gray-500 w-32">Link:</span>

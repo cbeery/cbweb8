@@ -60,7 +60,7 @@
       <!-- Sort Options -->
       <div class="mt-4 flex flex-wrap gap-2 text-sm">
         <span class="text-gray-500">Sort by:</span>
-        <%= link_to "Recent", admin_movies_path(view: @view_mode, search: params[:search]), 
+        <%= link_to "Last Watched", admin_movies_path(view: @view_mode, search: params[:search]), 
             class: "text-indigo-600 hover:text-indigo-800 #{params[:sort].blank? ? 'font-semibold' : ''}" %>
         <%= link_to "Title", admin_movies_path(view: @view_mode, sort: 'title', search: params[:search]), 
             class: "text-indigo-600 hover:text-indigo-800 #{params[:sort] == 'title' ? 'font-semibold' : ''}" %>
@@ -68,8 +68,6 @@
             class: "text-indigo-600 hover:text-indigo-800 #{params[:sort] == 'year' ? 'font-semibold' : ''}" %>
         <%= link_to "Rating", admin_movies_path(view: @view_mode, sort: 'rating', search: params[:search]), 
             class: "text-indigo-600 hover:text-indigo-800 #{params[:sort] == 'rating' ? 'font-semibold' : ''}" %>
-        <%= link_to "Last Watched", admin_movies_path(view: @view_mode, sort: 'watched', search: params[:search]), 
-            class: "text-indigo-600 hover:text-indigo-800 #{params[:sort] == 'watched' ? 'font-semibold' : ''}" %>
       </div>
     </div>
     

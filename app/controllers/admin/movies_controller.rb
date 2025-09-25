@@ -21,12 +21,10 @@ class Admin::MoviesController < Admin::BaseController  # Changed from Applicatio
                 @movies.order(year: :desc, title: :asc)
               when 'rating'
                 @movies.order(rating: :desc, title: :asc)
-              when 'watched'
+              else 'watched'
                 @movies.left_joins(:viewings)
                        .group('movies.id')
                        .order('MAX(viewings.viewed_on) DESC NULLS LAST')
-              else
-                @movies.order(created_at: :desc)
               end
   end
   

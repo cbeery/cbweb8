@@ -1,0 +1,59 @@
+<!-- app/views/admin/movies/views/_grid.html.erb -->
+<!-- Movies Grid (your existing grid code) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+  <% movies.each do |movie| %>
+    <div class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
+      <%= link_to admin_movie_path(movie), class: "block" do %>
+        <!-- Poster Card -->
+        <div class="aspect-[2/3] bg-gray-200 rounded-t-lg overflow-hidden">
+          <% poster = movie.movie_posters.first %>
+          <% if poster&.image&.attached? %>
+            <%= image_tag poster.image, 
+                alt: movie.title,
+                class: "w-full h-full object-cover",
+                loading: "lazy" %>
+          <% else %>
+            <!-- Placeholder when no poster -->
+            <div class="w-full h-full flex items-center justify-center text-gray-400">
+              <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          <% end %>
+        </div>
+        
+        <!-- Movie Info -->
+        <div class="p-4">
+          <h3 class="font-semibold text-gray-900 line-clamp-2">
+            <%= movie.title %>
+          </h3>
+          <% if movie.year %>
+            <p class="text-sm text-gray-500 mt-1"><%= movie.year %></p>
+          <% end %>
+          
+          <div class="mt-3 flex items-center justify-between text-sm">
+            <% if movie.rating %>
+              <div class="flex items-center gap-1">
+                <span class="text-yellow-500">★</span>
+                <span class="text-gray-700"><%= movie.rating %></span>
+              </div>
+            <% else %>
+              <span class="text-gray-400">Not rated</span>
+            <% end %>
+            
+            <span class="text-gray-500">
+              <%= pluralize(movie.viewings.count, 'view') %>
+            </span>
+          </div>
+          
+          <% last_viewed = movie.viewings.maximum(:viewed_on) %>
+          <% if last_viewed %>
+            <p class="text-xs text-gray-400 mt-2">
+              Last: <%= last_viewed.strftime("%b %d, %Y") %>
+            </p>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

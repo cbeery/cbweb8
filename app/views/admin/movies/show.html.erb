@@ -1,3 +1,4 @@
+<% content_for :title, "#{@movie.title} - Movies" %>
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Back Navigation -->
@@ -95,6 +96,16 @@
                 <span class="text-gray-500 w-32">Letterboxd:</span>
                 <%= link_to @movie.letterboxd_id, 
                     "https://letterboxd.com/film/#{@movie.letterboxd_id}",
+                    target: "_blank",
+                    class: "text-indigo-600 hover:text-indigo-800" %>
+              </div>
+            <% end %>
+            
+            <% if @movie.tmdb_id.present? %>
+              <div class="flex">
+                <span class="text-gray-500 w-32">TMDB:</span>
+                <%= link_to @movie.tmdb_id, 
+                    "https://www.themoviedb.org/movie/#{@movie.tmdb_id}",
                     target: "_blank",
                     class: "text-indigo-600 hover:text-indigo-800" %>
               </div>

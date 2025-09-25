@@ -1,10 +1,14 @@
-class Admin::MoviesController < ApplicationController
-  before_action :authenticate_admin!
+# app/controllers/admin/movies_controller.rb
+class Admin::MoviesController < Admin::BaseController  # Changed from ApplicationController
+
   before_action :set_movie, only: [:show]
-  # before_action :set_movie, only: [:show, :edit, :update, :destroy]
   
   def index
     @movies = Movie.includes(:movie_posters, :viewings)
+    
+    # Add view mode handling
+    @view_mode = params[:view] || 'table'
+    @view_mode = 'table' unless %w[grid table table_with_poster].include?(@view_mode)
     
     if params[:search].present?
       @movies = @movies.where("title ILIKE ?", "%#{params[:search]}%")
@@ -37,7 +41,4 @@ class Admin::MoviesController < ApplicationController
     @movie = Movie.find(params[:id])
   end
   
-  def authenticate_admin!
-    redirect_to root_path unless current_user&.admin?
-  end
 end

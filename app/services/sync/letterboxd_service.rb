@@ -326,10 +326,10 @@ module Sync
         # Can be converted to: https://a.ltrbxd.com/resized/film-poster/[...].jpg
         
         # If it's a resized URL, try to get a larger version
-        if url.include?('/resized/sm/')
-          url = url.gsub('/resized/sm/', '/resized/film-poster/')
-                   .gsub(/-\d+-\d+-\d+-\d+-crop/, '')
-        end
+        # if url.include?('/resized/sm/')
+        #   url = url.gsub('/resized/sm/', '/resized/film-poster/')
+        #            .gsub(/-\d+-\d+-\d+-\d+-crop/, '')
+        # end
         
         return url
       end

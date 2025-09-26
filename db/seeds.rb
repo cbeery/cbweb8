@@ -8,5 +8,11 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-# Initial user
-User.create!(name: 'Curt Beery', email: 'cb@curtbeery.com', admin: true)
+# Create admin user for OAuth
+admin_user = User.find_or_create_by(email: 'cb@curtbeery.com') do |user|
+  user.name = 'Curt Beery'
+  user.password = Devise.friendly_token[0, 20]  # Generate random password
+  user.provider = 'google_oauth2'
+  # user.uid = 'your-google-uid-here'  # Optional, but recommended
+  user.admin = true
+end

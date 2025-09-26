@@ -1,4 +1,21 @@
 namespace :db do
+  # Add this constant for tables to exclude from syncing
+  EXCLUDED_TABLES = %w[
+    solid_queue_blocked_executions
+    solid_queue_claimed_executions
+    solid_queue_failed_executions
+    solid_queue_jobs
+    solid_queue_pauses
+    solid_queue_processes
+    solid_queue_ready_executions
+    solid_queue_recurring_executions
+    solid_queue_scheduled_executions
+    solid_queue_semaphores
+    solid_cable_messages
+  ]
+  
+  # Build the exclude flags for pg_dump
+  EXCLUDE_FLAGS = EXCLUDED_TABLES.map { |table| "--exclude-table=public.#{table}" }.join(" ")
 
   local_psql_db = 'cbweb8_development'
   local_backup_path = ENV['DB_BACKUP_FOLDER']
@@ -156,6 +173,7 @@ namespace :db do
       exit 0
     end
     
+    puts "\n📊 Excluding SolidQueue and SolidCable tables from sync..."
     puts "\n🔄 Creating local dump..."
     dump_file_name = "#{app_name}-push-#{Util.simple_hypenated_timestamp}.dump"
     # Ensure tmp/dumps directory exists
@@ -166,7 +184,7 @@ namespace :db do
     pg_dump_cmd = pg_dump_for_source(is_local: true)
     
     # Create dump of local database
-    dump_result = system("#{pg_dump_cmd} -Fc --verbose --no-acl --no-owner #{local_psql_db} > '#{dump_file_path}'")
+    dump_result = system("#{pg_dump_cmd} -Fc --verbose --no-acl --no-owner #{EXCLUDE_FLAGS} #{local_psql_db} > '#{dump_file_path}'") 
     
     unless dump_result
       puts "❌ Failed to create local dump"
@@ -218,6 +236,7 @@ namespace :db do
       exit 0
     end
     
+    puts "\n📊 Excluding SolidQueue and SolidCable tables from sync..."
     puts "\n🔄 Creating backup of Render database..."
     dump_file_name = "#{app_name}-pull-#{Util.simple_hypenated_timestamp}.dump"
     # Ensure tmp/dumps directory exists
@@ -232,7 +251,7 @@ namespace :db do
     dump_version = pg_dump_cmd.match(/postgresql@(\d+)/) ? $1.to_i : nil
     
     # Create dump from Render database
-    dump_result = system("#{pg_dump_cmd} -Fc --verbose --no-acl --no-owner '#{render_db_url}' > '#{dump_file_path}'")
+    dump_result = system("#{pg_dump_cmd} -Fc --verbose --no-acl --no-owner #{EXCLUDE_FLAGS} '#{render_db_url}' > '#{dump_file_path}'")
     
     unless dump_result
       puts "❌ Failed to create dump from Render database"
@@ -307,6 +326,7 @@ namespace :db do
       exit 0
     end
     
+    puts "\n📊 Excluding SolidQueue and SolidCable tables from sync..."
     puts "\n🔄 Creating SQL backup of Render database..."
     dump_file_name = "#{app_name}-pull-#{Util.simple_hypenated_timestamp}.sql"
     # Ensure tmp/dumps directory exists
@@ -315,7 +335,7 @@ namespace :db do
     
     # Use plain SQL format which is more version-flexible
     # Note: --quote-all-identifiers helps with compatibility
-    dump_cmd = "pg_dump --verbose --no-acl --no-owner --quote-all-identifiers --if-exists --clean '#{render_db_url}' > '#{dump_file_path}'"
+    dump_cmd = "pg_dump --verbose --no-acl --no-owner --quote-all-identifiers --if-exists --clean #{EXCLUDE_FLAGS} '#{render_db_url}' > '#{dump_file_path}'"
     dump_result = system(dump_cmd)
     
     unless dump_result

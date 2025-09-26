@@ -158,7 +158,9 @@ namespace :db do
     
     puts "\n🔄 Creating local dump..."
     dump_file_name = "#{app_name}-push-#{Util.simple_hypenated_timestamp}.dump"
-    dump_file_path = Rails.root.join('tmp', dump_file_name).to_s
+    # Ensure tmp/dumps directory exists
+    FileUtils.mkdir_p(Rails.root.join('tmp', 'dumps'))
+    dump_file_path = Rails.root.join('tmp', 'dumps', dump_file_name).to_s
     
     # Use appropriate pg_dump for local database
     pg_dump_cmd = pg_dump_for_source(is_local: true)
@@ -218,7 +220,9 @@ namespace :db do
     
     puts "\n🔄 Creating backup of Render database..."
     dump_file_name = "#{app_name}-pull-#{Util.simple_hypenated_timestamp}.dump"
-    dump_file_path = Rails.root.join('tmp', dump_file_name).to_s
+    # Ensure tmp/dumps directory exists
+    FileUtils.mkdir_p(Rails.root.join('tmp', 'dumps'))
+    dump_file_path = Rails.root.join('tmp', 'dumps', dump_file_name).to_s
     
     # Use appropriate pg_dump for Render database
     pg_dump_cmd = pg_dump_for_source(source_url: render_db_url)
@@ -305,7 +309,9 @@ namespace :db do
     
     puts "\n🔄 Creating SQL backup of Render database..."
     dump_file_name = "#{app_name}-pull-#{Util.simple_hypenated_timestamp}.sql"
-    dump_file_path = Rails.root.join('tmp', dump_file_name).to_s
+    # Ensure tmp/dumps directory exists
+    FileUtils.mkdir_p(Rails.root.join('tmp', 'dumps'))
+    dump_file_path = Rails.root.join('tmp', 'dumps', dump_file_name).to_s
     
     # Use plain SQL format which is more version-flexible
     # Note: --quote-all-identifiers helps with compatibility

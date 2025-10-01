@@ -1,0 +1,378 @@
+<!-- app/views/home/test5.html.erb -->
+<div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+  <div>
+    <h2 class="text-2xl font-bold text-gray-900">Welcome Back</h2>
+    <p class="text-sm text-gray-500 mt-1">Here's what you've been up to lately</p>
+  </div>
+  <div class="mt-4 sm:mt-0 flex gap-3">
+    <%= link_to "Test 4", home_test4_path, class: "text-gray-600 hover:text-gray-800 text-sm" %>
+    <%= link_to "Test 6", home_test6_path, class: "text-gray-600 hover:text-gray-800 text-sm" %>
+    <%= link_to "← Home", root_path, class: "text-indigo-600 hover:text-indigo-800 text-sm font-medium" %>
+  </div>
+</div>
+
+<!-- Hero Section with Featured Content -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  
+  <!-- Hero Card - Takes up 2 columns on large screens -->
+  <div class="lg:col-span-2">
+    <div class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-xl shadow-lg overflow-hidden">
+      <div class="p-6 sm:p-8 text-white">
+        <h3 class="text-2xl font-bold mb-2">Your Year in Review</h3>
+        <p class="text-indigo-100 mb-6">A snapshot of your creative journey</p>
+        
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div class="bg-white/20 backdrop-blur rounded-lg p-3 text-center">
+            <p class="text-3xl font-bold"><%= Movie.count %></p>
+            <p class="text-xs text-indigo-100">Movies</p>
+          </div>
+          <div class="bg-white/20 backdrop-blur rounded-lg p-3 text-center">
+            <p class="text-3xl font-bold">847</p>
+            <p class="text-xs text-indigo-100">Songs</p>
+          </div>
+          <div class="bg-white/20 backdrop-blur rounded-lg p-3 text-center">
+            <p class="text-3xl font-bold">23</p>
+            <p class="text-xs text-indigo-100">Books</p>
+          </div>
+          <div class="bg-white/20 backdrop-blur rounded-lg p-3 text-center">
+            <p class="text-3xl font-bold">156</p>
+            <p class="text-xs text-indigo-100">Activities</p>
+          </div>
+        </div>
+        
+        <div class="mt-6 flex flex-wrap gap-2">
+          <span class="px-3 py-1 bg-white/20 backdrop-blur rounded-full text-xs">🎬 Film Buff</span>
+          <span class="px-3 py-1 bg-white/20 backdrop-blur rounded-full text-xs">🎵 Music Lover</span>
+          <span class="px-3 py-1 bg-white/20 backdrop-blur rounded-full text-xs">📚 Bookworm</span>
+          <span class="px-3 py-1 bg-white/20 backdrop-blur rounded-full text-xs">🚴 Cyclist</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Quick Stats Sidebar -->
+  <div class="space-y-4">
+    <!-- Current Streak -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h4 class="text-sm font-semibold text-gray-900">Current Streak</h4>
+        <span class="text-2xl">🔥</span>
+      </div>
+      <p class="text-3xl font-bold text-gray-900">14 days</p>
+      <p class="text-xs text-gray-500 mt-1">Keep it going!</p>
+      
+      <div class="mt-3 grid grid-cols-7 gap-1">
+        <% 14.times do |i| %>
+          <div class="aspect-square bg-orange-400 rounded-sm"></div>
+        <% end %>
+        <% 7.times do %>
+          <div class="aspect-square bg-gray-100 rounded-sm"></div>
+        <% end %>
+      </div>
+    </div>
+    
+    <!-- Weather Widget -->
+    <div class="bg-gradient-to-br from-blue-400 to-blue-500 rounded-xl shadow-sm p-4 text-white">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-2xl font-bold">72°F</p>
+          <p class="text-xs text-blue-100">Denver, CO</p>
+        </div>
+        <svg class="w-12 h-12 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/>
+        </svg>
+      </div>
+      <p class="text-xs text-blue-100 mt-2">Perfect day for a bike ride!</p>
+    </div>
+  </div>
+</div>
+
+<!-- Content Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+  
+  <!-- Movies Card - Spans 2 columns with full-bleed poster -->
+  <div class="md:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+    <div class="flex h-40">
+      <% if @recent_movies&.any? && @last_movie_poster&.image&.attached? %>
+        <!-- Full-bleed poster on left -->
+        <div class="w-28 sm:w-32 flex-shrink-0">
+          <%= image_tag @last_movie_poster.image,
+              alt: @recent_movies.first.title,
+              class: "w-full h-full object-cover" %>
+        </div>
+      <% elsif @recent_movies&.any? %>
+        <!-- Placeholder if no poster -->
+        <div class="w-28 sm:w-32 flex-shrink-0 bg-gray-200 flex items-center justify-center">
+          <svg class="w-10 h-10 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+      <% end %>
+      
+      <!-- Content -->
+      <div class="flex-1 p-4 flex flex-col">
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="text-sm font-semibold text-gray-900">Movies</h4>
+          <%= link_to "View all →", "#", class: "text-purple-600 hover:text-purple-700 text-xs" %>
+        </div>
+        
+        <% if @recent_movies&.any? %>
+          <!-- Compact list -->
+          <div class="flex-1 space-y-1 text-xs">
+            <% @recent_movies.first(4).each do |movie| %>
+              <div class="flex justify-between items-center">
+                <p class="text-gray-700 truncate flex-1 font-medium"><%= movie.title %></p>
+                <% if movie.rating %>
+                  <span class="text-yellow-500 ml-1">★<%= movie.rating %></span>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+          
+          <p class="text-xs text-gray-500 mt-3 pt-2 border-t">
+            <%= Movie.count %> movies • <%= Viewing.count %> views
+          </p>
+        <% else %>
+          <p class="text-gray-500 text-xs text-center py-4">No movies yet</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Music Card - Compact -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+    <div class="flex items-center justify-between mb-3">
+      <h4 class="text-sm font-semibold text-gray-900 flex items-center">
+        <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+        Music
+      </h4>
+      <%= link_to "→", "#", class: "text-gray-400 hover:text-gray-600" %>
+    </div>
+    
+    <!-- Mini album art -->
+    <div class="mb-3 flex justify-center">
+      <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-blue-400 rounded shadow-sm flex items-center justify-center">
+        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+        </svg>
+      </div>
+    </div>
+    
+    <div class="space-y-1 text-xs">
+      <div class="flex justify-between items-center">
+        <p class="text-gray-700 truncate flex-1">Flowers</p>
+        <span class="text-gray-400">3:21</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <p class="text-gray-700 truncate flex-1">Anti-Hero</p>
+        <span class="text-gray-400">3:20</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <p class="text-gray-700 truncate flex-1">As It Was</p>
+        <span class="text-gray-400">2:47</span>
+      </div>
+    </div>
+    
+    <p class="text-xs text-gray-500 mt-3 text-center">
+      1,247 plays this month
+    </p>
+  </div>
+  
+  <!-- Books Card - Compact -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+    <div class="flex items-center justify-between mb-3">
+      <h4 class="text-sm font-semibold text-gray-900 flex items-center">
+        <div class="w-2 h-2 bg-amber-500 rounded-full mr-2"></div>
+        Books
+      </h4>
+      <%= link_to "→", "#", class: "text-gray-400 hover:text-gray-600" %>
+    </div>
+    
+    <!-- Mini book cover -->
+    <div class="mb-3 flex justify-center">
+      <div class="w-16 h-24 bg-gradient-to-br from-amber-400 to-orange-500 rounded shadow-sm flex items-center justify-center p-2">
+        <p class="text-white text-center text-xs font-bold">Atomic Habits</p>
+      </div>
+    </div>
+    
+    <div class="space-y-1 text-xs">
+      <div class="flex justify-between items-center">
+        <p class="text-gray-700 truncate flex-1">Atomic Habits</p>
+        <span class="text-amber-600">45%</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <p class="text-gray-700 truncate flex-1">Sapiens</p>
+        <span class="text-green-600">✓</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <p class="text-gray-700 truncate flex-1">Dune</p>
+        <span class="text-green-600">✓</span>
+      </div>
+    </div>
+    
+    <p class="text-xs text-gray-500 mt-3 text-center">
+      23/30 books goal
+    </p>
+  </div>
+  
+  <!-- Bottom row - spans full width -->
+  <div class="md:col-span-2 lg:col-span-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <!-- Fitness Card - Compact -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+      <div class="flex items-center justify-between mb-3">
+        <h4 class="text-sm font-semibold text-gray-900 flex items-center">
+          <div class="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
+          Fitness
+        </h4>
+        <%= link_to "→", "#", class: "text-gray-400 hover:text-gray-600" %>
+      </div>
+      
+      <!-- Mini activity chart -->
+      <div class="mb-3">
+        <div class="flex items-end justify-center gap-1" style="height: 60px;">
+          <div class="w-3 bg-red-400 rounded-t" style="height: 40%;"></div>
+          <div class="w-3 bg-red-400 rounded-t" style="height: 70%;"></div>
+          <div class="w-3 bg-red-400 rounded-t" style="height: 50%;"></div>
+          <div class="w-3 bg-red-400 rounded-t" style="height: 90%;"></div>
+          <div class="w-3 bg-red-400 rounded-t" style="height: 60%;"></div>
+          <div class="w-3 bg-red-400 rounded-t" style="height: 80%;"></div>
+          <div class="w-3 bg-red-500 rounded-t" style="height: 100%;"></div>
+        </div>
+        <p class="text-xs text-gray-400 text-center mt-1">This week</p>
+      </div>
+      
+      <div class="space-y-1 text-xs">
+        <div class="flex justify-between items-center">
+          <p class="text-gray-700">Today</p>
+          <span class="font-medium">32.1 km</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <p class="text-gray-700">Week</p>
+          <span class="font-medium">145 km</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- GitHub Card -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+      <div class="flex items-center justify-between mb-3">
+        <h4 class="text-sm font-semibold text-gray-900 flex items-center">
+          <div class="w-2 h-2 bg-gray-700 rounded-full mr-2"></div>
+          Code
+        </h4>
+        <%= link_to "→", "#", class: "text-gray-400 hover:text-gray-600" %>
+      </div>
+      
+      <div class="text-center mb-2">
+        <p class="text-2xl font-bold text-gray-900">12</p>
+        <p class="text-xs text-gray-500">commits</p>
+      </div>
+      
+      <!-- Mini contribution graph -->
+      <div class="grid grid-cols-7 gap-0.5">
+        <% 14.times do |i| %>
+          <% intensity = ['bg-gray-100', 'bg-green-200', 'bg-green-300', 'bg-green-400', 'bg-green-500'] %>
+          <div class="aspect-square <%= intensity[rand(5)] %> rounded-sm"></div>
+        <% end %>
+      </div>
+    </div>
+    
+    <!-- Bookmarks Card -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+      <div class="flex items-center justify-between mb-3">
+        <h4 class="text-sm font-semibold text-gray-900 flex items-center">
+          <div class="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+          Links
+        </h4>
+        <%= link_to "→", "#", class: "text-gray-400 hover:text-gray-600" %>
+      </div>
+      
+      <div class="text-center mb-2">
+        <p class="text-2xl font-bold text-gray-900">487</p>
+        <p class="text-xs text-gray-500">bookmarks</p>
+      </div>
+      
+      <div class="flex flex-wrap gap-1 justify-center">
+        <span class="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">dev</span>
+        <span class="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">design</span>
+        <span class="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">tools</span>
+      </div>
+    </div>
+    
+    <!-- Weather Widget -->
+    <div class="bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg shadow-sm p-4 text-white">
+      <div class="text-center">
+        <svg class="w-8 h-8 text-yellow-300 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/>
+        </svg>
+        <p class="text-2xl font-bold">72°</p>
+        <p class="text-xs opacity-90">Sunny</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Activity Timeline -->
+<div class="mt-6 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+  <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Activity Timeline</h3>
+  
+  <div class="space-y-4">
+    <div class="flex gap-4">
+      <div class="flex-shrink-0">
+        <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+          <svg class="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+            <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+      </div>
+      <div class="flex-1">
+        <p class="text-sm font-medium text-gray-900">Watched "<%= @recent_movies&.first&.title || 'Inception' %>"</p>
+        <p class="text-xs text-gray-500">2 hours ago • Rating: ★★★★★</p>
+      </div>
+    </div>
+    
+    <div class="flex gap-4">
+      <div class="flex-shrink-0">
+        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+          <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+          </svg>
+        </div>
+      </div>
+      <div class="flex-1">
+        <p class="text-sm font-medium text-gray-900">Played "Flowers" by Miley Cyrus 5 times</p>
+        <p class="text-xs text-gray-500">5 hours ago</p>
+      </div>
+    </div>
+    
+    <div class="flex gap-4">
+      <div class="flex-shrink-0">
+        <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+          <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="flex-1">
+        <p class="text-sm font-medium text-gray-900">Morning Ride: 32.1 km in 1:24:35</p>
+        <p class="text-xs text-gray-500">This morning • Average speed: 22.8 km/h</p>
+      </div>
+    </div>
+    
+    <div class="flex gap-4">
+      <div class="flex-shrink-0">
+        <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+          <svg class="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+          </svg>
+        </div>
+      </div>
+      <div class="flex-1">
+        <p class="text-sm font-medium text-gray-900">Started reading "The Creative Act"</p>
+        <p class="text-xs text-gray-500">Yesterday</p>
+      </div>
+    </div>
+  </div>
+</div>

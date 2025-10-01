@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_24_200945) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_01_194734) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -223,6 +223,103 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_24_200945) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
+  create_table "spotify_artists", force: :cascade do |t|
+    t.string "spotify_id", null: false
+    t.string "name", null: false
+    t.string "sort_name"
+    t.string "spotify_url"
+    t.integer "followers_count"
+    t.integer "popularity"
+    t.string "image_url"
+    t.jsonb "genres", default: []
+    t.jsonb "spotify_data", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_spotify_artists_on_name"
+    t.index ["sort_name"], name: "index_spotify_artists_on_sort_name"
+    t.index ["spotify_id"], name: "index_spotify_artists_on_spotify_id", unique: true
+  end
+
+  create_table "spotify_playlist_tracks", force: :cascade do |t|
+    t.bigint "spotify_playlist_id", null: false
+    t.bigint "spotify_track_id", null: false
+    t.integer "position", null: false
+    t.datetime "added_at"
+    t.string "added_by"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["spotify_playlist_id", "position"], name: "idx_on_spotify_playlist_id_position_ede41ceac7"
+    t.index ["spotify_playlist_id", "spotify_track_id"], name: "index_playlist_tracks_unique", unique: true
+    t.index ["spotify_playlist_id"], name: "index_spotify_playlist_tracks_on_spotify_playlist_id"
+    t.index ["spotify_track_id"], name: "index_spotify_playlist_tracks_on_spotify_track_id"
+  end
+
+  create_table "spotify_playlists", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "spotify_url", null: false
+    t.string "spotify_id"
+    t.string "made_by"
+    t.boolean "mixtape", default: false
+    t.date "made_on"
+    t.integer "year"
+    t.integer "month"
+    t.integer "runtime_ms", default: 0
+    t.string "owner_name"
+    t.string "owner_id"
+    t.text "description"
+    t.boolean "public"
+    t.boolean "collaborative", default: false
+    t.integer "followers_count", default: 0
+    t.string "image_url"
+    t.string "snapshot_id"
+    t.jsonb "spotify_data", default: {}
+    t.datetime "last_synced_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["made_on"], name: "index_spotify_playlists_on_made_on"
+    t.index ["mixtape"], name: "index_spotify_playlists_on_mixtape"
+    t.index ["spotify_id"], name: "index_spotify_playlists_on_spotify_id", unique: true
+    t.index ["spotify_url"], name: "index_spotify_playlists_on_spotify_url"
+    t.index ["year", "month"], name: "index_spotify_playlists_on_year_and_month"
+  end
+
+  create_table "spotify_track_artists", force: :cascade do |t|
+    t.bigint "spotify_track_id", null: false
+    t.bigint "spotify_artist_id", null: false
+    t.integer "position", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["spotify_artist_id"], name: "index_spotify_track_artists_on_spotify_artist_id"
+    t.index ["spotify_track_id", "spotify_artist_id"], name: "index_track_artists_unique", unique: true
+    t.index ["spotify_track_id"], name: "index_spotify_track_artists_on_spotify_track_id"
+  end
+
+  create_table "spotify_tracks", force: :cascade do |t|
+    t.string "spotify_id", null: false
+    t.string "title", null: false
+    t.string "artist_text"
+    t.string "artist_sort_text"
+    t.string "album"
+    t.string "album_id"
+    t.integer "disc_number"
+    t.integer "track_number"
+    t.integer "popularity"
+    t.integer "duration_ms"
+    t.boolean "explicit", default: false
+    t.string "song_url"
+    t.string "album_url"
+    t.string "preview_url"
+    t.string "isrc"
+    t.jsonb "audio_features", default: {}
+    t.jsonb "spotify_data", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["album"], name: "index_spotify_tracks_on_album"
+    t.index ["artist_sort_text"], name: "index_spotify_tracks_on_artist_sort_text"
+    t.index ["popularity"], name: "index_spotify_tracks_on_popularity"
+    t.index ["spotify_id"], name: "index_spotify_tracks_on_spotify_id", unique: true
+  end
+
   create_table "sync_statuses", force: :cascade do |t|
     t.string "source_type", null: false
     t.string "status", default: "pending"
@@ -293,6 +390,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_24_200945) do
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "spotify_playlist_tracks", "spotify_playlists"
+  add_foreign_key "spotify_playlist_tracks", "spotify_tracks"
+  add_foreign_key "spotify_track_artists", "spotify_artists"
+  add_foreign_key "spotify_track_artists", "spotify_tracks"
   add_foreign_key "sync_statuses", "users"
   add_foreign_key "viewings", "movies"
 end

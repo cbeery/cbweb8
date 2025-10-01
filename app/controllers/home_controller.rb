@@ -6,7 +6,7 @@ class HomeController < ApplicationController
                           .group('movies.id')
                           .order('last_viewed_date DESC')
                           .limit(5)
-    render :index4                          
+    # render :index4                          
   end
   
   def test1

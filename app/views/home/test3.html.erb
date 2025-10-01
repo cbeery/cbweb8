@@ -1,0 +1,217 @@
+<!-- app/views/home/test3.html.erb -->
+<div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+  <div>
+    <h2 class="text-2xl font-bold text-gray-900">Test Layout 3</h2>
+    <p class="text-sm text-gray-500 mt-1">Dashboard with statistics and recent activity</p>
+  </div>
+  <div class="mt-4 sm:mt-0 flex gap-3">
+    <%= link_to "Test 1", home_test1_path, class: "text-gray-600 hover:text-gray-800 text-sm" %>
+    <%= link_to "Test 2", home_test2_path, class: "text-gray-600 hover:text-gray-800 text-sm" %>
+    <%= link_to "← Home", root_path, class: "text-indigo-600 hover:text-indigo-800 text-sm font-medium" %>
+  </div>
+</div>
+
+<!-- Stats Cards Row -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  <!-- Total Movies Card -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+    <div class="flex items-center">
+      <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
+        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 16h4m10 0h4"></path>
+        </svg>
+      </div>
+      <div class="ml-4 flex-1">
+        <p class="text-xs font-medium text-gray-500 uppercase">Total Movies</p>
+        <p class="text-2xl font-bold text-gray-900"><%= @stats[:total_movies] %></p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Total Viewings Card -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+    <div class="flex items-center">
+      <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
+        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+        </svg>
+      </div>
+      <div class="ml-4 flex-1">
+        <p class="text-xs font-medium text-gray-500 uppercase">Total Views</p>
+        <p class="text-2xl font-bold text-gray-900"><%= @stats[:total_viewings] %></p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- This Month Card -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+    <div class="flex items-center">
+      <div class="flex-shrink-0 bg-purple-500 rounded-md p-3">
+        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+      </div>
+      <div class="ml-4 flex-1">
+        <p class="text-xs font-medium text-gray-500 uppercase">This Month</p>
+        <p class="text-2xl font-bold text-gray-900"><%= @stats[:movies_this_month] %></p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Average Rating Card -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+    <div class="flex items-center">
+      <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
+        <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+        </svg>
+      </div>
+      <div class="ml-4 flex-1">
+        <p class="text-xs font-medium text-gray-500 uppercase">Avg Rating</p>
+        <p class="text-2xl font-bold text-gray-900"><%= @stats[:avg_rating] || "—" %></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Dashboard Content -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  
+  <!-- Recent Activity (2 columns wide) -->
+  <div class="lg:col-span-2">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+      <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900">Recent Movie Activity</h3>
+      </div>
+      
+      <div class="divide-y divide-gray-200">
+        <% if @recent_movies&.any? %>
+          <% @recent_movies.each do |movie| %>
+            <div class="p-4 sm:px-6 hover:bg-gray-50 transition-colors">
+              <div class="flex items-center space-x-4">
+                <!-- Poster Thumbnail -->
+                <div class="flex-shrink-0">
+                  <% poster = movie.movie_posters.first %>
+                  <% if poster&.image&.attached? %>
+                    <%= image_tag poster.image,
+                        alt: movie.title,
+                        class: "h-16 w-12 object-cover rounded shadow-sm" %>
+                  <% else %>
+                    <div class="h-16 w-12 bg-gray-200 rounded flex items-center justify-center">
+                      <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                      </svg>
+                    </div>
+                  <% end %>
+                </div>
+                
+                <!-- Movie Info -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between">
+                    <div>
+                      <p class="text-sm font-medium text-gray-900 truncate">
+                        <%= movie.title %>
+                        <% if movie.year %>
+                          <span class="text-gray-500 font-normal">(<%= movie.year %>)</span>
+                        <% end %>
+                      </p>
+                      <div class="mt-1 flex items-center gap-4 text-sm text-gray-500">
+                        <span class="flex items-center">
+                          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                          </svg>
+                          <%= movie.last_watched&.strftime("%b %d, %Y") %>
+                        </span>
+                        
+                        <% if movie.viewings.where(rewatch: true).exists? %>
+                          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                            Rewatch
+                          </span>
+                        <% end %>
+                      </div>
+                    </div>
+                    
+                    <% if movie.rating %>
+                      <div class="flex items-center ml-4">
+                        <span class="text-yellow-400 text-sm">★</span>
+                        <span class="ml-1 text-sm font-medium text-gray-900"><%= movie.rating %></span>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="p-8 text-center text-gray-500">
+            No recent movie activity
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Sidebar Stats -->
+  <div class="space-y-6">
+    <!-- Monthly Progress -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Monthly Progress</h3>
+      
+      <div class="space-y-4">
+        <div>
+          <div class="flex justify-between text-sm mb-1">
+            <span class="text-gray-600">Movies Watched</span>
+            <span class="font-medium text-gray-900"><%= @stats[:movies_this_month] %></span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-indigo-600 h-2 rounded-full" style="width: <%= [@stats[:movies_this_month] * 10, 100].min %>%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+      
+      <div class="space-y-2">
+        <button class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Add Movie
+        </button>
+        
+        <button class="w-full px-4 py-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 rounded-lg text-sm font-medium transition-colors flex items-center justify-center">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+          </svg>
+          Export Data
+        </button>
+      </div>
+    </div>
+    
+    <!-- Recent Users -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">System Info</h3>
+      
+      <div class="space-y-3 text-sm">
+        <div class="flex justify-between">
+          <span class="text-gray-600">Total Users</span>
+          <span class="font-medium text-gray-900"><%= User.count %></span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">Database</span>
+          <span class="font-medium text-green-600">Active</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">Last Sync</span>
+          <span class="font-medium text-gray-900">
+            <%= SyncStatus.last&.created_at&.strftime("%b %d") || "Never" %>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -5,6 +5,17 @@ Rails.application.routes.draw do
 
   root 'home#index'
 
+  # Home test pages (add after the root route)
+  get 'home/test1', to: 'home#test1'
+  get 'home/test2', to: 'home#test2'
+  get 'home/test3', to: 'home#test3'
+  get 'home/test4', to: 'home#test4'
+  get 'home/test5', to: 'home#test5'
+  get 'home/test6', to: 'home#test6'
+  get 'home/test7', to: 'home#test7'
+  get 'home/test8', to: 'home#test8'
+  get 'home/test9', to: 'home#test9'
+
   # Admin namespace
   namespace :admin do
     root 'dashboard#index'

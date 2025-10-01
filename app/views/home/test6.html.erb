@@ -1,0 +1,343 @@
+<!-- app/views/home/test6.html.erb -->
+<div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+  <div>
+    <h2 class="text-2xl font-bold text-gray-900">Personal Dashboard</h2>
+    <p class="text-sm text-gray-500 mt-1">Your creative life, organized</p>
+  </div>
+  <div class="mt-4 sm:mt-0 flex gap-3">
+    <%= link_to "Test 4", home_test4_path, class: "text-gray-600 hover:text-gray-800 text-sm" %>
+    <%= link_to "Test 5", home_test5_path, class: "text-gray-600 hover:text-gray-800 text-sm" %>
+    <%= link_to "← Home", root_path, class: "text-indigo-600 hover:text-indigo-800 text-sm font-medium" %>
+  </div>
+</div>
+
+<!-- Bento Box Grid - Asymmetric layout -->
+<div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4 auto-rows-[minmax(180px,auto)]">
+  
+  <!-- Now Playing - Large card spanning 2x2 -->
+  <div class="md:col-span-2 lg:col-span-3 md:row-span-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-lg p-6 text-white relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
+    <div class="relative z-10">
+      <h3 class="text-lg font-semibold mb-4 flex items-center">
+        <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+        </svg>
+        Now Playing
+      </h3>
+      
+      <div class="flex items-start gap-4">
+        <div class="w-24 h-24 bg-white/20 backdrop-blur rounded-lg flex items-center justify-center">
+          <svg class="w-12 h-12 text-white/80" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <p class="text-xl font-bold mb-1">Flowers</p>
+          <p class="text-green-100 mb-3">Miley Cyrus</p>
+          
+          <!-- Progress bar -->
+          <div class="mb-2">
+            <div class="h-1 bg-white/30 rounded-full overflow-hidden">
+              <div class="h-full bg-white rounded-full" style="width: 65%;"></div>
+            </div>
+            <div class="flex justify-between text-xs text-green-100 mt-1">
+              <span>2:08</span>
+              <span>3:21</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Playback controls -->
+      <div class="flex items-center justify-center gap-4 mt-4">
+        <button class="text-white/80 hover:text-white">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M8.445 14.832A1 1 0 0010 14v-4a1 1 0 00-1.555-.832L5 11.798V9a1 1 0 00-2 0v6a1 1 0 002 0v-2.798l3.445 2.63z"/>
+          </svg>
+        </button>
+        <button class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-green-600 hover:scale-110 transition-transform">
+          <svg class="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+        <button class="text-white/80 hover:text-white">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M11.555 5.168A1 1 0 0010 6v4a1 1 0 001.555.832L15 8.202V11a1 1 0 002 0V5a1 1 0 00-2 0v2.798l-3.445-2.63z"/>
+          </svg>
+        </button>
+      </div>
+      
+      <p class="text-xs text-green-100 text-center mt-4">From your Discover Weekly</p>
+    </div>
+  </div>
+  
+  <!-- Movies Card - Full-bleed poster -->
+  <div class="md:col-span-2 lg:col-span-2 bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow">
+    <div class="flex h-full">
+      <% if @recent_movies&.any? && @last_movie_poster&.image&.attached? %>
+        <!-- Full-bleed poster on left -->
+        <div class="w-28 flex-shrink-0">
+          <%= image_tag @last_movie_poster.image,
+              alt: @recent_movies.first.title,
+              class: "w-full h-full object-cover" %>
+        </div>
+      <% elsif @recent_movies&.any? %>
+        <!-- Placeholder if no poster -->
+        <div class="w-28 flex-shrink-0 bg-gray-200 flex items-center justify-center">
+          <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+      <% end %>
+      
+      <!-- Content -->
+      <div class="flex-1 p-5">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-semibold text-gray-900 flex items-center">
+            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-2">
+              <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            Recent Movies
+          </h3>
+          <%= link_to "All →", "#", class: "text-purple-600 hover:text-purple-700 text-sm" %>
+        </div>
+        
+        <% if @recent_movies&.any? %>
+          <!-- List -->
+          <div class="space-y-1.5 text-xs mb-4">
+            <% @recent_movies.first(5).each do |movie| %>
+                              <div class="flex justify-between items-center">
+                <div class="flex-1 min-w-0">
+                  <p class="text-gray-900 truncate font-medium"><%= movie.title %></p>
+                  <p class="text-gray-500"><%= movie.last_watched&.strftime("%b %d") %></p>
+                </div>
+                <% if movie.rating %>
+                  <span class="text-yellow-500 ml-2">★<%= movie.rating %></span>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+          
+          <div class="pt-3 border-t flex justify-around text-center">
+            <div>
+              <p class="text-lg font-bold text-gray-900"><%= Movie.count %></p>
+              <p class="text-xs text-gray-500">Movies</p>
+            </div>
+            <div>
+              <p class="text-lg font-bold text-gray-900"><%= Viewing.count %></p>
+              <p class="text-xs text-gray-500">Views</p>
+            </div>
+          </div>
+        <% else %>
+          <p class="text-gray-500 text-center py-8 text-sm">No movies watched yet</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Quick Stats - Small card -->
+  <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg p-5 text-white">
+    <h3 class="text-sm font-semibold mb-3 opacity-90">Today</h3>
+    <div class="text-center">
+      <p class="text-4xl font-bold mb-1">14</p>
+      <p class="text-xs opacity-80">day streak 🔥</p>
+    </div>
+    <div class="mt-3 grid grid-cols-3 gap-2">
+      <div class="text-center">
+        <p class="text-lg font-bold">3</p>
+        <p class="text-xs opacity-70">songs</p>
+      </div>
+      <div class="text-center">
+        <p class="text-lg font-bold">32</p>
+        <p class="text-xs opacity-70">km</p>
+      </div>
+      <div class="text-center">
+        <p class="text-lg font-bold">45</p>
+        <p class="text-xs opacity-70">pages</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Fitness Activity - Wide card -->
+  <div class="md:col-span-3 lg:col-span-3 bg-white rounded-2xl shadow-lg border border-gray-200 p-5 hover:shadow-xl transition-shadow">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-sm font-semibold text-gray-900 flex items-center">
+        <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center mr-2">
+          <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+        </div>
+        This Week's Activities
+      </h3>
+      <%= link_to "Strava →", "#", class: "text-red-600 hover:text-red-700 text-sm" %>
+    </div>
+    
+    <!-- Activity chart -->
+    <div class="bg-gray-50 rounded-lg p-3 mb-3">
+      <div class="flex items-end justify-between gap-2" style="height: 80px;">
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-red-400 rounded-t" style="height: 40%;"></div>
+          <span class="text-xs text-gray-500">M</span>
+        </div>
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-red-400 rounded-t" style="height: 70%;"></div>
+          <span class="text-xs text-gray-500">T</span>
+        </div>
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-gray-300 rounded-t" style="height: 10%;"></div>
+          <span class="text-xs text-gray-500">W</span>
+        </div>
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-red-400 rounded-t" style="height: 90%;"></div>
+          <span class="text-xs text-gray-500">T</span>
+        </div>
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-red-400 rounded-t" style="height: 60%;"></div>
+          <span class="text-xs text-gray-500">F</span>
+        </div>
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-red-400 rounded-t" style="height: 80%;"></div>
+          <span class="text-xs text-gray-500">S</span>
+        </div>
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-red-500 rounded-t" style="height: 100%;"></div>
+          <span class="text-xs text-gray-500 font-bold">S</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="flex justify-around text-center">
+      <div>
+        <p class="text-xl font-bold text-gray-900">145</p>
+        <p class="text-xs text-gray-500">km total</p>
+      </div>
+      <div>
+        <p class="text-xl font-bold text-gray-900">7.5</p>
+        <p class="text-xs text-gray-500">hours</p>
+      </div>
+      <div>
+        <p class="text-xl font-bold text-gray-900">6</p>
+        <p class="text-xs text-gray-500">activities</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Currently Reading - Tall card -->
+  <div class="md:col-span-2 md:row-span-2 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl shadow-lg border border-orange-200 p-5">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-sm font-semibold text-gray-900 flex items-center">
+        <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center mr-2">
+          <svg class="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+          </svg>
+        </div>
+        Reading
+      </h3>
+      <%= link_to "Library →", "#", class: "text-amber-600 hover:text-amber-700 text-sm" %>
+    </div>
+    
+    <!-- Current book -->
+    <div class="text-center mb-4">
+      <div class="w-32 h-48 mx-auto bg-gradient-to-br from-amber-600 to-orange-700 rounded-lg shadow-lg flex flex-col items-center justify-center p-4 text-white mb-3">
+        <p class="text-sm font-bold mb-2">The Creative Act</p>
+        <div class="w-12 h-0.5 bg-white/50 my-2"></div>
+        <p class="text-xs">A Way of Being</p>
+        <p class="text-xs mt-auto opacity-80">Rick Rubin</p>
+      </div>
+      
+      <!-- Reading progress -->
+      <div class="mb-3">
+        <div class="flex justify-between text-xs text-gray-600 mb-1">
+          <span>Progress</span>
+          <span>45%</span>
+        </div>
+        <div class="h-2 bg-amber-200 rounded-full overflow-hidden">
+          <div class="h-full bg-gradient-to-r from-amber-400 to-orange-400 rounded-full" style="width: 45%;"></div>
+        </div>
+      </div>
+      
+      <p class="text-xs text-gray-600">Started Dec 15 • 127 of 282 pages</p>
+    </div>
+    
+    <!-- Reading stats -->
+    <div class="grid grid-cols-2 gap-2 text-center">
+      <div class="bg-white/70 rounded-lg p-2">
+        <p class="text-lg font-bold text-gray-900">23</p>
+        <p class="text-xs text-gray-500">books this year</p>
+      </div>
+      <div class="bg-white/70 rounded-lg p-2">
+        <p class="text-lg font-bold text-gray-900">77%</p>
+        <p class="text-xs text-gray-500">of goal (30)</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Bookmarks/Links - Small card -->
+  <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-5 hover:shadow-xl transition-shadow">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-sm font-semibold text-gray-900">Links</h3>
+      <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">487</span>
+    </div>
+    
+    <div class="space-y-2">
+      <a href="#" class="block p-2 bg-gray-50 hover:bg-blue-50 rounded text-xs group">
+        <p class="font-medium text-gray-900 group-hover:text-blue-600 truncate">CSS Grid Generator</p>
+        <p class="text-gray-500">cssgrid.io</p>
+      </a>
+      <a href="#" class="block p-2 bg-gray-50 hover:bg-blue-50 rounded text-xs group">
+        <p class="font-medium text-gray-900 group-hover:text-blue-600 truncate">Modern CSS</p>
+        <p class="text-gray-500">piccalil.li</p>
+      </a>
+      <a href="#" class="block p-2 bg-gray-50 hover:bg-blue-50 rounded text-xs group">
+        <p class="font-medium text-gray-900 group-hover:text-blue-600 truncate">Color Tools</p>
+        <p class="text-gray-500">coolors.co</p>
+      </a>
+    </div>
+  </div>
+  
+  <!-- Playlists - Small card -->
+  <div class="bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl shadow-lg border border-pink-200 p-5">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-sm font-semibold text-gray-900">Playlists</h3>
+      <svg class="w-5 h-5 text-pink-500" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
+      </svg>
+    </div>
+    
+    <div class="space-y-2">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded flex-shrink-0"></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-medium text-gray-900 truncate">Discover Weekly</p>
+          <p class="text-xs text-gray-500">30 songs</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-gradient-to-br from-blue-400 to-green-400 rounded flex-shrink-0"></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-medium text-gray-900 truncate">Chill Vibes</p>
+          <p class="text-xs text-gray-500">124 songs</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-400 rounded flex-shrink-0"></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-medium text-gray-900 truncate">Workout Mix</p>
+          <p class="text-xs text-gray-500">45 songs</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer navigation -->
+<div class="mt-8 flex justify-center gap-2">
+  <% (1..6).each do |i| %>
+    <%= link_to i,
+        send("home_test#{i}_path"),
+        class: "w-8 h-8 rounded-lg flex items-center justify-center text-sm font-medium #{i == 6 ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}" %>
+  <% end %>
+</div>

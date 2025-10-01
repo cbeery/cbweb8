@@ -1,2 +1,89 @@
 class SpotifyPlaylist < ApplicationRecord
+  # Associations
+  has_many :spotify_playlist_tracks, dependent: :destroy
+  has_many :spotify_tracks, through: :spotify_playlist_tracks
+  has_many :log_entries, as: :loggable, dependent: :destroy
+  
+  # Validations
+  validates :name, presence: true
+  validates :spotify_url, presence: true, uniqueness: true
+  validates :spotify_url, format: { 
+    with: /\Ahttps:\/\/(open\.)?spotify\.com\/(user\/[\w-]+\/)?playlist\/[\w]+/,
+    message: "must be a valid Spotify playlist URL" 
+  }
+  
+  # Scopes
+  scope :mixtapes, -> { where(mixtape: true) }
+  scope :non_mixtapes, -> { where(mixtape: false) }
+  scope :by_year, ->(year) { where(year: year) }
+  scope :by_month, ->(month) { where(month: month) }
+  scope :recent, -> { order(made_on: :desc) }
+  scope :needs_sync, -> { where('last_synced_at IS NULL OR last_synced_at < ?', 24.hours.ago) }
+  
+  # Callbacks
+  before_save :extract_spotify_id
+  before_save :extract_date_parts
+  before_save :normalize_url
+  after_save :queue_sync_if_new
+  
+  # Calculate runtime from tracks
+  def calculate_runtime!
+    total_ms = spotify_tracks.sum(:duration_ms)
+    update_column(:runtime_ms, total_ms)
+  end
+  
+  def runtime_formatted
+    return "0:00" if runtime_ms.nil? || runtime_ms.zero?
+    
+    total_seconds = runtime_ms / 1000
+    hours = total_seconds / 3600
+    minutes = (total_seconds % 3600) / 60
+    seconds = total_seconds % 60
+    
+    if hours > 0
+      format("%d:%02d:%02d", hours, minutes, seconds)
+    else
+      format("%d:%02d", minutes, seconds)
+    end
+  end
+  
+  def track_count
+    spotify_playlist_tracks.count
+  end
+  
+  def needs_sync?
+    last_synced_at.nil? || last_synced_at < 24.hours.ago
+  end
+  
+  private
+  
+  def extract_spotify_id
+    return unless spotify_url.present?
+    
+    if match = spotify_url.match(/playlist\/([\w]+)/)
+      self.spotify_id = match[1]
+    end
+  end
+  
+  def extract_date_parts
+    return unless made_on.present?
+    
+    self.year = made_on.year
+    self.month = made_on.month
+  end
+  
+  def normalize_url
+    return unless spotify_url.present?
+    
+    self.spotify_url = spotify_url.gsub('spotify.com', 'open.spotify.com')
+    self.spotify_url = spotify_url.split('?').first
+  end
+  
+  def queue_sync_if_new
+    if saved_change_to_spotify_url? || (id_previously_changed? && spotify_id.present?)
+      Rails.logger.info "Queueing initial sync for playlist #{id}"
+      # Only queue if we have the sync service
+      SyncJob.perform_later('Sync::SpotifyService', nil, broadcast: false) if defined?(Sync::SpotifyService)
+    end
+  end
 end

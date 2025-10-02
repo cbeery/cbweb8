@@ -24,7 +24,7 @@ class SpotifyPlaylist < ApplicationRecord
   before_save :extract_spotify_id
   before_save :extract_date_parts
   before_save :normalize_url
-  after_save :queue_sync_if_new
+  # after_save :queue_sync_if_new
   
   # Calculate runtime from tracks
   def calculate_runtime!

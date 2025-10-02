@@ -225,16 +225,16 @@ module Sync
       
       track = SpotifyTrack.find_or_initialize_by(spotify_id: track_data['id'])
       
-      # Extract album image URL (Spotify provides multiple sizes, we'll grab the middle one)
+      # Extract album image URL
       album_image_url = track_data.dig('album', 'images', 1, 'url') || 
                         track_data.dig('album', 'images', 0, 'url')
       
-      # Update track details
+      # Update track details (but don't save yet)
       track.assign_attributes(
         title: track_data['name'],
         album: track_data.dig('album', 'name'),
         album_id: track_data.dig('album', 'id'),
-        album_image_url: album_image_url,  # Add this line
+        album_image_url: album_image_url,
         duration_ms: track_data['duration_ms'],
         popularity: track_data['popularity'],
         explicit: track_data['explicit'],
@@ -254,6 +254,10 @@ module Sync
       # Sync artists
       sync_track_artists(track, track_data['artists'])
       
+      # IMPORTANT: Save again to trigger the artist_text callbacks now that associations exist
+      track.reload  # Reload to get the associations
+      track.save!   # This will trigger the callbacks with artists present
+      
       # Optionally fetch audio features
       if ENV['SPOTIFY_FETCH_AUDIO_FEATURES'] == 'true'
         fetch_and_save_audio_features(track)
@@ -261,7 +265,7 @@ module Sync
       
       track
     end
-    
+
     def sync_track_artists(track, artists_data)
       # Clear existing associations
       track.spotify_track_artists.destroy_all

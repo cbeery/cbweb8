@@ -164,17 +164,18 @@ class Admin::SpotifyController < Admin::BaseController
       @tracks = @tracks.where('popularity >= ?', params[:min_popularity].to_i)
     end
     
-    # Filter for artists appearing on multiple mixtapes
+    # Filter for artists with multiple tracks among mixtapes
     if params[:duplicate_artists] == 'true'
-      artist_playlist_counts = SpotifyArtist
-        .joins(spotify_tracks: :spotify_playlists)  # <- Fixed: removed extra :spotify_playlist
+      # Find artists who have more than one track across all mixtapes
+      artist_ids_with_multiple_tracks = SpotifyArtist
+        .joins(spotify_tracks: :spotify_playlists)
         .where(spotify_playlists: { mixtape: true })
         .group('spotify_artists.id')
-        .having('COUNT(DISTINCT spotify_playlists.id) > 1')
+        .having('COUNT(DISTINCT spotify_tracks.id) > 1')  # Changed from counting playlists to counting tracks
         .pluck(:id)
       
       @tracks = @tracks.joins(:spotify_artists)
-                       .where(spotify_artists: { id: artist_playlist_counts })
+                       .where(spotify_artists: { id: artist_ids_with_multiple_tracks })
                        .distinct
     end
 

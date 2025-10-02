@@ -119,7 +119,7 @@ class Admin::SpotifyController < Admin::BaseController
                                     .pluck(:spotify_track_id)
     
     @tracks = SpotifyTrack.where(id: track_ids)
-                          .includes(:spotify_artists, :spotify_playlists)
+                          .includes(:spotify_artists, spotify_playlist_tracks: :spotify_playlist)
     
     # Search
     if params[:q].present?
@@ -145,6 +145,13 @@ class Admin::SpotifyController < Admin::BaseController
       @tracks = @tracks.where(id: track_ids)
     end
     
+    if params[:made_by].present?
+      playlist_ids = SpotifyPlaylist.mixtapes.where(made_by: params[:made_by]).pluck(:id)
+      track_ids = SpotifyPlaylistTrack.where(spotify_playlist_id: playlist_ids)
+                                      .distinct.pluck(:spotify_track_id)
+      @tracks = @tracks.where(id: track_ids)
+    end
+    
     if params[:artist].present?
       @tracks = @tracks.by_artist(params[:artist])
     end
@@ -157,6 +164,32 @@ class Admin::SpotifyController < Admin::BaseController
       @tracks = @tracks.where('popularity >= ?', params[:min_popularity].to_i)
     end
     
+    # Filter for artists appearing on multiple mixtapes
+    if params[:duplicate_artists] == 'true'
+      artist_playlist_counts = SpotifyArtist
+        .joins(spotify_tracks: :spotify_playlists)  # <- Fixed: removed extra :spotify_playlist
+        .where(spotify_playlists: { mixtape: true })
+        .group('spotify_artists.id')
+        .having('COUNT(DISTINCT spotify_playlists.id) > 1')
+        .pluck(:id)
+      
+      @tracks = @tracks.joins(:spotify_artists)
+                       .where(spotify_artists: { id: artist_playlist_counts })
+                       .distinct
+    end
+
+    # Filter for tracks appearing on multiple mixtapes
+    if params[:duplicate_tracks] == 'true'
+      duplicate_track_ids = SpotifyPlaylistTrack
+        .joins(:spotify_playlist)
+        .where(spotify_playlists: { mixtape: true })
+        .group(:spotify_track_id)
+        .having('COUNT(DISTINCT spotify_playlist_id) > 1')
+        .pluck(:spotify_track_id)
+      
+      @tracks = @tracks.where(id: duplicate_track_ids)
+    end
+
     # Sorting
     @tracks = case params[:sort]
     when 'title'
@@ -178,11 +211,33 @@ class Admin::SpotifyController < Admin::BaseController
              .order('spotify_playlists.made_on DESC, spotify_playlist_tracks.position')
     end
     
+    # For each track, get position and made_by info for display
+    @track_display_info = {}
+    @tracks.each do |track|
+      mixtape_playlists = track.spotify_playlists.mixtapes.includes(:spotify_playlist_tracks)
+      
+      # Get the most recent playlist this track appears on
+      most_recent_playlist = mixtape_playlists.order(made_on: :desc).first
+      
+      if most_recent_playlist
+        playlist_track = track.spotify_playlist_tracks.find_by(spotify_playlist: most_recent_playlist)
+        @track_display_info[track.id] = {
+          position: playlist_track&.position,
+          primary_playlist: most_recent_playlist,
+          made_by: most_recent_playlist.made_by,
+          all_playlists: mixtape_playlists
+        }
+      end
+    end
+    
     @tracks = @tracks.page(params[:page]).per(50)
     
     # Get filter options
     @available_years = SpotifyPlaylist.mixtapes.distinct.pluck(:year).compact.sort.reverse
     @available_months = (1..12).map { |m| [Date::MONTHNAMES[m], m] }
+    @available_makers = SpotifyPlaylist.mixtapes.distinct.pluck(:made_by).compact.sort
+    
+    # Get popular artists for filter
     @popular_artists = SpotifyArtist.joins(:spotify_tracks)
                                     .where(spotify_tracks: { id: track_ids })
                                     .group('spotify_artists.id')
@@ -197,7 +252,7 @@ class Admin::SpotifyController < Admin::BaseController
                                    .where(spotify_tracks: { id: track_ids })
                                    .distinct.count
   end
-  
+
   private
   
   def set_playlist

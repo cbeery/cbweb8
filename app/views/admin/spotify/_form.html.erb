@@ -1,0 +1,80 @@
+<%= form_with model: [:admin, playlist], local: true do |f| %>
+  <% if playlist.errors.any? %>
+    <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+      <h3 class="text-red-800 font-semibold mb-2">
+        <%= pluralize(playlist.errors.count, "error") %> prohibited this playlist from being saved:
+      </h3>
+      <ul class="list-disc list-inside text-sm text-red-700">
+        <% playlist.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  
+  <div class="space-y-6">
+    <div>
+      <%= f.label :spotify_url, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_field :spotify_url, 
+          placeholder: "https://open.spotify.com/playlist/...",
+          class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent",
+          required: true %>
+      <p class="mt-1 text-sm text-gray-500">
+        Paste the Spotify playlist URL here. You can find this by clicking "Share" on any playlist.
+      </p>
+    </div>
+    
+    <div>
+      <%= f.label :name, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_field :name, 
+          placeholder: "Summer Vibes 2024",
+          class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent",
+          required: true %>
+      <p class="mt-1 text-sm text-gray-500">
+        A friendly name for this playlist.
+      </p>
+    </div>
+    
+    <div class="grid grid-cols-2 gap-6">
+      <div>
+        <%= f.label :made_by, class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.text_field :made_by, 
+            placeholder: "John",
+            class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" %>
+        <p class="mt-1 text-sm text-gray-500">
+          Who created this playlist?
+        </p>
+      </div>
+      
+      <div>
+        <%= f.label :made_on, class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.date_field :made_on, 
+            class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" %>
+        <p class="mt-1 text-sm text-gray-500">
+          When was this playlist created?
+        </p>
+      </div>
+    </div>
+    
+    <div>
+      <label class="flex items-center">
+        <%= f.check_box :mixtape, 
+            class: "h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded" %>
+        <span class="ml-2 text-sm font-medium text-gray-700">
+          This is a mixtape
+        </span>
+      </label>
+      <p class="mt-1 text-sm text-gray-500 ml-6">
+        Check this if this playlist is one of your curated mixtapes.
+      </p>
+    </div>
+    
+    <div class="pt-4 border-t border-gray-200 flex justify-between">
+      <%= link_to "Cancel", 
+          playlist.persisted? ? admin_spotify_playlists_path(playlist) : admin_spotify_playlists_path,
+          class: "px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition" %>
+      <%= f.submit playlist.persisted? ? "Update Playlist" : "Add Playlist", 
+          class: "px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition cursor-pointer" %>
+    </div>
+  </div>
+<% end %>

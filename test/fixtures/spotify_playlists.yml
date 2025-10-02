@@ -1,0 +1,43 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  spotify_url: MyString
+  spotify_id: MyString
+  made_by: MyString
+  mixtape: false
+  made_on: 2025-10-01
+  year: 1
+  month: 1
+  runtime_ms: 1
+  owner_name: MyString
+  owner_id: MyString
+  description: MyText
+  public: false
+  collaborative: false
+  followers_count: 1
+  image_url: MyString
+  snapshot_id: MyString
+  spotify_data: 
+  last_synced_at: 2025-10-01 13:47:19
+
+two:
+  name: MyString
+  spotify_url: MyString
+  spotify_id: MyString
+  made_by: MyString
+  mixtape: false
+  made_on: 2025-10-01
+  year: 1
+  month: 1
+  runtime_ms: 1
+  owner_name: MyString
+  owner_id: MyString
+  description: MyText
+  public: false
+  collaborative: false
+  followers_count: 1
+  image_url: MyString
+  snapshot_id: MyString
+  spotify_data: 
+  last_synced_at: 2025-10-01 13:47:19

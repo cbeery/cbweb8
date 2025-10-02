@@ -75,10 +75,13 @@ class SpotifyPlaylist < ApplicationRecord
   def normalize_url
     return unless spotify_url.present?
     
-    self.spotify_url = spotify_url.gsub('spotify.com', 'open.spotify.com')
+    # Replace spotify.com with open.spotify.com, but not if "open." is already there
+    self.spotify_url = spotify_url.gsub(/(?<!open\.)spotify\.com/, 'open.spotify.com')
+    
+    # Remove any query parameters
     self.spotify_url = spotify_url.split('?').first
   end
-  
+
   def queue_sync_if_new
     if saved_change_to_spotify_url? || (id_previously_changed? && spotify_id.present?)
       Rails.logger.info "Queueing initial sync for playlist #{id}"

@@ -38,6 +38,19 @@ Rails.application.routes.draw do
 
     resources :movies, only: [:index, :show]
 
+    # Spotify
+    resources :spotify, controller: 'spotify', as: 'spotify_playlists' do
+      collection do
+        get :mixtapes
+      end
+      member do
+        post :sync
+      end
+    end
+    
+    resources :spotify_tracks, only: [:index, :show]
+    resources :spotify_artists, only: [:index, :show]
+
   end # namespace :admin
 
   # Mission Control for job monitoring (admin only)

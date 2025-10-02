@@ -103,9 +103,24 @@ module Sync
         headers: spotify_headers
       )
       
+      # Add detailed logging for debugging
+      unless response.success?
+        log(:error, "Spotify API error", 
+          status: response.code,
+          error: response['error'],
+          message: response.parsed_response&.dig('error', 'message'),  # <-- Add .parsed_response
+          playlist_id: playlist_id)
+        
+        # Check for rate limiting
+        if response.code == 429
+          retry_after = response.headers['retry-after']
+          log(:error, "Rate limited! Retry after #{retry_after} seconds")
+        end
+      end
+      
       response.success? ? response.parsed_response : nil
     end
-    
+
     def update_playlist_metadata(playlist, data)
       new_snapshot_id = data['snapshot_id']
       

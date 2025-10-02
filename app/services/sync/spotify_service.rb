@@ -171,7 +171,7 @@ module Sync
         query: {
           limit: BATCH_SIZE,
           offset: offset,
-          fields: 'items(track(id,name,artists,album,duration_ms,popularity,explicit,external_urls,preview_url,disc_number,track_number,is_local),added_at,added_by.id),next,total'
+          fields: 'items(track(id,name,artists,album(name,id,images,external_urls),duration_ms,popularity,explicit,external_urls,preview_url,disc_number,track_number,is_local),added_at,added_by.id),next,total'
         }
       )
       
@@ -184,11 +184,16 @@ module Sync
       
       track = SpotifyTrack.find_or_initialize_by(spotify_id: track_data['id'])
       
+      # Extract album image URL (Spotify provides multiple sizes, we'll grab the middle one)
+      album_image_url = track_data.dig('album', 'images', 1, 'url') || 
+                        track_data.dig('album', 'images', 0, 'url')
+      
       # Update track details
       track.assign_attributes(
         title: track_data['name'],
         album: track_data.dig('album', 'name'),
         album_id: track_data.dig('album', 'id'),
+        album_image_url: album_image_url,  # Add this line
         duration_ms: track_data['duration_ms'],
         popularity: track_data['popularity'],
         explicit: track_data['explicit'],

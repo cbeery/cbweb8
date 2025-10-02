@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_01_194734) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_02_180441) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -314,7 +314,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_01_194734) do
     t.jsonb "spotify_data", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "album_image_url"
     t.index ["album"], name: "index_spotify_tracks_on_album"
+    t.index ["album_image_url"], name: "index_spotify_tracks_on_album_image_url"
     t.index ["artist_sort_text"], name: "index_spotify_tracks_on_artist_sort_text"
     t.index ["popularity"], name: "index_spotify_tracks_on_popularity"
     t.index ["spotify_id"], name: "index_spotify_tracks_on_spotify_id", unique: true

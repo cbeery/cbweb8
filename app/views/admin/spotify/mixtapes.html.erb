@@ -151,7 +151,7 @@
         <thead class="bg-purple-50">
           <tr>
             <!-- Core columns - always visible -->
-            <th class="px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider min-w-[200px]">
+            <th class="px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider min-w-[250px]">
               Track
             </th>
             <th class="px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider">
@@ -183,10 +183,21 @@
         <tbody class="bg-white divide-y divide-gray-200">
           <% @tracks.each do |track| %>
             <tr class="hover:bg-purple-50 transition-colors">
-              <!-- Core: Track -->
-              <td class="px-6 py-4 min-w-[200px]">
+              <!-- Core: Track with Album Art -->
+              <td class="px-6 py-4 min-w-[250px]">
                 <div class="flex items-center">
-                  <div>
+                  <% if track.album_image_url.present? %>
+                    <img src="<%= track.album_image_url %>" 
+                         alt="<%= track.album %>"
+                         class="h-8 w-8 rounded shadow-sm flex-shrink-0">
+                  <% else %>
+                    <div class="h-8 w-8 rounded bg-gray-200 flex items-center justify-center flex-shrink-0">
+                      <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                      </svg>
+                    </div>
+                  <% end %>
+                  <div class="ml-3">
                     <div class="text-sm font-medium text-gray-900">
                       <%= link_to track.title, admin_spotify_track_path(track), 
                           class: "hover:text-purple-600 transition-colors" %>
@@ -202,7 +213,7 @@
                     <% end %>
                     <!-- Mobile-only condensed info -->
                     <div class="sm:hidden text-xs text-gray-500 mt-1">
-                      <%= track.duration_formatted %> • <%= track.album&.truncate(20) %>
+                      <%= track.duration_formatted %> - <%= track.album&.truncate(20) %>
                     </div>
                   </div>
                 </div>

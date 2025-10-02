@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_02_180441) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_02_182028) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -276,8 +276,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_02_180441) do
     t.datetime "last_synced_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "last_modified_at"
+    t.string "previous_snapshot_id"
+    t.index ["last_modified_at"], name: "index_spotify_playlists_on_last_modified_at"
     t.index ["made_on"], name: "index_spotify_playlists_on_made_on"
     t.index ["mixtape"], name: "index_spotify_playlists_on_mixtape"
+    t.index ["previous_snapshot_id"], name: "index_spotify_playlists_on_previous_snapshot_id"
     t.index ["spotify_id"], name: "index_spotify_playlists_on_spotify_id", unique: true
     t.index ["spotify_url"], name: "index_spotify_playlists_on_spotify_url"
     t.index ["year", "month"], name: "index_spotify_playlists_on_year_and_month"

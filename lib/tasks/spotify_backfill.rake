@@ -41,4 +41,21 @@ namespace :spotify do
     
     puts "Done!"
   end
+
+  desc "Backfill last_modified_at from track additions"
+  task backfill_last_modified: :environment do
+    SpotifyPlaylist.find_each do |playlist|
+      most_recent = playlist.spotify_playlist_tracks
+                            .where.not(added_at: nil)
+                            .maximum(:added_at)
+      
+      if most_recent && playlist.last_modified_at.nil?
+        playlist.update_column(:last_modified_at, most_recent)
+        puts "Updated #{playlist.name}: last modified #{most_recent}"
+      end
+    end
+    
+    puts "Done!"
+  end
+
 end

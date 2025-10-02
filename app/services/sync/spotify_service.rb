@@ -107,6 +107,28 @@ module Sync
     end
     
     def update_playlist_metadata(playlist, data)
+      new_snapshot_id = data['snapshot_id']
+      
+      # Check if the playlist has been modified since last sync
+      playlist_modified = false
+      if playlist.snapshot_id.present? && playlist.snapshot_id != new_snapshot_id
+        playlist_modified = true
+        log(:info, "Playlist modified - snapshot changed", 
+            playlist_id: playlist.id,
+            old_snapshot: playlist.snapshot_id,
+            new_snapshot: new_snapshot_id)
+      end
+      
+      # Also check the most recently added track as a fallback
+      # (Sometimes snapshot_id doesn't change for collaborative playlists)
+      latest_track_added = nil
+      if data.dig('tracks', 'items').present?
+        track_dates = data['tracks']['items'].map { |item| 
+          item['added_at'] if item['added_at'].present? 
+        }.compact
+        latest_track_added = track_dates.max
+      end
+      
       playlist.update!(
         owner_name: data.dig('owner', 'display_name'),
         owner_id: data.dig('owner', 'id'),
@@ -115,7 +137,9 @@ module Sync
         collaborative: data['collaborative'],
         followers_count: data.dig('followers', 'total') || 0,
         image_url: data.dig('images', 0, 'url'),
-        snapshot_id: data['snapshot_id'],
+        previous_snapshot_id: playlist.snapshot_id, # Store the previous snapshot
+        snapshot_id: new_snapshot_id,
+        last_modified_at: playlist_modified ? Time.current : (playlist.last_modified_at || latest_track_added || Time.current),
         spotify_data: {
           external_urls: data['external_urls'],
           uri: data['uri'],
@@ -127,6 +151,9 @@ module Sync
     def sync_playlist_tracks(playlist, playlist_data)
       total_tracks = playlist_data.dig('tracks', 'total') || 0
       log(:info, "Fetching #{total_tracks} tracks for playlist")
+      
+      # Track the most recent track addition
+      most_recent_addition = nil
       
       # Clear existing tracks (we'll re-add them with current positions)
       playlist.spotify_playlist_tracks.destroy_all
@@ -143,6 +170,12 @@ module Sync
           
           track_data = item['track']
           position += 1
+          
+          # Track the most recent addition
+          if item['added_at'].present?
+            added_at = Time.parse(item['added_at'])
+            most_recent_addition = added_at if most_recent_addition.nil? || added_at > most_recent_addition
+          end
           
           # Find or create the track
           track = find_or_create_track(track_data)
@@ -161,9 +194,17 @@ module Sync
         offset += BATCH_SIZE
       end
       
+      # Update last_modified_at if we found a more recent track addition
+      if most_recent_addition && (playlist.last_modified_at.nil? || most_recent_addition > playlist.last_modified_at)
+        playlist.update!(last_modified_at: most_recent_addition)
+        log(:info, "Updated last_modified_at based on track additions", 
+            playlist_id: playlist.id,
+            last_modified_at: most_recent_addition)
+      end
+      
       log(:info, "Synced #{position} tracks for playlist")
     end
-    
+
     def fetch_playlist_tracks(playlist_id, offset: 0)
       response = self.class.get(
         "/playlists/#{playlist_id}/tracks",

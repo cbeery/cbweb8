@@ -55,6 +55,29 @@ class SpotifyPlaylist < ApplicationRecord
     last_synced_at.nil? || last_synced_at < 24.hours.ago
   end
   
+  # Check if playlist has been modified since last sync
+  def modified_since_last_sync?
+    return false if snapshot_id.blank? || previous_snapshot_id.blank?
+    snapshot_id != previous_snapshot_id
+  end
+  
+  # Get human-readable last modified text
+  def last_modified_text
+    return "Unknown" if last_modified_at.nil?
+    last_modified_at
+  end
+  
+  # Get the most recently added track
+  def most_recent_track_addition
+    spotify_playlist_tracks.where.not(added_at: nil).maximum(:added_at)
+  end
+  
+  # Check if playlist content is stale
+  def content_stale?
+    return true if last_modified_at.nil?
+    last_modified_at < 30.days.ago
+  end
+
   private
   
   def extract_spotify_id

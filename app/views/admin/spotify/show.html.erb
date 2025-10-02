@@ -38,6 +38,11 @@
                   Collaborative
                 </span>
               <% end %>
+              <% if @playlist.modified_since_last_sync? %>
+                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                  Modified
+                </span>
+              <% end %>
             </div>
             
             <dl class="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
@@ -64,6 +69,29 @@
               <div>
                 <dt class="font-medium text-gray-500">Runtime</dt>
                 <dd class="text-gray-900"><%= @playlist.runtime_formatted %></dd>
+              </div>
+              <div>
+                <dt class="font-medium text-gray-500">Last Modified</dt>
+                <dd class="text-gray-900">
+                  <% if @playlist.last_modified_at.present? %>
+                    <%= time_ago_in_words(@playlist.last_modified_at) %> ago
+                    <% if @playlist.content_stale? %>
+                      <span class="text-xs text-orange-600">(stale)</span>
+                    <% end %>
+                  <% else %>
+                    <span class="text-gray-400">Unknown</span>
+                  <% end %>
+                </dd>
+              </div>
+              <div>
+                <dt class="font-medium text-gray-500">Most Recent Addition</dt>
+                <dd class="text-gray-900">
+                  <% if recent = @playlist.most_recent_track_addition %>
+                    <%= time_ago_in_words(recent) %> ago
+                  <% else %>
+                    <span class="text-gray-400">-</span>
+                  <% end %>
+                </dd>
               </div>
             </dl>
             
@@ -94,9 +122,12 @@
           <% else %>
             <span class="text-yellow-600">Never synced</span>
           <% end %>
-          <span class="hidden sm:inline">•</span>
-          <span>Spotify ID: <%= @playlist.spotify_id %></span>
-          <span class="hidden sm:inline">•</span>
+          <span class="hidden sm:inline">-</span>
+          <span>Snapshot: <%= @playlist.snapshot_id&.first(8) %>...</span>
+          <% if @playlist.previous_snapshot_id.present? && @playlist.previous_snapshot_id != @playlist.snapshot_id %>
+            <span class="text-orange-600">(changed)</span>
+          <% end %>
+          <span class="hidden sm:inline">-</span>
           <span>Created <%= @playlist.created_at.strftime("%b %d, %Y") %></span>
         </div>
       </div>

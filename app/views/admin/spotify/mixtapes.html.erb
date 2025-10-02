@@ -1,7 +1,7 @@
 <div class="container mx-auto px-4">
   <!-- Header with Stats -->
   <div class="mb-6">
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
       <div>
         <h1 class="text-3xl font-bold text-gray-900">Mixtape Tracks</h1>
         <p class="text-gray-600 mt-1">
@@ -16,8 +16,8 @@
       </div>
     </div>
     
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-4 gap-4 mb-6">
+    <!-- Stats Cards - Responsive Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
       <div class="bg-white rounded-lg shadow p-4">
         <div class="text-2xl font-bold text-purple-600"><%= @total_tracks %></div>
         <div class="text-sm text-gray-600">Total Tracks</div>
@@ -39,7 +39,7 @@
     </div>
   </div>
 
-  <!-- Advanced Filters -->
+  <!-- Advanced Filters - Collapsed on Mobile -->
   <div class="bg-white rounded-lg shadow p-4 mb-6">
     <%= form_with url: mixtapes_admin_spotify_playlists_path, method: :get, 
         class: "space-y-4", id: "mixtapes-filter-form" do |f| %>
@@ -94,154 +94,187 @@
         </div>
       </div>
       
-      <!-- Advanced Filters Row -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <!-- Artist Filter -->
-        <div>
-          <%= f.label :artist, "Artist", class: "block text-sm font-medium text-gray-700 mb-1" %>
-          <%= f.select :artist, 
-              options_for_select([['All Artists', '']] + @popular_artists.map { |a| [a, a] }, params[:artist]),
-              {}, 
-              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500" %>
+      <!-- Advanced Filters Row - Collapsible -->
+      <details class="group">
+        <summary class="cursor-pointer text-sm font-medium text-purple-600 hover:text-purple-800 mb-3">
+          Advanced Filters
+        </summary>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <!-- Artist Filter -->
+          <div>
+            <%= f.label :artist, "Artist", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.select :artist, 
+                options_for_select([['All Artists', '']] + @popular_artists.map { |a| [a, a] }, params[:artist]),
+                {}, 
+                class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500" %>
+          </div>
+          
+          <!-- Explicit Filter -->
+          <div>
+            <%= f.label :explicit, "Content", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.select :explicit, 
+                options_for_select([
+                  ['All', ''],
+                  ['Explicit Only', 'true'],
+                  ['Clean Only', 'false']
+                ], params[:explicit]),
+                {}, 
+                class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500" %>
+          </div>
+          
+          <!-- Popularity Filter -->
+          <div>
+            <%= f.label :min_popularity, "Min Popularity", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.number_field :min_popularity, 
+                value: params[:min_popularity],
+                placeholder: "0-100",
+                min: 0, max: 100,
+                class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500" %>
+          </div>
+          
+          <!-- Filter Actions -->
+          <div class="flex items-end gap-2">
+            <%= f.submit "Apply Filters", 
+                class: "px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition cursor-pointer" %>
+            <%= link_to "Clear", mixtapes_admin_spotify_playlists_path, 
+                class: "px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition" %>
+          </div>
         </div>
-        
-        <!-- Explicit Filter -->
-        <div>
-          <%= f.label :explicit, "Content", class: "block text-sm font-medium text-gray-700 mb-1" %>
-          <%= f.select :explicit, 
-              options_for_select([
-                ['All', ''],
-                ['Explicit Only', 'true'],
-                ['Clean Only', 'false']
-              ], params[:explicit]),
-              {}, 
-              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500" %>
-        </div>
-        
-        <!-- Popularity Filter -->
-        <div>
-          <%= f.label :min_popularity, "Min Popularity", class: "block text-sm font-medium text-gray-700 mb-1" %>
-          <%= f.number_field :min_popularity, 
-              value: params[:min_popularity],
-              placeholder: "0-100",
-              min: 0, max: 100,
-              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500" %>
-        </div>
-        
-        <!-- Filter Actions -->
-        <div class="flex items-end gap-2">
-          <%= f.submit "Apply Filters", 
-              class: "px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition cursor-pointer" %>
-          <%= link_to "Clear", mixtapes_admin_spotify_playlists_path, 
-              class: "px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition" %>
-        </div>
-      </div>
+      </details>
     <% end %>
   </div>
 
-  <!-- Tracks Table -->
+  <!-- Tracks Table with Horizontal Scroll -->
   <div class="bg-white rounded-lg shadow overflow-hidden">
-    <table class="min-w-full">
-      <thead class="bg-purple-50">
-        <tr>
-          <th class="px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider">
-            Track
-          </th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider">
-            Artist
-          </th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider">
-            Album
-          </th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider">
-            Playlist(s)
-          </th>
-          <th class="px-6 py-3 text-center text-xs font-medium text-purple-700 uppercase tracking-wider">
-            Pop
-          </th>
-          <th class="px-6 py-3 text-right text-xs font-medium text-purple-700 uppercase tracking-wider">
-            Duration
-          </th>
-          <th class="px-6 py-3 text-right text-xs font-medium text-purple-700 uppercase tracking-wider">
-            Actions
-          </th>
-        </tr>
-      </thead>
-      <tbody class="bg-white divide-y divide-gray-200">
-        <% @tracks.each do |track| %>
-          <tr class="hover:bg-purple-50 transition-colors">
-            <td class="px-6 py-4">
-              <div class="flex items-center">
-                <div>
-                  <div class="text-sm font-medium text-gray-900">
-                    <%= link_to track.title, admin_spotify_track_path(track), 
-                        class: "hover:text-purple-600 transition-colors" %>
-                    <% if track.explicit %>
-                      <span class="ml-1 px-1 py-0.5 text-xs bg-red-100 text-red-700 rounded">E</span>
+    <div class="overflow-x-auto">
+      <table class="min-w-full">
+        <thead class="bg-purple-50">
+          <tr>
+            <!-- Core columns - always visible -->
+            <th class="px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider min-w-[200px]">
+              Track
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider">
+              Artist
+            </th>
+            
+            <!-- Secondary columns - hidden on smallest screens -->
+            <th class="hidden sm:table-cell px-6 py-3 text-center text-xs font-medium text-purple-700 uppercase tracking-wider">
+              Pop
+            </th>
+            <th class="hidden sm:table-cell px-6 py-3 text-right text-xs font-medium text-purple-700 uppercase tracking-wider">
+              Duration
+            </th>
+            
+            <!-- Additional columns - visible on larger screens or with scroll -->
+            <th class="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider">
+              Album
+            </th>
+            <th class="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider">
+              Playlist(s)
+            </th>
+            
+            <!-- Actions -->
+            <th class="px-6 py-3 text-right text-xs font-medium text-purple-700 uppercase tracking-wider">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @tracks.each do |track| %>
+            <tr class="hover:bg-purple-50 transition-colors">
+              <!-- Core: Track -->
+              <td class="px-6 py-4 min-w-[200px]">
+                <div class="flex items-center">
+                  <div>
+                    <div class="text-sm font-medium text-gray-900">
+                      <%= link_to track.title, admin_spotify_track_path(track), 
+                          class: "hover:text-purple-600 transition-colors" %>
+                      <% if track.explicit %>
+                        <span class="ml-1 px-1 py-0.5 text-xs bg-red-100 text-red-700 rounded">E</span>
+                      <% end %>
+                    </div>
+                    <% if track.preview_url.present? %>
+                      <button onclick="playPreview('<%= track.preview_url %>')" 
+                              class="text-xs text-purple-600 hover:text-purple-800 mt-1">
+                        ▶ Preview
+                      </button>
                     <% end %>
+                    <!-- Mobile-only condensed info -->
+                    <div class="sm:hidden text-xs text-gray-500 mt-1">
+                      <%= track.duration_formatted %> • <%= track.album&.truncate(20) %>
+                    </div>
                   </div>
-                  <% if track.preview_url.present? %>
-                    <button onclick="playPreview('<%= track.preview_url %>')" 
-                            class="text-xs text-purple-600 hover:text-purple-800 mt-1">
-                      ▶ Preview
-                    </button>
+                </div>
+              </td>
+              
+              <!-- Core: Artist -->
+              <td class="px-6 py-4 text-sm text-gray-900">
+                <%= track.artist_text %>
+              </td>
+              
+              <!-- Secondary: Popularity -->
+              <td class="hidden sm:table-cell px-6 py-4 text-center">
+                <div class="inline-flex items-center">
+                  <div class="w-12 bg-gray-200 rounded-full h-1.5">
+                    <div class="bg-green-600 h-1.5 rounded-full" 
+                         style="width: <%= track.popularity || 0 %>%"></div>
+                  </div>
+                  <span class="ml-2 text-xs text-gray-600"><%= track.popularity || 0 %></span>
+                </div>
+              </td>
+              
+              <!-- Secondary: Duration -->
+              <td class="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                <%= track.duration_formatted %>
+              </td>
+              
+              <!-- Additional: Album -->
+              <td class="hidden md:table-cell px-6 py-4 text-sm text-gray-500">
+                <%= track.album %>
+              </td>
+              
+              <!-- Additional: Playlists -->
+              <td class="hidden lg:table-cell px-6 py-4">
+                <div class="flex flex-wrap gap-1">
+                  <% track.spotify_playlists.mixtapes.limit(3).each do |playlist| %>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                      <%= playlist.made_on&.strftime("%b %y") || playlist.name.truncate(10) %>
+                    </span>
+                  <% end %>
+                  <% if track.spotify_playlists.mixtapes.count > 3 %>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
+                      +<%= track.spotify_playlists.mixtapes.count - 3 %>
+                    </span>
                   <% end %>
                 </div>
-              </div>
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-900">
-              <%= track.artist_text %>
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-500">
-              <%= track.album %>
-            </td>
-            <td class="px-6 py-4">
-              <div class="flex flex-wrap gap-1">
-                <% track.spotify_playlists.mixtapes.limit(3).each do |playlist| %>
-                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
-                    <%= playlist.made_on&.strftime("%b %y") || playlist.name.truncate(10) %>
+              </td>
+              
+              <!-- Actions -->
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                <div class="flex justify-end gap-2">
+                  <span class="hidden sm:inline">
+                    <%= link_to "View", admin_spotify_track_path(track), 
+                        class: "text-purple-600 hover:text-purple-900" %>
                   </span>
-                <% end %>
-                <% if track.spotify_playlists.mixtapes.count > 3 %>
-                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
-                    +<%= track.spotify_playlists.mixtapes.count - 3 %>
-                  </span>
-                <% end %>
-              </div>
-            </td>
-            <td class="px-6 py-4 text-center">
-              <div class="inline-flex items-center">
-                <div class="w-16 bg-gray-200 rounded-full h-1.5">
-                  <div class="bg-green-600 h-1.5 rounded-full" 
-                       style="width: <%= track.popularity || 0 %>%"></div>
+                  <%= link_to "Spotify", track.song_url, 
+                      target: "_blank",
+                      class: "text-green-600 hover:text-green-900" %>
                 </div>
-                <span class="ml-2 text-xs text-gray-600"><%= track.popularity || 0 %></span>
-              </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
-              <%= track.duration_formatted %>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
-              <div class="flex justify-end gap-2">
-                <%= link_to "View", admin_spotify_track_path(track), 
-                    class: "text-purple-600 hover:text-purple-900" %>
-                <%= link_to "Spotify", track.song_url, 
-                    target: "_blank",
-                    class: "text-green-600 hover:text-green-900" %>
-              </div>
-            </td>
-          </tr>
-        <% end %>
-        
-        <% if @tracks.none? %>
-          <tr>
-            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
-              <p>No tracks found matching your filters.</p>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
+              </td>
+            </tr>
+          <% end %>
+          
+          <% if @tracks.none? %>
+            <tr>
+              <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                <p>No tracks found matching your filters.</p>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- Pagination -->

@@ -78,154 +78,184 @@
     <% end %>
   </div>
 
-  <!-- Playlists Table -->
+  <!-- Playlists Table with Horizontal Scroll -->
   <div class="bg-white rounded-lg shadow overflow-hidden">
-    <table class="min-w-full">
-      <thead class="bg-gray-50">
-        <tr>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Playlist
-          </th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Made By
-          </th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Date
-          </th>
-          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Tracks
-          </th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Runtime
-          </th>
-          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Type
-          </th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Sync Status
-          </th>
-          <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Actions
-          </th>
-        </tr>
-      </thead>
-      <tbody class="bg-white divide-y divide-gray-200">
-        <% @playlists.each do |playlist| %>
-          <tr class="hover:bg-gray-50 transition-colors">
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="flex items-center">
-                <% if playlist.image_url.present? %>
-                  <img src="<%= playlist.image_url %>" 
-                       alt="<%= playlist.name %>"
-                       class="h-10 w-10 rounded shadow-sm">
-                <% else %>
-                  <div class="h-10 w-10 rounded bg-gray-200 flex items-center justify-center">
-                    <svg class="h-6 w-6 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-                    </svg>
-                  </div>
-                <% end %>
-                <div class="ml-4">
-                  <div class="text-sm font-medium text-gray-900">
-                    <%= link_to playlist.name, admin_spotify_playlist_path(playlist), 
-                        class: "hover:text-green-600 transition-colors" %>
-                  </div>
-                  <div class="text-sm text-gray-500">
-                    <%= playlist.owner_name || "Unknown" %>
-                    <% if playlist.public %>
-                      <span class="text-xs text-green-600">• Public</span>
-                    <% end %>
+    <div class="overflow-x-auto">
+      <table class="min-w-full">
+        <thead class="bg-gray-50">
+          <tr>
+            <!-- Core columns - always visible -->
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[250px]">
+              Playlist
+            </th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Tracks
+            </th>
+            
+            <!-- Secondary columns - hidden on smallest screens -->
+            <th class="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Runtime
+            </th>
+            <th class="hidden sm:table-cell px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Type
+            </th>
+            
+            <!-- Additional columns - visible on larger screens or with scroll -->
+            <th class="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Made By
+            </th>
+            <th class="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Date
+            </th>
+            <th class="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Sync Status
+            </th>
+            
+            <!-- Actions always visible -->
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @playlists.each do |playlist| %>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <!-- Core: Playlist info -->
+              <td class="px-6 py-4 whitespace-nowrap min-w-[250px]">
+                <div class="flex items-center">
+                  <% if playlist.image_url.present? %>
+                    <img src="<%= playlist.image_url %>" 
+                         alt="<%= playlist.name %>"
+                         class="h-10 w-10 rounded shadow-sm flex-shrink-0">
+                  <% else %>
+                    <div class="h-10 w-10 rounded bg-gray-200 flex items-center justify-center flex-shrink-0">
+                      <svg class="h-6 w-6 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                      </svg>
+                    </div>
+                  <% end %>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">
+                      <%= link_to playlist.name, admin_spotify_playlist_path(playlist), 
+                          class: "hover:text-green-600 transition-colors" %>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                      <%= playlist.owner_name || "Unknown" %>
+                      <% if playlist.public %>
+                        <span class="text-xs text-green-600">• Public</span>
+                      <% end %>
+                      <!-- Mobile-only condensed info -->
+                      <span class="sm:hidden text-xs text-gray-500 block">
+                        <%= playlist.runtime_formatted %> • <%= playlist.made_on&.strftime("%b %y") %>
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              <%= playlist.made_by || "-" %>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              <%= playlist.made_on&.strftime("%b %Y") || "-" %>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-              <%= playlist.track_count %>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              <%= playlist.runtime_formatted %>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-center">
-              <% if playlist.mixtape? %>
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
-                  Mixtape
-                </span>
-              <% else %>
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                  Regular
-                </span>
-              <% end %>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm">
-              <% if playlist.last_synced_at.nil? %>
-                <span class="text-yellow-600 flex items-center">
-                  <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+              </td>
+              
+              <!-- Core: Track count -->
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                <%= playlist.track_count %>
+              </td>
+              
+              <!-- Secondary: Runtime -->
+              <td class="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <%= playlist.runtime_formatted %>
+              </td>
+              
+              <!-- Secondary: Type -->
+              <td class="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-center">
+                <% if playlist.mixtape? %>
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                    Mixtape
+                  </span>
+                <% else %>
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                    Regular
+                  </span>
+                <% end %>
+              </td>
+              
+              <!-- Additional: Made By -->
+              <td class="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <%= playlist.made_by || "-" %>
+              </td>
+              
+              <!-- Additional: Date -->
+              <td class="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <%= playlist.made_on&.strftime("%b %Y") || "-" %>
+              </td>
+              
+              <!-- Additional: Sync Status -->
+              <td class="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm">
+                <% if playlist.last_synced_at.nil? %>
+                  <span class="text-yellow-600 flex items-center">
+                    <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                    </svg>
+                    Never synced
+                  </span>
+                <% elsif playlist.needs_sync? %>
+                  <span class="text-orange-600 flex items-center">
+                    <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+                    </svg>
+                    Needs sync
+                  </span>
+                <% else %>
+                  <span class="text-green-600 flex items-center">
+                    <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    Synced
+                  </span>
+                <% end %>
+                <% if playlist.last_synced_at %>
+                  <span class="text-xs text-gray-500">
+                    <%= time_ago_in_words(playlist.last_synced_at) %> ago
+                  </span>
+                <% end %>
+              </td>
+              
+              <!-- Actions -->
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <div class="flex justify-end gap-2">
+                  <span class="hidden sm:inline-flex gap-2">
+                    <%= link_to "View", admin_spotify_playlist_path(playlist), 
+                        class: "text-blue-600 hover:text-blue-900 transition-colors" %>
+                    <%= link_to "Edit", edit_admin_spotify_playlist_path(playlist), 
+                        class: "text-indigo-600 hover:text-indigo-900 transition-colors" %>
+                    <%= button_to "Sync", sync_admin_spotify_playlist_path(playlist), 
+                        method: :post, 
+                        class: "text-green-600 hover:text-green-900 transition-colors cursor-pointer" %>
+                  </span>
+                  <%= link_to "Open", playlist.spotify_url, 
+                      target: "_blank",
+                      class: "text-gray-600 hover:text-gray-900 transition-colors" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+          
+          <% if @playlists.none? %>
+            <tr>
+              <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                <div class="flex flex-col items-center">
+                  <svg class="h-12 w-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
                   </svg>
-                  Never synced
-                </span>
-              <% elsif playlist.needs_sync? %>
-                <span class="text-orange-600 flex items-center">
-                  <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
-                  </svg>
-                  Needs sync
-                </span>
-              <% else %>
-                <span class="text-green-600 flex items-center">
-                  <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                  </svg>
-                  Synced
-                </span>
-              <% end %>
-              <% if playlist.last_synced_at %>
-                <span class="text-xs text-gray-500">
-                  <%= time_ago_in_words(playlist.last_synced_at) %> ago
-                </span>
-              <% end %>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-              <div class="flex justify-end gap-2">
-                <%= link_to "View", admin_spotify_playlist_path(playlist), 
-                    class: "text-blue-600 hover:text-blue-900 transition-colors" %>
-                <%= link_to "Edit", edit_admin_spotify_playlist_path(playlist), 
-                    class: "text-indigo-600 hover:text-indigo-900 transition-colors" %>
-                <%= button_to "Sync", sync_admin_spotify_playlist_path(playlist), 
-                    method: :post, 
-                    class: "text-green-600 hover:text-green-900 transition-colors cursor-pointer" %>
-                <%= link_to "Open", playlist.spotify_url, 
-                    target: "_blank",
-                    class: "text-gray-600 hover:text-gray-900 transition-colors" %>
-              </div>
-            </td>
-          </tr>
-        <% end %>
-        
-        <% if @playlists.none? %>
-          <tr>
-            <td colspan="8" class="px-6 py-12 text-center text-gray-500">
-              <div class="flex flex-col items-center">
-                <svg class="h-12 w-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
-                </svg>
-                <p class="text-lg font-medium">No playlists found</p>
-                <p class="text-sm mt-1">Try adjusting your filters or add a new playlist</p>
-                <%= link_to "Add First Playlist", new_admin_spotify_playlist_path, 
-                    class: "mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition" %>
-              </div>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
+                  <p class="text-lg font-medium">No playlists found</p>
+                  <p class="text-sm mt-1">Try adjusting your filters or add a new playlist</p>
+                  <%= link_to "Add First Playlist", new_admin_spotify_playlist_path, 
+                      class: "mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- Pagination -->

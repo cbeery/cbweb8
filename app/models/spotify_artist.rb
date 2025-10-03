@@ -12,6 +12,28 @@ class SpotifyArtist < ApplicationRecord
   scope :by_genre, ->(genre) { where('genres @> ?', [genre].to_json) }
   scope :alphabetical, -> { order(:sort_name) }
   
+  # Orphan management scopes
+  scope :orphaned, -> {
+    left_joins(:spotify_track_artists)
+    .where(spotify_track_artists: { id: nil })
+  }
+
+  scope :with_tracks, -> {
+    joins(:spotify_track_artists).distinct
+  }
+
+  scope :on_single_track, -> {
+    joins(:spotify_track_artists)
+    .group('spotify_artists.id')
+    .having('COUNT(DISTINCT spotify_track_artists.spotify_track_id) = 1')
+  }
+
+  scope :on_multiple_tracks, -> {
+    joins(:spotify_track_artists)
+    .group('spotify_artists.id')
+    .having('COUNT(DISTINCT spotify_track_artists.spotify_track_id) > 1')
+  }
+
   # Callbacks
   before_save :generate_sort_name
   
@@ -30,6 +52,25 @@ class SpotifyArtist < ApplicationRecord
     genres.is_a?(Array) ? genres.join(', ') : ''
   end
   
+  def orphaned?
+    spotify_track_artists.empty?
+  end
+
+  def on_single_track?
+    track_count == 1
+  end
+
+  def on_multiple_tracks?
+    track_count > 1
+  end
+
+  def playlists
+    SpotifyPlaylist.joins(spotify_tracks: :spotify_artists)
+                   .where(spotify_artists: { id: id })
+                   .distinct
+  end
+
+
   private
   
   def generate_sort_name

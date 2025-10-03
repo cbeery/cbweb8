@@ -105,6 +105,29 @@ class Admin::SpotifyController < Admin::BaseController
     redirect_to admin_sync_path(sync_status), 
                 notice: "Syncing #{@playlist.name}..."
   end
+
+  # If you want to add a controller action to check sync status via AJAX
+  def sync_status
+    @playlist = SpotifyPlaylist.find(params[:id])
+    
+    # Find the most recent sync for this playlist
+    sync_status = SyncStatus.where(source_type: 'spotify_single')
+                           .where("metadata->>'playlist_id' = ?", @playlist.id.to_s)
+                           .order(created_at: :desc)
+                           .first
+    
+    if sync_status
+      render json: {
+        status: sync_status.status,
+        started_at: sync_status.started_at,
+        completed_at: sync_status.completed_at,
+        error_message: sync_status.error_message,
+        syncing: sync_status.running?
+      }
+    else
+      render json: { status: 'never_synced', syncing: false }
+    end
+  end  
   
   def mixtapes
     @playlists = SpotifyPlaylist.mixtapes

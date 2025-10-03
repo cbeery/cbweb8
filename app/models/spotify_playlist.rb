@@ -19,6 +19,10 @@ class SpotifyPlaylist < ApplicationRecord
   scope :by_month, ->(month) { where(month: month) }
   scope :recent, -> { order(made_on: :desc) }
   scope :needs_sync, -> { where('last_synced_at IS NULL OR last_synced_at < ?', 24.hours.ago) }
+  scope :never_synced, -> { where(last_synced_at: nil) }
+  scope :stale, -> { where('last_synced_at < ?', 24.hours.ago) }
+  scope :recently_synced, -> { where('last_synced_at >= ?', 24.hours.ago) }
+  
   
   # Callbacks
   before_save :extract_spotify_id
@@ -77,6 +81,62 @@ class SpotifyPlaylist < ApplicationRecord
     return true if last_modified_at.nil?
     last_modified_at < 30.days.ago
   end
+
+ # Check if playlist needs immediate sync
+  def needs_immediate_sync?
+    return true if last_synced_at.nil?
+    return true if last_synced_at < 24.hours.ago
+    false
+  end
+  
+  # Check if playlist content has likely changed
+  def likely_changed?
+    return true if snapshot_id != previous_snapshot_id && previous_snapshot_id.present?
+    return true if collaborative? # Collaborative playlists change frequently
+    return true if last_modified_at && last_modified_at > last_synced_at
+    false
+  end
+  
+  # Force a sync regardless of status
+  def force_sync!
+    update!(last_synced_at: 25.hours.ago) # Trick the system to sync on next run
+  end
+
+  # Queue a sync for just this playlist
+  def queue_sync(user: nil, broadcast: false)
+    sync_status = SyncStatus.create!(
+      source_type: 'spotify_single',
+      interactive: broadcast,
+      user: user,
+      metadata: {
+        playlist_id: id,
+        playlist_name: name,
+        playlist_url: spotify_url,
+        single_playlist: true
+      }
+    )
+    
+    SpotifySingleSyncJob.perform_later(id, sync_status.id)
+    sync_status
+  end
+  
+  # Sync this playlist immediately (blocking)
+  def sync_now!
+    service = Sync::SpotifySingleService.new(
+      playlist: self,
+      broadcast: false
+    )
+    service.perform
+  end
+  
+  # Check if currently being synced
+  def syncing?
+    SyncStatus.where(source_type: 'spotify_single')
+              .where(status: 'running')
+              .where("metadata->>'playlist_id' = ?", id.to_s)
+              .exists?
+  end
+
 
   private
   

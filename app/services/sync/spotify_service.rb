@@ -265,13 +265,14 @@ module Sync
         query: {
           limit: BATCH_SIZE,
           offset: offset,
-          fields: 'items(track(id,name,artists,album(name,id,images,external_urls),duration_ms,popularity,explicit,external_urls,preview_url,disc_number,track_number,is_local),added_at,added_by.id),next,total'
+          fields: 'items(track(id,name,artists,album(name,id,images,external_urls,release_date,release_date_precision),duration_ms,popularity,explicit,external_urls,preview_url,disc_number,track_number,is_local),added_at,added_by.id),next,total'
         }
       )
       
       response.success? ? response.parsed_response : nil
     end
-    
+
+
     def find_or_create_track(track_data)
       # Skip local files
       return nil if track_data['is_local']

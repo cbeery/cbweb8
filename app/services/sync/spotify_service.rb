@@ -265,13 +265,14 @@ module Sync
         query: {
           limit: BATCH_SIZE,
           offset: offset,
-          fields: 'items(track(id,name,artists,album(name,id,images,external_urls),duration_ms,popularity,explicit,external_urls,preview_url,disc_number,track_number,is_local),added_at,added_by.id),next,total'
+          fields: 'items(track(id,name,artists,album(name,id,images,external_urls,release_date,release_date_precision),duration_ms,popularity,explicit,external_urls,preview_url,disc_number,track_number,is_local),added_at,added_by.id),next,total'
         }
       )
       
       response.success? ? response.parsed_response : nil
     end
-    
+
+
     def find_or_create_track(track_data)
       # Skip local files
       return nil if track_data['is_local']
@@ -282,12 +283,38 @@ module Sync
       album_image_url = track_data.dig('album', 'images', 1, 'url') || 
                         track_data.dig('album', 'images', 0, 'url')
       
+      # Extract release date info
+      release_date_string = track_data.dig('album', 'release_date')
+      release_date_precision = track_data.dig('album', 'release_date_precision')
+      
+      # Parse the release date based on precision
+      release_date = nil
+      release_year = nil
+      if release_date_string.present?
+        case release_date_precision
+        when 'day'
+          release_date = Date.parse(release_date_string) rescue nil
+        when 'month'
+          # Format is YYYY-MM, append day
+          release_date = Date.parse("#{release_date_string}-01") rescue nil
+        when 'year'
+          # Format is YYYY, create January 1st
+          release_date = Date.parse("#{release_date_string}-01-01") rescue nil
+        end
+        
+        # Extract year for easier filtering
+        release_year = release_date&.year || release_date_string.to_s[0..3].to_i
+      end
+      
       # Update track details (but don't save yet)
       track.assign_attributes(
         title: track_data['name'],
         album: track_data.dig('album', 'name'),
         album_id: track_data.dig('album', 'id'),
         album_image_url: album_image_url,
+        release_date: release_date,
+        release_date_precision: release_date_precision,
+        release_year: release_year,
         duration_ms: track_data['duration_ms'],
         popularity: track_data['popularity'],
         explicit: track_data['explicit'],

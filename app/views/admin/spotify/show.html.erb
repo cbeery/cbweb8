@@ -1,3 +1,4 @@
+<% content_for :title, "#{@playlist.name} - Playlists" %>
 <div class="container mx-auto px-4">
   <!-- Header -->
   <div class="mb-6">
@@ -112,6 +113,15 @@
           <%= link_to "Open in Spotify", @playlist.spotify_url, 
               target: "_blank",
               class: "px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition text-center" %>
+          <!-- Add Delete Button with Confirmation -->
+          <%= button_to "Delete", 
+              admin_spotify_playlist_path(@playlist), 
+              method: :delete,
+              data: { 
+                turbo_confirm: "Are you sure you want to delete '#{@playlist.name}'? This will remove the playlist and all its track associations from your database. This action cannot be undone."
+              },
+              class: "px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition cursor-pointer" %>
+              
         </div>
       </div>
       

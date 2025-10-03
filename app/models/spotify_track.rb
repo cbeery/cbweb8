@@ -17,6 +17,29 @@ class SpotifyTrack < ApplicationRecord
   scope :by_album, ->(album) { where(album: album) }
   scope :longest_first, -> { order(duration_ms: :desc) }
   scope :most_popular, -> { order(popularity: :desc) }
+
+  # Orphan management scopes
+  scope :orphaned, -> { 
+    left_joins(:spotify_playlist_tracks)
+    .where(spotify_playlist_tracks: { id: nil }) 
+  }
+
+  scope :on_playlists, -> {
+    joins(:spotify_playlist_tracks).distinct
+  }
+
+  scope :on_single_playlist, -> {
+    joins(:spotify_playlist_tracks)
+    .group('spotify_tracks.id')
+    .having('COUNT(DISTINCT spotify_playlist_tracks.spotify_playlist_id) = 1')
+  }
+
+  scope :on_multiple_playlists, -> {
+    joins(:spotify_playlist_tracks)
+    .group('spotify_tracks.id')
+    .having('COUNT(DISTINCT spotify_playlist_tracks.spotify_playlist_id) > 1')
+  }
+
   
   # Callbacks
   before_save :generate_artist_text
@@ -60,6 +83,22 @@ class SpotifyTrack < ApplicationRecord
     audio_features&.dig('tempo')
   end
   
+  def orphaned?
+    spotify_playlist_tracks.empty?
+  end
+
+  def playlist_count
+    spotify_playlists.count
+  end
+
+  def on_single_playlist?
+    playlist_count == 1
+  end
+
+  def on_multiple_playlists?
+    playlist_count > 1
+  end
+
   private
   
   def generate_artist_text

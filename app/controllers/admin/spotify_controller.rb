@@ -369,17 +369,20 @@ class Admin::SpotifyController < Admin::BaseController
     end
     
     # Add available decades for filter
-    @available_decades = Rails.cache.fetch('mixtapes:decades', expires_in: 1.hour) do
-      SpotifyTrack.joins(:spotify_playlists)
-                  .where(spotify_playlists: { mixtape: true })
-                  .where.not(release_year: nil)
-                  .distinct
-                  .pluck(:release_year)
-                  .map { |year| (year / 10) * 10 }
-                  .uniq
-                  .sort
-                  .reverse
-                  .map { |decade| ["#{decade}s", decade] }
+    @available_decades = Rails.cache.fetch('mixtapes:decades:v3', expires_in: 1.hour) do
+      years = SpotifyTrack
+        .joins(:spotify_playlists)
+        .where(spotify_playlists: { mixtape: true })
+        .where.not(release_year: nil)
+        .distinct
+        .pluck(:release_year)
+      
+      # Convert years to decades and format for dropdown
+      years.map { |year| (year / 10) * 10 }
+           .uniq
+           .sort
+           .reverse
+           .map { |decade| ["#{decade}s", decade] }
     end
     
     # Start with base playlists query

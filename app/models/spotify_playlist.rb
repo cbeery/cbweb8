@@ -102,6 +102,42 @@ class SpotifyPlaylist < ApplicationRecord
     update!(last_synced_at: 25.hours.ago) # Trick the system to sync on next run
   end
 
+  # Queue a sync for just this playlist
+  def queue_sync(user: nil, broadcast: false)
+    sync_status = SyncStatus.create!(
+      source_type: 'spotify_single',
+      interactive: broadcast,
+      user: user,
+      metadata: {
+        playlist_id: id,
+        playlist_name: name,
+        playlist_url: spotify_url,
+        single_playlist: true
+      }
+    )
+    
+    SpotifySingleSyncJob.perform_later(id, sync_status.id)
+    sync_status
+  end
+  
+  # Sync this playlist immediately (blocking)
+  def sync_now!
+    service = Sync::SpotifySingleService.new(
+      playlist: self,
+      broadcast: false
+    )
+    service.perform
+  end
+  
+  # Check if currently being synced
+  def syncing?
+    SyncStatus.where(source_type: 'spotify_single')
+              .where(status: 'running')
+              .where("metadata->>'playlist_id' = ?", id.to_s)
+              .exists?
+  end
+
+
   private
   
   def extract_spotify_id

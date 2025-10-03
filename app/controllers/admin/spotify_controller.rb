@@ -277,7 +277,7 @@ class Admin::SpotifyController < Admin::BaseController
                                    .distinct.count
   end
 
-  def mixtapes
+  def mixtapes_old_2
     # Cache filter options (these don't change often)
     @available_years = Rails.cache.fetch('mixtapes:years', expires_in: 1.hour) do
       SpotifyPlaylist.mixtapes.distinct.pluck(:year).compact.sort.reverse
@@ -358,6 +358,100 @@ class Admin::SpotifyController < Admin::BaseController
     build_track_display_info
   end
 
+  def mixtapes
+    # Cache filter options (these don't change often)
+    @available_years = Rails.cache.fetch('mixtapes:years', expires_in: 1.hour) do
+      SpotifyPlaylist.mixtapes.distinct.pluck(:year).compact.sort.reverse
+    end
+    @available_months = (1..12).map { |m| [Date::MONTHNAMES[m], m] }
+    @available_makers = Rails.cache.fetch('mixtapes:makers', expires_in: 1.hour) do
+      SpotifyPlaylist.mixtapes.distinct.pluck(:made_by).compact.sort
+    end
+    
+    # Add available decades for filter
+    @available_decades = Rails.cache.fetch('mixtapes:decades', expires_in: 1.hour) do
+      SpotifyTrack.joins(:spotify_playlists)
+                  .where(spotify_playlists: { mixtape: true })
+                  .where.not(release_year: nil)
+                  .distinct
+                  .pluck(:release_year)
+                  .map { |year| (year / 10) * 10 }
+                  .uniq
+                  .sort
+                  .reverse
+                  .map { |decade| ["#{decade}s", decade] }
+    end
+    
+    # Start with base playlists query
+    @playlists = SpotifyPlaylist.mixtapes
+                                .includes(spotify_playlist_tracks: { 
+                                  spotify_track: :spotify_artists 
+                                })
+    
+    # Build base filtered query
+    base_tracks = build_base_tracks_query(params)
+    
+    # Apply decade filter if present
+    if params[:decade].present?
+      base_tracks = base_tracks.by_decade(params[:decade])
+    end
+    
+    # Get track IDs for stats (before sorting/grouping)
+    track_ids = base_tracks.distinct.pluck('spotify_tracks.id')
+    @total_tracks = track_ids.count
+    
+    # Get aggregated stats
+    if @total_tracks > 0
+      @total_runtime_ms = SpotifyTrack.where(id: track_ids).sum(:duration_ms)
+      @unique_artists = SpotifyArtist
+                         .joins(:spotify_tracks)
+                         .where(spotify_tracks: { id: track_ids })
+                         .distinct
+                         .count
+    else
+      @total_runtime_ms = 0
+      @unique_artists = 0
+    end
+    
+    # Get popular artists (cached)
+    cache_key = [
+      'mixtapes:popular_artists',
+      params[:year],
+      params[:month],
+      params[:made_by],
+      params[:artist],
+      params[:decade],
+      params[:q]
+    ].compact
+    
+    @popular_artists = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
+      SpotifyArtist
+        .joins(:spotify_tracks)
+        .where(spotify_tracks: { id: track_ids })
+        .group('spotify_artists.id')
+        .order(Arel.sql('COUNT(DISTINCT spotify_tracks.id) DESC'))
+        .limit(20)
+        .pluck(:name)
+    end
+    
+    # Get sorted track IDs based on sort parameter (updated with year options)
+    sorted_track_ids = get_sorted_track_ids(base_tracks, params[:sort])
+    
+    # Load tracks with includes in the sorted order
+    if sorted_track_ids.any?
+      @tracks = SpotifyTrack
+        .where(id: sorted_track_ids)
+        .includes(:spotify_artists, spotify_playlist_tracks: :spotify_playlist)
+        .order(Arel.sql("ARRAY_POSITION(ARRAY[#{sorted_track_ids.join(',')}], spotify_tracks.id)"))
+    else
+      @tracks = SpotifyTrack.none
+    end
+    
+    build_track_display_info
+    
+    @tracks = @tracks.page(params[:page]).per(50)
+  end
+
   private
   
   def set_playlist
@@ -388,7 +482,6 @@ class Admin::SpotifyController < Admin::BaseController
   end
 
   def get_sorted_track_ids(tracks, sort_param)
-    # Always group by track ID and use aggregate functions for ordering
     case sort_param
     when 'title'
       tracks.group('spotify_tracks.id')
@@ -401,6 +494,14 @@ class Admin::SpotifyController < Admin::BaseController
     when 'album'
       tracks.group('spotify_tracks.id')
             .order(Arel.sql('MIN(spotify_tracks.album), MIN(spotify_tracks.track_number)'))
+            .pluck('spotify_tracks.id')
+    when 'year_newest'
+      tracks.group('spotify_tracks.id')
+            .order(Arel.sql('MAX(spotify_tracks.release_year) DESC NULLS LAST'))
+            .pluck('spotify_tracks.id')
+    when 'year_oldest'
+      tracks.group('spotify_tracks.id')
+            .order(Arel.sql('MIN(spotify_tracks.release_year) ASC NULLS LAST'))
             .pluck('spotify_tracks.id')
     when 'popularity'
       tracks.group('spotify_tracks.id')

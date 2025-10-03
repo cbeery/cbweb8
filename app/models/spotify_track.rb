@@ -40,7 +40,20 @@ class SpotifyTrack < ApplicationRecord
     .having('COUNT(DISTINCT spotify_playlist_tracks.spotify_playlist_id) > 1')
   }
 
-  
+  scope :by_year, ->(year) { where(release_year: year) }
+  scope :by_decade, ->(decade) { 
+    start_year = decade.to_i
+    end_year = start_year + 9
+    where(release_year: start_year..end_year) 
+  }
+  scope :from_decade, ->(decade_string) {
+    # Handle inputs like "1990s", "90s", or "1990"
+    decade = decade_string.to_s.gsub(/s$/i, '').gsub(/^(\d{2})$/, '19\1').to_i
+    by_decade(decade)
+  }
+  scope :newest_releases, -> { order(release_date: :desc) }
+  scope :oldest_releases, -> { order(release_date: :asc) }
+
   # Callbacks
   before_save :generate_artist_text
   before_save :generate_sort_text
@@ -97,6 +110,36 @@ class SpotifyTrack < ApplicationRecord
 
   def on_multiple_playlists?
     playlist_count > 1
+  end
+
+  def release_year_display
+    return nil unless release_year.present?
+    release_year.to_s
+  end
+
+  def decade
+    return nil unless release_year.present?
+    (release_year / 10) * 10
+  end
+
+  def decade_display
+    return nil unless decade.present?
+    "#{decade}s"
+  end
+
+  def release_info
+    return nil unless release_date.present?
+    
+    case release_date_precision
+    when 'day'
+      release_date.strftime("%B %d, %Y")
+    when 'month'
+      release_date.strftime("%B %Y")
+    when 'year'
+      release_year.to_s
+    else
+      release_year.to_s
+    end
   end
 
   private

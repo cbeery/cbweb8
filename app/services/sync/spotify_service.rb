@@ -1,3 +1,4 @@
+# app/services/sync/spotify_service.rb
 require 'httparty'
 
 module Sync
@@ -20,26 +21,49 @@ module Sync
     end
     
     def fetch_items
-      SpotifyPlaylist.all
+      # Only fetch playlists that need syncing
+      playlists_to_sync = SpotifyPlaylist.all.select do |playlist|
+        needs_sync?(playlist)
+      end
+      
+      log(:info, "Found #{playlists_to_sync.count} playlists that need syncing out of #{SpotifyPlaylist.count} total")
+      playlists_to_sync
     end
     
     def process_item(playlist)
-      log(:info, "Syncing playlist: #{playlist.name}")
+      log(:info, "Checking playlist: #{playlist.name}")
       
       ensure_authenticated!
       
-      # Fetch playlist details from Spotify
-      playlist_data = fetch_playlist_details(playlist.spotify_id)
-      if playlist_data.nil?
-        log(:error, "Could not fetch playlist data", playlist_id: playlist.id)
+      # First, fetch just the playlist metadata to check if it's changed
+      playlist_metadata = fetch_playlist_metadata(playlist.spotify_id)
+      if playlist_metadata.nil?
+        log(:error, "Could not fetch playlist metadata", playlist_id: playlist.id)
         return :failed
       end
       
+      # Check if playlist has actually changed
+      new_snapshot_id = playlist_metadata['snapshot_id']
+      
+      if playlist.snapshot_id.present? && playlist.snapshot_id == new_snapshot_id
+        # Playlist hasn't changed, just update last_synced_at
+        playlist.update!(last_synced_at: Time.current)
+        log(:info, "Playlist unchanged, skipping full sync", 
+            playlist_id: playlist.id,
+            snapshot_id: new_snapshot_id)
+        return :skipped
+      end
+      
+      # Playlist is new or has changed, perform full sync
+      log(:info, "Syncing changed playlist: #{playlist.name}", 
+          old_snapshot: playlist.snapshot_id,
+          new_snapshot: new_snapshot_id)
+      
       # Update playlist metadata
-      update_playlist_metadata(playlist, playlist_data)
+      update_playlist_metadata(playlist, playlist_metadata)
       
       # Fetch and sync all tracks
-      sync_playlist_tracks(playlist, playlist_data)
+      sync_playlist_tracks(playlist, playlist_metadata)
       
       # Update calculated fields
       playlist.calculate_runtime!
@@ -58,6 +82,21 @@ module Sync
     end
     
     private
+    
+    def needs_sync?(playlist)
+      # Sync if never synced before
+      return true if playlist.last_synced_at.nil?
+      
+      # Sync if it's been more than 24 hours (to catch any changes)
+      return true if playlist.last_synced_at < 24.hours.ago
+      
+      # Don't sync if recently synced (even if snapshot changed, as we might have just synced it)
+      return false if playlist.last_synced_at > 5.minutes.ago
+      
+      # For playlists synced between 5 minutes and 24 hours ago,
+      # we'll check the API in process_item to see if snapshot changed
+      true
+    end
     
     def ensure_authenticated!
       return if @access_token && @token_expires_at > Time.current
@@ -97,30 +136,29 @@ module Sync
       }
     end
     
+    # Fetch just the metadata (lighter weight than full playlist with tracks)
+    def fetch_playlist_metadata(playlist_id)
+      response = self.class.get(
+        "/playlists/#{playlist_id}",
+        headers: spotify_headers,
+        query: {
+          fields: 'snapshot_id,name,description,owner,public,collaborative,followers.total,images,external_urls,uri,href,tracks.total'
+        }
+      )
+      
+      response.success? ? response.parsed_response : nil
+    end
+    
+    # Fetch full playlist details (when we know we need to sync)
     def fetch_playlist_details(playlist_id)
       response = self.class.get(
         "/playlists/#{playlist_id}",
         headers: spotify_headers
       )
       
-      # Add detailed logging for debugging
-      unless response.success?
-        log(:error, "Spotify API error", 
-          status: response.code,
-          error: response['error'],
-          message: response.parsed_response&.dig('error', 'message'),  # <-- Add .parsed_response
-          playlist_id: playlist_id)
-        
-        # Check for rate limiting
-        if response.code == 429
-          retry_after = response.headers['retry-after']
-          log(:error, "Rate limited! Retry after #{retry_after} seconds")
-        end
-      end
-      
       response.success? ? response.parsed_response : nil
     end
-
+    
     def update_playlist_metadata(playlist, data)
       new_snapshot_id = data['snapshot_id']
       
@@ -330,14 +368,18 @@ module Sync
       if response.success?
         data = response.parsed_response
         artist.assign_attributes(
-          followers_count: data.dig('followers', 'total'),
-          genres: data['genres'] || [],
+          genres: data['genres'],
           popularity: data['popularity'],
-          image_url: data.dig('images', 0, 'url')
+          image_url: data.dig('images', 0, 'url'),
+          spotify_data: artist.spotify_data.merge({
+            followers: data.dig('followers', 'total')
+          })
         )
       end
     rescue => e
-      log(:warn, "Could not fetch artist details: #{e.message}", artist_id: artist.spotify_id)
+      log(:warning, "Failed to fetch artist details", 
+          artist_id: artist.id,
+          error: e.message)
     end
     
     def fetch_and_save_audio_features(track)
@@ -366,7 +408,9 @@ module Sync
         )
       end
     rescue => e
-      log(:warn, "Could not fetch audio features: #{e.message}", track_id: track.spotify_id)
+      log(:warning, "Failed to fetch audio features", 
+          track_id: track.id,
+          error: e.message)
     end
   end
 end

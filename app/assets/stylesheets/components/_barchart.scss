@@ -1,0 +1,85 @@
+// Styles for CSS bar charts
+
+ul.bar_chart {
+  border-bottom: solid 1px #ddd;
+  li {
+    position: relative;
+    display: block;
+    line-height: 1.5em;
+    span.rank {
+      color: #aaa;
+      font-size: .8em;
+      width: 1em;
+      display: inline-block;
+      text-align: right;
+    }
+  }
+  .name, .count, .index {
+    display: block;    
+  }
+  .count, .index {
+    position: absolute; 
+  }
+  .name, .count {
+    z-index: 2;
+  }
+  .name {
+    padding: 5px 35px 5px 5px;
+    position: relative; 
+    border-top: solid 1px #ddd;
+    color: #000;
+  }
+  .count {
+    top: 5px; 
+    right: 0; 
+    margin: 0.1em 0.4em; 
+    text-align: right; 
+    color: #666;
+  }
+  .index {
+    top: 0; 
+    left: 0; 
+    height: 100%; 
+    text-indent: -9999px; 
+    overflow: hidden; 
+    background: $blueChartColor;
+  }
+  a {
+    color: #000;
+  }
+  a:hover {
+    color: #444;
+  }
+}
+
+ul.track .index {
+  background: $trackChartColor;  
+}
+
+ul.album .index {
+  background: $albumChartColor;  
+}
+
+ul.scores .index {
+  background: $scoreChartColor;  
+}
+
+ul.months .index {
+  background: $monthChartColor;  
+}
+
+ul.weekdays .index {
+  background: $weekdayChartColor;  
+}
+
+.label.band {
+  background: darken($artistChartColor, 25%);
+}
+
+.label.album {
+  background: darken($albumChartColor, 25%);
+}
+
+.label.track {
+  background: darken($trackChartColor, 25%);
+}

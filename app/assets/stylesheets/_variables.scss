@@ -5,3 +5,17 @@ $heading-font: 'Inter', system-ui, sans-serif;
 // Spacing (you can use Tailwind's spacing scale)
 $base-spacing: 1rem;
 $section-padding: 2rem;
+
+// Colors for CSS bar charts
+$blueChartColor: #E4F4F8;
+$purpleChartColor: #E5E3F7;
+$redChartColor: #F1E2F6;
+$greenChartColor: #ecf4d3;
+
+$artistChartColor: $blueChartColor;
+$albumChartColor: $purpleChartColor;
+$trackChartColor: $redChartColor;
+
+$scoreChartColor: $purpleChartColor;
+$monthChartColor: $redChartColor;
+$weekdayChartColor: $greenChartColor;

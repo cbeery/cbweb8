@@ -1,0 +1,2 @@
+class TopScrobble < ApplicationRecord
+end

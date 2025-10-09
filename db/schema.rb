@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_03_183332) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_09_201827) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -90,6 +90,36 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_03_183332) do
     t.index ["title"], name: "index_movies_on_title"
     t.index ["tmdb_id"], name: "index_movies_on_tmdb_id"
     t.index ["year"], name: "index_movies_on_year"
+  end
+
+  create_table "scrobble_albums", force: :cascade do |t|
+    t.string "name"
+    t.bigint "scrobble_artist_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "scrobble_artists", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "scrobble_counts", force: :cascade do |t|
+    t.date "played_on"
+    t.integer "plays"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "scrobble_plays", force: :cascade do |t|
+    t.bigint "scrobble_artist_id"
+    t.bigint "scrobble_album_id"
+    t.integer "plays"
+    t.date "played_on"
+    t.string "category"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "solid_cable_messages", force: :cascade do |t|
@@ -351,6 +381,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_03_183332) do
     t.index ["source_type", "created_at"], name: "index_sync_statuses_on_source_type_and_created_at"
     t.index ["source_type"], name: "index_sync_statuses_on_source_type"
     t.index ["user_id"], name: "index_sync_statuses_on_user_id"
+  end
+
+  create_table "top_scrobbles", force: :cascade do |t|
+    t.string "category"
+    t.string "period"
+    t.text "artist"
+    t.text "name"
+    t.integer "rank"
+    t.integer "plays"
+    t.integer "position"
+    t.datetime "revised_at"
+    t.text "url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "uploads", force: :cascade do |t|

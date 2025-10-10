@@ -55,6 +55,7 @@ Rails.application.routes.draw do
     resource :lastfm, controller: 'lastfm', only: [] do
       member do
         get :top
+        get :counts
         post :sync
       end
     end

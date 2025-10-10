@@ -138,12 +138,12 @@ module Sync
       
       artist_name, item_name = extract_names(item, task.category)
       
-      # Find or create the TopScrobble record
-      scrobble = TopScrobble.find_or_initialize_by(
+      # Find existing record or build a new one
+      scrobble = TopScrobble.where(
         category: task.category,
         period: task.period,
         position: position
-      )
+      ).first_or_initialize
       
       # Check if we need to update
       new_attributes = {
@@ -160,6 +160,22 @@ module Sync
         scrobble.save!
         :created
       elsif attributes_changed?(scrobble, new_attributes)
+        scrobble.update!(new_attributes)
+        :updated
+      else
+        :skipped
+      end
+    rescue ActiveRecord::RecordNotUnique => e
+      # Handle race condition - record was created between our check and save
+      log(:warn, "Record already exists for #{task.category}/#{task.period}/#{position}, updating instead")
+      
+      scrobble = TopScrobble.find_by!(
+        category: task.category,
+        period: task.period,
+        position: position
+      )
+      
+      if attributes_changed?(scrobble, new_attributes)
         scrobble.update!(new_attributes)
         :updated
       else

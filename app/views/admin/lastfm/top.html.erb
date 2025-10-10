@@ -1,0 +1,162 @@
+<%# app/views/admin/lastfm/top.html.erb %>
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+  <%# Header %>
+  <div class="mb-8">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">Last.fm Top Scrobbles</h1>
+        <% if @last_sync %>
+          <p class="mt-1 text-sm text-gray-500">
+            Last updated: <%= @last_sync.strftime("%B %d, %Y at %l:%M %p %Z") %>
+          </p>
+        <% end %>
+      </div>
+      <%= link_to admin_syncs_path(source: 'top_scrobbles'), 
+                  class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
+                  data: { turbo_method: :post, turbo_confirm: "Start Last.fm sync?" } do %>
+        <svg class="mr-2 -ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        Update from Last.fm
+      <% end %>
+    </div>
+  </div>
+
+  <%# Category Tabs %>
+  <div data-controller="tabs" data-tabs-active-class="border-indigo-500 text-indigo-600">
+    <div class="border-b border-gray-200">
+      <nav class="-mb-px flex space-x-8" aria-label="Categories">
+        <% Admin::LastfmController::CATEGORIES.each_with_index do |category, index| %>
+          <button
+            data-tabs-target="tab"
+            data-action="click->tabs#select"
+            data-panel-id="<%= category %>-panel"
+            class="<%= index == 0 ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' %> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm capitalize"
+            role="tab"
+            aria-controls="<%= category %>-panel"
+            aria-selected="<%= index == 0 ? 'true' : 'false' %>"
+          >
+            <%= category.pluralize.capitalize %>
+          </button>
+        <% end %>
+      </nav>
+    </div>
+
+    <%# Category Panels %>
+    <% Admin::LastfmController::CATEGORIES.each_with_index do |category, cat_index| %>
+      <div 
+        id="<%= category %>-panel"
+        data-tabs-target="panel"
+        class="<%= cat_index == 0 ? '' : 'hidden' %>"
+        role="tabpanel"
+      >
+        <%# Period Sub-tabs %>
+        <div data-controller="tabs" data-tabs-active-class="bg-indigo-100 text-indigo-700">
+          <div class="mt-4">
+            <nav class="flex flex-wrap gap-2" aria-label="Periods">
+              <% Admin::LastfmController::PERIODS.each_with_index do |period, index| %>
+                <button
+                  data-tabs-target="tab"
+                  data-action="click->tabs#select"
+                  data-panel-id="<%= category %>-<%= period %>-panel"
+                  data-turbo-frame="<%= category %>-<%= period %>-frame"
+                  data-href="<%= url_for(controller: 'admin/lastfm', action: 'top', category: category, period: period) %>"
+                  class="<%= index == 0 ? 'bg-indigo-100 text-indigo-700' : 'text-gray-500 hover:text-gray-700 bg-gray-100' %> px-3 py-2 font-medium text-sm rounded-md"
+                  role="tab"
+                  aria-controls="<%= category %>-<%= period %>-panel"
+                  aria-selected="<%= index == 0 ? 'true' : 'false' %>"
+                >
+                  <%= Admin::LastfmController::PERIOD_LABELS[period] %>
+                </button>
+              <% end %>
+            </nav>
+          </div>
+
+          <%# Period Panels %>
+          <% Admin::LastfmController::PERIODS.each_with_index do |period, period_index| %>
+            <div 
+              id="<%= category %>-<%= period %>-panel"
+              data-tabs-target="panel"
+              class="<%= period_index == 0 ? '' : 'hidden' %> mt-6"
+              role="tabpanel"
+            >
+              <%= turbo_frame_tag "#{category}-#{period}-frame", 
+                                  src: (cat_index == 0 && period_index == 0) ? url_for(controller: 'admin/lastfm', action: 'top', category: category, period: period) : nil,
+                                  loading: :lazy do %>
+                <div class="flex justify-center py-12">
+                  <div class="text-center">
+                    <svg class="animate-spin h-8 w-8 text-indigo-600 mx-auto" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-500">Loading...</p>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<%# Stimulus Tab Controller %>
+<script>
+  // This should go in app/javascript/controllers/tabs_controller.js
+  // but including inline for completeness
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!window.tabsControllerDefined) {
+      window.tabsControllerDefined = true;
+      
+      Stimulus.register("tabs", class extends Controller {
+        static targets = ["tab", "panel"];
+        static values = { activeClass: String };
+        
+        select(event) {
+          const button = event.currentTarget;
+          const panelId = button.dataset.panelId;
+          const href = button.dataset.href;
+          const frameId = button.dataset.turboFrame;
+          
+          // Update tab states
+          this.tabTargets.forEach(tab => {
+            const isActive = tab === button;
+            const activeClasses = this.activeClassValue.split(' ');
+            
+            if (isActive) {
+              tab.classList.add(...activeClasses);
+              tab.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300', 'bg-gray-100');
+              tab.setAttribute('aria-selected', 'true');
+            } else {
+              tab.classList.remove(...activeClasses);
+              if (tab.classList.contains('border-b-2')) {
+                tab.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+              } else {
+                tab.classList.add('text-gray-500', 'hover:text-gray-700', 'bg-gray-100');
+              }
+              tab.setAttribute('aria-selected', 'false');
+            }
+          });
+          
+          // Update panel visibility
+          this.panelTargets.forEach(panel => {
+            if (panel.id === panelId) {
+              panel.classList.remove('hidden');
+            } else {
+              panel.classList.add('hidden');
+            }
+          });
+          
+          // Load content via Turbo Frame if needed
+          if (href && frameId) {
+            const frame = document.getElementById(frameId);
+            if (frame && !frame.src) {
+              frame.src = href;
+            }
+          }
+        }
+      });
+    }
+  });
+</script>

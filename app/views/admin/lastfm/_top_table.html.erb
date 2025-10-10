@@ -1,0 +1,60 @@
+<%# app/views/admin/lastfm/_top_table.html.erb %>
+<%= turbo_frame_tag "#{@category}-#{@period}-frame" do %>
+  <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+    <table class="min-w-full divide-y divide-gray-300">
+      <thead class="bg-gray-50">
+        <tr>
+          <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
+            #
+          </th>
+          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+            <%= @category == 'artist' ? 'Artist' : 'Artist' %>
+          </th>
+          <% if @category != 'artist' %>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              <%= @category.capitalize %>
+            </th>
+          <% end %>
+          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+            Plays
+          </th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 bg-white">
+        <% if @top_scrobbles.any? %>
+          <% @top_scrobbles.each do |scrobble| %>
+            <tr class="hover:bg-gray-50">
+              <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                <%= scrobble.position %>
+              </td>
+              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                <% if scrobble.url.present? %>
+                  <%= link_to scrobble.artist, scrobble.url, 
+                              target: "_blank", 
+                              rel: "noopener",
+                              class: "text-indigo-600 hover:text-indigo-900" %>
+                <% else %>
+                  <%= scrobble.artist %>
+                <% end %>
+              </td>
+              <% if @category != 'artist' %>
+                <td class="px-3 py-4 text-sm text-gray-500">
+                  <%= scrobble.name %>
+                </td>
+              <% end %>
+              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                <%= number_with_delimiter(scrobble.plays) %>
+              </td>
+            </tr>
+          <% end %>
+        <% else %>
+          <tr>
+            <td colspan="<%= @category == 'artist' ? 3 : 4 %>" class="px-6 py-12 text-center text-sm text-gray-500">
+              No data available for this period.
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>

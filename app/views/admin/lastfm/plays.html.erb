@@ -1,0 +1,413 @@
+<%# app/views/admin/lastfm/plays.html.erb %>
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+  <%# Header %>
+  <div class="mb-8">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">Weekly Scrobble Plays</h1>
+        <p class="mt-1 text-sm text-gray-500">
+          Detailed weekly breakdown of artist and album plays
+        </p>
+      </div>
+      <div class="flex gap-4">
+        <%= link_to admin_syncs_path(source: 'scrobble_plays'), 
+                    class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
+                    data: { turbo_method: :post, turbo_confirm: "Start weekly plays sync?" } do %>
+          <svg class="mr-2 -ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          Update Plays
+        <% end %>
+        
+        <div class="flex gap-2">
+          <%= link_to "Top Scrobbles", url_for(controller: 'admin/lastfm', action: 'top'), 
+                      class: "text-sm text-indigo-600 hover:text-indigo-500" %>
+          <%= link_to "Daily Counts", url_for(controller: 'admin/lastfm', action: 'counts'), 
+                      class: "text-sm text-indigo-600 hover:text-indigo-500" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Search Bar %>
+  <div class="mb-6 bg-white shadow rounded-lg p-4">
+    <%= form_with url: url_for(controller: 'admin/lastfm', action: 'plays'), method: :get, class: "flex flex-wrap gap-4 items-end" do |f| %>
+      <div class="flex-1 min-w-[300px]">
+        <%= f.label :search, "Search for Artist or Album", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.text_field :search, value: @search, 
+                         placeholder: "Enter artist or album name...",
+                         class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" %>
+      </div>
+      <div>
+        <%= f.select :category, options_for_select([['Artists', 'artist'], ['Albums', 'album']], @category),
+                     {}, 
+                     class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block sm:text-sm border-gray-300 rounded-md" %>
+      </div>
+      <div>
+        <%= f.submit "Search", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+      </div>
+      <% if @search.present? %>
+        <%= link_to "Clear", url_for(controller: 'admin/lastfm', action: 'plays'), 
+                    class: "text-sm text-gray-600 hover:text-gray-900" %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <% if @search.present? %>
+    <%# Search Results Mode %>
+    <div class="mb-6">
+      <h2 class="text-lg font-medium text-gray-900 mb-4">
+        Search results for "<%= @search %>" in <%= @category.pluralize %>
+      </h2>
+      
+      <% if @plays.any? %>
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Week Ending
+                </th>
+                <% if @category == 'album' %>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Album
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Artist
+                  </th>
+                <% else %>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Artist
+                  </th>
+                <% end %>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Plays
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Trend
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% max_plays = @plays.maximum(:plays) || 100 %>
+              <% @plays.each_with_index do |play, index| %>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <%= link_to play.played_on.strftime("%B %d, %Y"),
+                                url_for(controller: 'admin/lastfm', action: 'plays', week: play.played_on, category: @category),
+                                class: "text-indigo-600 hover:text-indigo-900" %>
+                  </td>
+                  <% if @category == 'album' %>
+                    <td class="px-6 py-4 text-sm text-gray-900">
+                      <%= play.scrobble_album.name %>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">
+                      <%= play.scrobble_artist.name %>
+                    </td>
+                  <% else %>
+                    <td class="px-6 py-4 text-sm text-gray-900">
+                      <%= play.scrobble_artist.name %>
+                    </td>
+                  <% end %>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <%= number_with_delimiter(play.plays) %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="w-24 bg-gray-200 rounded-full h-2">
+                      <div class="bg-indigo-600 h-2 rounded-full" style="width: <%= (play.plays.to_f / max_plays * 100).round %>%"></div>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+        
+        <% if @category == 'artist' && @album_plays.present? %>
+          <h3 class="text-lg font-medium text-gray-900 mt-8 mb-4">
+            Albums by this artist
+          </h3>
+          <div class="bg-white shadow rounded-lg overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Week Ending
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Album
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Plays
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <% @album_plays.each do |play| %>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <%= play.played_on.strftime("%B %d, %Y") %>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900">
+                      <%= play.scrobble_album.name %>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <%= number_with_delimiter(play.plays) %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-gray-500">No results found for "<%= @search %>"</p>
+      <% end %>
+    </div>
+    
+  <% else %>
+    <%# Week View Mode %>
+    
+    <%# Week Navigation %>
+    <div class="mb-6 bg-white shadow rounded-lg p-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <% prev_week = @available_weeks.find { |w| w < @week } %>
+          <% if prev_week %>
+            <%= link_to url_for(controller: 'admin/lastfm', action: 'plays', week: prev_week, category: @category),
+                        class: "p-2 rounded-md bg-gray-100 hover:bg-gray-200" do %>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+            <% end %>
+          <% end %>
+          
+          <div>
+            <label class="text-sm text-gray-600">Week ending:</label>
+            <select onchange="window.location.href=this.value" class="ml-2 rounded-md border-gray-300">
+              <% @available_weeks.each do |week_date| %>
+                <option value="<%= url_for(controller: 'admin/lastfm', action: 'plays', week: week_date, category: @category) %>" 
+                        <%= 'selected' if week_date == @week %>>
+                  <%= week_date.strftime("%B %d, %Y") %>
+                </option>
+              <% end %>
+            </select>
+          </div>
+          
+          <% next_week = @available_weeks.reverse.find { |w| w > @week } %>
+          <% if next_week %>
+            <%= link_to url_for(controller: 'admin/lastfm', action: 'plays', week: next_week, category: @category),
+                        class: "p-2 rounded-md bg-gray-100 hover:bg-gray-200" do %>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            <% end %>
+          <% end %>
+        </div>
+        
+        <div class="text-sm text-gray-600">
+          <%= (@week - 6.days).strftime("%b %d") %> - <%= @week.strftime("%b %d, %Y") %>
+        </div>
+      </div>
+    </div>
+    
+    <%# Weekly Stats %>
+    <div class="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <dt class="text-sm font-medium text-gray-500 truncate">Total Artists</dt>
+          <dd class="mt-1 text-3xl font-semibold text-gray-900"><%= @weekly_stats[:total_artists] %></dd>
+          <p class="mt-2 text-sm text-gray-500">
+            <%= number_with_delimiter(@weekly_stats[:total_artist_plays]) %> plays
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <dt class="text-sm font-medium text-gray-500 truncate">Total Albums</dt>
+          <dd class="mt-1 text-3xl font-semibold text-gray-900"><%= @weekly_stats[:total_albums] %></dd>
+          <p class="mt-2 text-sm text-gray-500">
+            <%= number_with_delimiter(@weekly_stats[:total_album_plays]) %> plays
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <dt class="text-sm font-medium text-gray-500 truncate">Top Artist</dt>
+          <% if @weekly_stats[:top_artist] %>
+            <dd class="mt-1 text-lg font-semibold text-gray-900 truncate">
+              <%= @weekly_stats[:top_artist].scrobble_artist.name %>
+            </dd>
+            <p class="mt-2 text-sm text-gray-500">
+              <%= number_with_delimiter(@weekly_stats[:top_artist].plays) %> plays
+            </p>
+          <% else %>
+            <dd class="mt-1 text-lg text-gray-400">No data</dd>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <dt class="text-sm font-medium text-gray-500 truncate">Top Album</dt>
+          <% if @weekly_stats[:top_album] %>
+            <dd class="mt-1 text-lg font-semibold text-gray-900 truncate">
+              <%= @weekly_stats[:top_album].scrobble_album.name %>
+            </dd>
+            <p class="mt-2 text-sm text-gray-500 truncate">
+              <%= @weekly_stats[:top_album].scrobble_artist.name %>
+            </p>
+          <% else %>
+            <dd class="mt-1 text-lg text-gray-400">No data</dd>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    
+    <%# Category Tabs %>
+    <div data-controller="tabs" data-tabs-active-class="border-indigo-500 text-indigo-600">
+      <div class="border-b border-gray-200">
+        <nav class="-mb-px flex space-x-8">
+          <button
+            data-tabs-target="tab"
+            data-action="click->tabs#select"
+            data-panel-id="artists-panel"
+            class="<%= @category == 'artist' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' %> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+            role="tab"
+          >
+            Artists (<%= @weekly_stats[:total_artists] %>)
+          </button>
+          <button
+            data-tabs-target="tab"
+            data-action="click->tabs#select"
+            data-panel-id="albums-panel"
+            class="<%= @category == 'album' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' %> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+            role="tab"
+          >
+            Albums (<%= @weekly_stats[:total_albums] %>)
+          </button>
+        </nav>
+      </div>
+      
+      <%# Artists Panel %>
+      <div id="artists-panel" data-tabs-target="panel" class="<%= @category != 'artist' ? 'hidden' : '' %> mt-6">
+        <% artist_plays = @category == 'artist' ? @plays : ScrobblePlay.where(played_on: @week, category: 'artist').order(plays: :desc).includes(:scrobble_artist).limit(50) %>
+        
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16">
+                  Rank
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Artist
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Plays
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Change
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Graph
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% max_artist_plays = artist_plays.first&.plays || 100 %>
+              <% artist_plays.each_with_index do |play, index| %>
+                <% prev_play = @previous_week_plays[play.scrobble_artist_id] if @category == 'artist' %>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= index + 1 %>
+                  </td>
+                  <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                    <%= link_to play.scrobble_artist.name,
+                                url_for(controller: 'admin/lastfm', action: 'plays', search: play.scrobble_artist.name, category: 'artist'),
+                                class: "text-indigo-600 hover:text-indigo-900" %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <%= number_with_delimiter(play.plays) %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <% if prev_play %>
+                      <% change = play.plays - prev_play.plays %>
+                      <span class="<%= change >= 0 ? 'text-green-600' : 'text-red-600' %>">
+                        <%= change >= 0 ? '+' : '' %><%= change %>
+                      </span>
+                    <% else %>
+                      <span class="text-gray-400">new</span>
+                    <% end %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="w-32 bg-gray-200 rounded-full h-2">
+                      <div class="bg-indigo-600 h-2 rounded-full" style="width: <%= (play.plays.to_f / max_artist_plays * 100).round %>%"></div>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <%# Albums Panel %>
+      <div id="albums-panel" data-tabs-target="panel" class="<%= @category != 'album' ? 'hidden' : '' %> mt-6">
+        <% album_plays = @category == 'album' ? @plays : ScrobblePlay.where(played_on: @week, category: 'album').order(plays: :desc).includes(:scrobble_album, :scrobble_artist).limit(50) %>
+        
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16">
+                  Rank
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Album
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Artist
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Plays
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Graph
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% max_album_plays = album_plays.first&.plays || 100 %>
+              <% album_plays.each_with_index do |play, index| %>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= index + 1 %>
+                  </td>
+                  <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                    <%= link_to play.scrobble_album.name,
+                                url_for(controller: 'admin/lastfm', action: 'plays', search: play.scrobble_album.name, category: 'album'),
+                                class: "text-indigo-600 hover:text-indigo-900" %>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-500">
+                    <%= play.scrobble_artist.name %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <%= number_with_delimiter(play.plays) %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="w-32 bg-gray-200 rounded-full h-2">
+                      <div class="bg-indigo-600 h-2 rounded-full" style="width: <%= (play.plays.to_f / max_album_plays * 100).round %>%"></div>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

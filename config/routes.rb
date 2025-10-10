@@ -52,6 +52,15 @@ Rails.application.routes.draw do
     resources :spotify_tracks, only: [:index, :show]
     resources :spotify_artists, only: [:index, :show]
 
+    resource :lastfm, controller: 'lastfm', only: [] do
+      member do
+        get :top
+        get :counts
+        get :plays
+        post :sync
+      end
+    end
+
   end # namespace :admin
 
   # Mission Control for job monitoring (admin only)

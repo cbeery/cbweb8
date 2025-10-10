@@ -1,0 +1,2 @@
+class ScrobbleCount < ApplicationRecord
+end

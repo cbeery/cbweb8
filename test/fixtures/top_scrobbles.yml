@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  category: MyString
+  period: MyString
+  artist: MyText
+  name: MyText
+  rank: 1
+  plays: 1
+  position: 1
+  revised_at: 2025-10-09 14:18:27
+  url: MyText
+
+two:
+  category: MyString
+  period: MyString
+  artist: MyText
+  name: MyText
+  rank: 1
+  plays: 1
+  position: 1
+  revised_at: 2025-10-09 14:18:27
+  url: MyText

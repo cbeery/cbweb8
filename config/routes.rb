@@ -56,6 +56,7 @@ Rails.application.routes.draw do
       member do
         get :top
         get :counts
+        get :plays
         post :sync
       end
     end

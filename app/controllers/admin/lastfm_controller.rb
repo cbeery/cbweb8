@@ -61,18 +61,112 @@ class Admin::LastfmController < Admin::BaseController
     calculate_recent_stats
   end
   
-  def sync
-    # Trigger the sync service
-    job_id = Sync::TopScrobblesService.new.sync
+  def plays
+    @week = params[:week].present? ? Date.parse(params[:week]) : Date.today.beginning_of_week
+    @search = params[:search]
+    @category = params[:category] || 'artist'
     
-    redirect_to admin_lastfm_top_path, 
-                notice: "Last.fm sync started. Job ID: #{job_id}"
-  rescue => e
-    redirect_to admin_lastfm_top_path, 
-                alert: "Sync failed: #{e.message}"
+    # Validate category
+    @category = 'artist' unless %w[artist album].include?(@category)
+    
+    if @search.present?
+      # Search mode - show history for a specific artist/album
+      search_plays_history
+    else
+      # Week view mode - show top artists/albums for selected week
+      load_weekly_plays
+    end
+    
+    # Get available weeks for navigation
+    @available_weeks = ScrobblePlay.select(:played_on)
+                                   .distinct
+                                   .order(played_on: :desc)
+                                   .limit(52)
+                                   .pluck(:played_on)
+    
+    # Calculate weekly stats
+    calculate_weekly_stats
   end
   
   private
+  
+  def search_plays_history
+    if @category == 'artist'
+      artist = ScrobbleArtist.where('name ILIKE ?', "%#{@search}%").first
+      if artist
+        @plays = ScrobblePlay.where(scrobble_artist: artist, category: 'artist')
+                             .order(played_on: :desc)
+                             .includes(:scrobble_artist)
+                             .limit(52)
+        
+        # Also get album plays for this artist
+        @album_plays = ScrobblePlay.where(scrobble_artist: artist, category: 'album')
+                                   .order(played_on: :desc)
+                                   .includes(:scrobble_album)
+                                   .limit(52)
+      else
+        @plays = ScrobblePlay.none
+        @album_plays = ScrobblePlay.none
+      end
+    else
+      # Search for albums
+      @plays = ScrobblePlay.joins(:scrobble_album)
+                           .where('scrobble_albums.name ILIKE ?', "%#{@search}%")
+                           .where(category: 'album')
+                           .order(played_on: :desc)
+                           .includes(:scrobble_album, :scrobble_artist)
+                           .limit(52)
+    end
+  end
+  
+  def load_weekly_plays
+    # Get top artists/albums for the selected week
+    @plays = ScrobblePlay.where(played_on: @week, category: @category)
+                         .order(plays: :desc)
+                         .includes(:scrobble_artist, :scrobble_album)
+                         .limit(50)
+    
+    # Get week-over-week comparison
+    previous_week = @week - 1.week
+    @previous_week_plays = ScrobblePlay.where(played_on: previous_week, category: @category)
+                                       .includes(:scrobble_artist, :scrobble_album)
+                                       .index_by do |play|
+                                         if @category == 'artist'
+                                           play.scrobble_artist_id
+                                         else
+                                           play.scrobble_album_id
+                                         end
+                                       end
+  end
+  
+  def calculate_weekly_stats
+    week_plays = ScrobblePlay.where(played_on: @week)
+    
+    @weekly_stats = {
+      total_artists: week_plays.where(category: 'artist').count,
+      total_albums: week_plays.where(category: 'album').count,
+      total_artist_plays: week_plays.where(category: 'artist').sum(:plays),
+      total_album_plays: week_plays.where(category: 'album').sum(:plays),
+      top_artist: week_plays.where(category: 'artist')
+                            .order(plays: :desc)
+                            .first,
+      top_album: week_plays.where(category: 'album')
+                           .order(plays: :desc)
+                           .includes(:scrobble_artist)
+                           .first
+    }
+    
+    # Get historical trends (last 8 weeks)
+    @trend_weeks = (0..7).map { |i| @week - i.weeks }.reverse
+    @trends = {
+      artists: @trend_weeks.map do |week|
+        ScrobblePlay.where(played_on: week, category: 'artist').count
+      end,
+      plays: @trend_weeks.map do |week|
+        ScrobblePlay.where(played_on: week, category: 'artist').sum(:plays)
+      end
+    }
+  end
   
   def calculate_summaries
     all_counts = ScrobbleCount.where(played_on: @start_date..@end_date)
@@ -139,5 +233,4 @@ class Admin::LastfmController < Admin::BaseController
     # For now, just use authenticate_user!
     authenticate_user!
   end
-
 end

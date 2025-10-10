@@ -34,7 +34,7 @@ class Admin::SyncsController < Admin::BaseController
   
   def sync_sources
     # Could be configuration-based
-    %w[test letterboxd strava spotify lastfm swarm scrobble_plays daily_scrobble_counts]
+    %w[test letterboxd strava spotify lastfm swarm scrobble_plays daily_scrobble_counts top_scrobbles]
 
   end
   

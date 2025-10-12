@@ -22,48 +22,32 @@
 
     <!-- Navigation Content -->
     <div class="flex-1 p-6">
-      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl">
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 max-w-4xl">
         
         <!-- Admin Tools Section -->
         <div>
-          <h3 class="text-lg font-medium text-white mb-4">Admin Tools</h3>
+          <h3 class="text-lg font-medium text-white mb-4">Tools</h3>
           <nav class="space-y-3">
             <%= link_to admin_root_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
               Dashboard
             <% end %>
             
-            <%= link_to admin_test_s3_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
-              S3 Test
-            <% end %>
-            
-            <%= link_to admin_test_job_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
-              Job Test
-            <% end %>
-            
-            <%= link_to mission_control_jobs.root_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200", target: '_blank' do %>
-              Jobs Monitor
-            <% end %>
-
-            <%= link_to admin_log_entries_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
-              Log
-            <% end %>
-
-            <%= link_to admin_syncs_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
-              Data Syncs
-            <% end %>
-
             <%= link_to admin_movies_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
               Movies
             <% end %>
 
             <%= link_to admin_spotify_playlists_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
-              spotify
+              Spotify
+            <% end %>
+
+            <%= link_to top_admin_lastfm_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
+              Last.fm
             <% end %>
 
           </nav>
         </div>
 
-        <!-- Account Section -->
+        <!-- Account and Test Sections -->
         <div>
           <h3 class="text-lg font-medium text-white mb-4">Account</h3>
           <nav class="space-y-3">
@@ -82,6 +66,38 @@
           </nav>
         </div>
 
+        <!-- Admin Section -->
+        <div>
+          <h3 class="text-lg font-medium text-white mb-4">Admin</h3>
+          <nav class="space-y-3">
+
+            <%= link_to mission_control_jobs.root_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200", target: '_blank' do %>
+              Jobs Monitor
+            <% end %>
+
+            <%= link_to admin_log_entries_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
+              Log
+            <% end %>
+
+            <%= link_to admin_syncs_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
+              Data Syncs
+            <% end %>
+
+          <h4 class="text-lg font-small text-white mt-4 mb-4">Tests</h4>
+          <nav class="space-y-3">
+            <%= link_to admin_test_s3_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
+              S3 Test
+            <% end %>
+            
+            <%= link_to admin_test_job_path, class: "block text-gray-300 hover:text-white hover:bg-gray-600 px-3 py-2 rounded-md transition-colors duration-200" do %>
+              Job Test
+            <% end %>
+            
+          </nav>
+
+          </nav>
+        </div>
+
         <!-- System Section -->
         <div>
           <h3 class="text-lg font-medium text-white mb-4">System</h3>
@@ -91,6 +107,8 @@
             </a>
           </nav>
         </div>
+
+
       </div>
     </div>
 

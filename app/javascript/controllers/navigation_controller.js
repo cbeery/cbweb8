@@ -60,5 +60,15 @@ export default class extends Controller {
         this.close()
       }
     }
+    // Home on Cmd/Ctrl + H
+    if ((event.metaKey || event.ctrlKey) && event.key === 'h') {
+      event.preventDefault()
+      Turbo.visit('/')
+    }
+    // Admin on Cmd/Ctrl + A
+    if ((event.metaKey || event.ctrlKey) && event.key === 'a') {
+      event.preventDefault()
+      Turbo.visit('/admin')
+    }
   }
 }

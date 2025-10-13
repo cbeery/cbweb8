@@ -272,9 +272,13 @@
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Daily Average
               </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Graph
+              </th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
+            <% max_weekly_plays = @summaries[:weekly].map(&:last).max || 100 %>
             <% @summaries[:weekly].each do |week_start, total| %>
               <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -285,6 +289,11 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <%= (total / 7.0).round(1) %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-indigo-600 h-2.5 rounded-full" style="width: <%= (total.to_f / max_weekly_plays * 100).round %>%"></div>
+                  </div>
                 </td>
               </tr>
             <% end %>
@@ -308,9 +317,13 @@
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Daily Average
               </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Graph
+              </th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
+            <% max_monthly_plays = @summaries[:monthly].map(&:last).max || 100 %>
             <% @summaries[:monthly].each do |month_start, total| %>
               <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -321,6 +334,11 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <%= (total.to_f / month_start.end_of_month.day).round(1) %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-indigo-600 h-2.5 rounded-full" style="width: <%= (total.to_f / max_monthly_plays * 100).round %>%"></div>
+                  </div>
                 </td>
               </tr>
             <% end %>
@@ -344,9 +362,13 @@
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Daily Average
               </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Graph
+              </th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
+            <% max_yearly_plays = @summaries[:yearly].map(&:last).max || 100 %>
             <% @summaries[:yearly].each do |year, total| %>
               <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -358,11 +380,17 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <%= (total / 365.0).round(1) %>
                 </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-indigo-600 h-2.5 rounded-full" style="width: <%= (total.to_f / max_yearly_plays * 100).round %>%"></div>
+                  </div>
+                </td>
               </tr>
             <% end %>
           </tbody>
         </table>
       </div>
     </div>
+
   </div>
 </div>

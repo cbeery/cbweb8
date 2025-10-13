@@ -113,6 +113,7 @@
         <%= link_to "Last 30 days", url_for(controller: 'admin/lastfm', action: 'counts', start_date: 30.days.ago, end_date: Date.today), class: "text-sm text-indigo-600 hover:text-indigo-500" %>
         <%= link_to "Last 3 months", url_for(controller: 'admin/lastfm', action: 'counts', start_date: 3.months.ago, end_date: Date.today), class: "text-sm text-indigo-600 hover:text-indigo-500" %>
         <%= link_to "This year", url_for(controller: 'admin/lastfm', action: 'counts', start_date: Date.current.beginning_of_year, end_date: Date.today), class: "text-sm text-indigo-600 hover:text-indigo-500" %>
+        <%= link_to "All-time", url_for(controller: 'admin/lastfm', action: 'counts', start_date: Date.new(2008,1,1), end_date: Date.today), class: "text-sm text-indigo-600 hover:text-indigo-500" %>
       </div>
     <% end %>
   </div>

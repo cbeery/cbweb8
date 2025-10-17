@@ -61,17 +61,30 @@ Rails.application.routes.draw do
       end
     end
 
-    # NBA Routes
-    resources :nba_teams do
-      member do
-        post :upload_logo
-      end
-    end
-    
+    # NBA Section with its own namespace
     namespace :nba do
-      get 'games', to: 'nba#games'
-      get 'games/:id/edit', to: 'nba#edit_game', as: :edit_game
-      patch 'games/:id', to: 'nba#update_game', as: :update_game
+      root to: 'dashboard#index'  # /admin/nba
+      
+      resources :games do
+        member do
+          get :edit_modal
+          patch :update_modal
+        end
+        collection do
+          get :by_date
+        end
+      end
+      
+      resources :teams do
+        member do
+          post :upload_logo
+        end
+      end
+      
+      # Future routes
+      # get 'data', to: 'data#index'
+      # get 'stats', to: 'stats#index'
+      # get 'import', to: 'import#index'
     end
 
   end # namespace :admin

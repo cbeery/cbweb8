@@ -1,0 +1,119 @@
+<%# app/views/admin/nba/games.html.erb %>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header with Date Navigation -->
+  <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <h1 class="text-2xl font-bold text-gray-900 mb-4 sm:mb-0">NBA Games</h1>
+      
+      <div class="flex items-center space-x-2">
+        <%= link_to admin_nba_games_path(date: @prev_date),
+            class: "px-3 py-2 text-sm font-medium rounded-md #{@has_prev_games ? 'text-gray-700 bg-white hover:bg-gray-50 border border-gray-300' : 'text-gray-400 bg-gray-100 cursor-not-allowed'}",
+            data: { turbo_frame: "games_list" } do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        <% end %>
+        
+        <input type="date" 
+               value="<%= @date.to_s %>"
+               id="date_picker"
+               class="px-3 py-2 border border-gray-300 rounded-md text-sm"
+               data-controller="date-navigator"
+               data-action="change->date-navigator#navigate">
+        
+        <span class="px-3 py-2 text-sm font-medium text-gray-700">
+          <%= @date.strftime("%B %d, %Y") %>
+        </span>
+        
+        <%= link_to admin_nba_games_path(date: @next_date),
+            class: "px-3 py-2 text-sm font-medium rounded-md #{@has_next_games ? 'text-gray-700 bg-white hover:bg-gray-50 border border-gray-300' : 'text-gray-400 bg-gray-100 cursor-not-allowed'}",
+            data: { turbo_frame: "games_list" } do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Games Grid -->
+  <turbo-frame id="games_list">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <% @games.each do |game| %>
+        <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+             data-controller="modal"
+             data-action="click->modal#open"
+             data-modal-url-value="<%= edit_game_admin_nba_path(game) %>">
+          
+          <!-- Game Card Content -->
+          <div class="p-4" id="game_<%= game.id %>">
+            <!-- Teams -->
+            <div class="flex justify-between items-center mb-3">
+              <div class="flex items-center space-x-2">
+                <% if game.away_team.logo.attached? %>
+                  <%= image_tag game.away_team.logo, class: "w-8 h-8 object-contain" %>
+                <% end %>
+                <span class="font-medium"><%= game.away_team.abbreviation %></span>
+              </div>
+              <span class="text-gray-500">@</span>
+              <div class="flex items-center space-x-2">
+                <span class="font-medium"><%= game.home_team.abbreviation %></span>
+                <% if game.home_team.logo.attached? %>
+                  <%= image_tag game.home_team.logo, class: "w-8 h-8 object-contain" %>
+                <% end %>
+              </div>
+            </div>
+            
+            <!-- Time/Score -->
+            <div class="text-center text-sm text-gray-600 mb-3">
+              <% if game.final? && game.score_display %>
+                <%= game.score_display %>
+              <% elsif game.display_time %>
+                <%= game.display_time %>
+              <% else %>
+                TBD
+              <% end %>
+            </div>
+            
+            <!-- Watch Status -->
+            <% if game.watched? %>
+              <div class="space-y-1">
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">Watched:</span>
+                  <span class="font-medium">
+                    <%= game.quarters_watched %> <%= 'quarter'.pluralize(game.quarters_watched) %>
+                  </span>
+                </div>
+                <% if game.network.present? %>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Network:</span>
+                    <span><%= game.network %></span>
+                  </div>
+                <% end %>
+                <% if game.place.present? %>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Place:</span>
+                    <span><%= game.place %></span>
+                  </div>
+                <% end %>
+              </div>
+            <% else %>
+              <div class="text-center text-sm text-gray-400">
+                Not watched
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    
+    <% if @games.empty? %>
+      <div class="bg-white rounded-lg shadow-sm p-8 text-center">
+        <p class="text-gray-500">No games scheduled for this date.</p>
+      </div>
+    <% end %>
+  </turbo-frame>
+</div>
+
+<!-- Modal Container -->
+<div id="modal_container"></div>

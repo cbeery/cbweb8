@@ -61,6 +61,19 @@ Rails.application.routes.draw do
       end
     end
 
+    # NBA Routes
+    resources :nba_teams do
+      member do
+        post :upload_logo
+      end
+    end
+    
+    namespace :nba do
+      get 'games', to: 'nba#games'
+      get 'games/:id/edit', to: 'nba#edit_game', as: :edit_game
+      patch 'games/:id', to: 'nba#update_game', as: :update_game
+    end
+
   end # namespace :admin
 
   # Mission Control for job monitoring (admin only)

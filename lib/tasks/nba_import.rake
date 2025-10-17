@@ -170,10 +170,10 @@ namespace :nba do
           preseason: preseason,
           postseason: postseason,
           
-          # Playoff details
-          playoff_round: row[:playoff_round]&.to_i,
-          playoff_conference: row[:playoff_conference]&.strip,
-          playoff_series_game_number: row[:playoff_series_game_number]&.to_i,
+          # Playoff details - only set if values are present
+          playoff_round: row[:playoff_round].present? ? row[:playoff_round].to_i : nil,
+          playoff_conference: row[:playoff_conference].present? ? row[:playoff_conference].strip : nil,
+          playoff_series_game_number: row[:playoff_series_game_number].present? ? row[:playoff_series_game_number].to_i : nil,
           
           # Results
           home_score: row[:home_score]&.to_i,

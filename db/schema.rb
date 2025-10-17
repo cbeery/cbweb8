@@ -93,8 +93,36 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_17_184847) do
   end
 
   create_table "nba_games", force: :cascade do |t|
+    t.bigint "away_id", null: false
+    t.bigint "home_id", null: false
+    t.date "played_on", null: false
+    t.datetime "played_at"
+    t.string "gametime"
+    t.string "season"
+    t.boolean "preseason", default: false
+    t.boolean "postseason", default: false
+    t.integer "playoff_round"
+    t.string "playoff_conference"
+    t.integer "playoff_series_game_number"
+    t.integer "away_score"
+    t.integer "home_score"
+    t.integer "overtimes", default: 0
+    t.integer "quarters_watched", default: 0
+    t.string "network"
+    t.string "screen"
+    t.string "place"
+    t.integer "position"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["away_id"], name: "index_nba_games_on_away_id"
+    t.index ["home_id"], name: "index_nba_games_on_home_id"
+    t.index ["played_on", "away_id", "home_id"], name: "index_nba_games_uniqueness", unique: true
+    t.index ["played_on", "position"], name: "index_nba_games_on_played_on_and_position"
+    t.index ["played_on"], name: "index_nba_games_on_played_on"
+    t.index ["playoff_round", "playoff_conference"], name: "index_nba_games_on_playoff_round_and_playoff_conference"
+    t.index ["postseason"], name: "index_nba_games_on_postseason"
+    t.index ["quarters_watched"], name: "index_nba_games_on_quarters_watched"
+    t.index ["season"], name: "index_nba_games_on_season"
   end
 
   create_table "nba_teams", force: :cascade do |t|
@@ -459,6 +487,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_17_184847) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "log_entries", "users"
   add_foreign_key "movie_posters", "movies"
+  add_foreign_key "nba_games", "nba_teams", column: "away_id"
+  add_foreign_key "nba_games", "nba_teams", column: "home_id"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

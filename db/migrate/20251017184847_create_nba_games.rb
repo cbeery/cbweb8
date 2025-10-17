@@ -47,13 +47,3 @@ class CreateNbaGames < ActiveRecord::Migration[8.0]
     add_index :nba_games, [:playoff_round, :playoff_conference]
   end
 end
-
-
-
-class CreateNbaGames < ActiveRecord::Migration[8.0]
-  def change
-    create_table :nba_games do |t|
-      t.timestamps
-    end
-  end
-end

@@ -1,3 +1,4 @@
+# app/models/nba_game.rb
 class NbaGame < ApplicationRecord
   # Associations (using legacy column names)
   belongs_to :away_team, class_name: 'NbaTeam', foreign_key: 'away_id'
@@ -26,7 +27,7 @@ class NbaGame < ApplicationRecord
   
   # Callbacks
   before_save :set_position_if_nil
-  before_save :infer_playoff_details
+  before_save :clean_playoff_fields
   
   # Enums for better playoff tracking
   PLAYOFF_ROUNDS = {
@@ -134,17 +135,35 @@ class NbaGame < ApplicationRecord
   end
   
   def playoff_details_consistency
+    # Only validate if postseason is true and playoff details are actually meaningful
     if postseason
-      if playoff_round.present? && playoff_round < 4 && playoff_conference.blank?
+      # Only require conference for conference rounds (1-3)
+      if playoff_round.present? && playoff_round > 0 && playoff_round < 4 && playoff_conference.blank?
         errors.add(:playoff_conference, "must be present for conference playoff games")
       end
+      # Finals shouldn't have conference
       if playoff_round == 4 && playoff_conference.present?
         errors.add(:playoff_conference, "should be blank for NBA Finals")
       end
     else
-      if playoff_round.present? || playoff_conference.present? || playoff_series_game_number.present?
+      # If not postseason, playoff details should be nil or 0
+      # Check if any meaningful playoff data exists
+      has_playoff_data = (playoff_round.present? && playoff_round > 0) ||
+                         playoff_conference.present? ||
+                         (playoff_series_game_number.present? && playoff_series_game_number > 0)
+      
+      if has_playoff_data
         errors.add(:postseason, "must be true if playoff details are set")
       end
+    end
+  end
+  
+  def clean_playoff_fields
+    # Clean up playoff fields if not a playoff game
+    unless postseason
+      self.playoff_round = nil if playoff_round == 0
+      self.playoff_conference = nil if playoff_conference.blank?
+      self.playoff_series_game_number = nil if playoff_series_game_number == 0
     end
   end
   
@@ -162,15 +181,6 @@ class NbaGame < ApplicationRecord
                       end
     else
       self.position = 2  # Default middle position
-    end
-  end
-  
-  def infer_playoff_details
-    # If it's May-June and no game type is set, likely playoffs
-    if played_on.present? && !preseason && !postseason
-      if played_on.month.in?([5, 6])
-        # Could add logic here to auto-detect playoffs
-      end
     end
   end
 end

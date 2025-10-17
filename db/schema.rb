@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_09_201827) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_17_184847) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -90,6 +90,26 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_09_201827) do
     t.index ["title"], name: "index_movies_on_title"
     t.index ["tmdb_id"], name: "index_movies_on_tmdb_id"
     t.index ["year"], name: "index_movies_on_year"
+  end
+
+  create_table "nba_games", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "nba_teams", force: :cascade do |t|
+    t.string "city", null: false
+    t.string "name", null: false
+    t.string "abbreviation", null: false
+    t.string "color"
+    t.string "conference"
+    t.string "division"
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["abbreviation"], name: "index_nba_teams_on_abbreviation", unique: true
+    t.index ["active"], name: "index_nba_teams_on_active"
+    t.index ["name"], name: "index_nba_teams_on_name"
   end
 
   create_table "scrobble_albums", force: :cascade do |t|

@@ -1,0 +1,25 @@
+<%# app/views/admin/nba/update_game.turbo_stream.erb %>
+<%= turbo_stream.replace "game_#{@game.id}" do %>
+  <div class="p-4" id="game_<%= @game.id %>">
+    <!-- Updated game card content (same as in games.html.erb) -->
+    <div class="flex justify-between items-center mb-3">
+      <div class="flex items-center space-x-2">
+        <% if @game.away_team.logo.attached? %>
+          <%= image_tag @game.away_team.logo, class: "w-8 h-8 object-contain" %>
+        <% end %>
+        <span class="font-medium"><%= @game.away_team.abbreviation %></span>
+      </div>
+      <span class="text-gray-500">@</span>
+      <div class="flex items-center space-x-2">
+        <span class="font-medium"><%= @game.home_team.abbreviation %></span>
+        <% if @game.home_team.logo.attached? %>
+          <%= image_tag @game.home_team.logo, class: "w-8 h-8 object-contain" %>
+        <% end %>
+      </div>
+    </div>
+    
+    <!-- Rest of the card content -->
+  </div>
+<% end %>
+
+<%= turbo_stream.update "modal_container", "" %>

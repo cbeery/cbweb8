@@ -1,0 +1,74 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header with Date Navigation -->
+  <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <h1 class="text-2xl font-bold text-gray-900 mb-4 sm:mb-0">NBA Games</h1>
+      
+      <div class="flex items-center space-x-2">
+        <%= link_to admin_nba_games_path(date: @prev_date),
+            class: "px-3 py-2 text-sm font-medium rounded-md #{@has_prev_games ? 'text-gray-700 bg-white hover:bg-gray-50 border border-gray-300' : 'text-gray-400 bg-gray-100 cursor-not-allowed'}",
+            data: { turbo_frame: "games_list" } do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        <% end %>
+        
+        <input type="date" 
+               value="<%= @date.to_s %>"
+               id="date_picker"
+               class="px-3 py-2 border border-gray-300 rounded-md text-sm"
+               data-controller="date-navigator"
+               data-action="change->date-navigator#navigate">
+        
+        <span class="px-3 py-2 text-sm font-medium text-gray-700">
+          <%= @date.strftime("%B %d, %Y") %>
+        </span>
+        
+        <%= link_to admin_nba_games_path(date: @next_date),
+            class: "px-3 py-2 text-sm font-medium rounded-md #{@has_next_games ? 'text-gray-700 bg-white hover:bg-gray-50 border border-gray-300' : 'text-gray-400 bg-gray-100 cursor-not-allowed'}",
+            data: { turbo_frame: "games_list" } do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Games Grid -->
+  <turbo-frame id="games_list">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <% @games.each do |game| %>
+        <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer <%= 'ring-2 ring-purple-500' if game.postseason %>"
+             data-controller="modal"
+             data-action="click->modal#open"
+             data-modal-url-value="<%= edit_modal_admin_nba_game_path(game) %>">
+          
+          <!-- Game Type Badge -->
+          <% if game.postseason || game.preseason %>
+            <div class="px-4 pt-3">
+              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <%= game.postseason ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800' %>">
+                <%= game.game_type_display %>
+                <%= game.playoff_game_display %>
+              </span>
+            </div>
+          <% end %>
+          
+          <!-- Game Card Content -->
+          <div class="p-4" id="game_<%= game.id %>">
+            <%= render 'game_card', game: game %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    
+    <% if @games.empty? %>
+      <div class="bg-white rounded-lg shadow-sm p-8 text-center">
+        <p class="text-gray-500">No games scheduled for this date.</p>
+      </div>
+    <% end %>
+  </turbo-frame>
+</div>
+
+<!-- Modal Container -->
+<div id="modal_container"></div>

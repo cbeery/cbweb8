@@ -1,0 +1,62 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">NBA Teams</h1>
+  </div>
+
+  <% if @teams_by_conference.any? %>
+    <% @teams_by_conference.each do |conference, teams| %>
+      <div class="mb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">
+          <%= conference || "Unassigned" %> Conference
+        </h2>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <% teams.each do |team| %>
+            <%= link_to admin_nba_team_path(team), class: "bg-white rounded-lg shadow hover:shadow-md transition-shadow" do %>
+              <div class="p-6">
+                <div class="flex items-center space-x-4">
+                  <% if team.logo.attached? %>
+                    <%= image_tag team.logo, class: "w-16 h-16 object-contain" %>
+                  <% else %>
+                    <div class="w-16 h-16 rounded-full flex items-center justify-center text-lg font-bold text-white" 
+                         style="background-color: <%= team.theme_color %>">
+                      <%= team.abbreviation %>
+                    </div>
+                  <% end %>
+                  
+                  <div class="flex-1">
+                    <h3 class="text-lg font-medium text-gray-900">
+                      <%= team.display_name %>
+                    </h3>
+                    <p class="text-sm text-gray-500">
+                      <%= team.abbreviation %>
+                    </p>
+                    <% if team.division.present? %>
+                      <p class="text-xs text-gray-400 mt-1">
+                        <%= team.division %>
+                      </p>
+                    <% end %>
+                  </div>
+                </div>
+                
+                <div class="mt-4 flex items-center text-sm text-gray-600">
+                  <span class="flex-1">
+                    <%= team.games.count %> games
+                  </span>
+                  <span class="text-green-600">
+                    <%= team.games_watched.count %> watched
+                  </span>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="bg-white rounded-lg shadow p-8 text-center">
+      <p class="text-gray-500">No teams found.</p>
+      <p class="mt-2 text-sm text-gray-400">Import teams using the rake task.</p>
+    </div>
+  <% end %>
+</div>

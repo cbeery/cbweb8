@@ -1,0 +1,7 @@
+<%= turbo_stream.replace "game_#{@game.id}" do %>
+  <div class="p-4" id="game_<%= @game.id %>">
+    <%= render 'game_card', game: @game %>
+  </div>
+<% end %>
+
+<%= turbo_stream.update "modal_container", "" %>

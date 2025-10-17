@@ -1,0 +1,85 @@
+<div class="flex justify-between items-center mb-3">
+  <div class="flex items-center space-x-2">
+    <% if game.away_team.logo.attached? %>
+      <%= image_tag game.away_team.logo, class: "w-8 h-8 object-contain" %>
+    <% else %>
+      <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white" 
+           style="background-color: <%= game.away_team.theme_color %>">
+        <%= game.away_team.abbreviation[0..1] %>
+      </div>
+    <% end %>
+    <span class="font-medium"><%= game.away_team.abbreviation %></span>
+    <% if game.final? && game.winner == game.away_team %>
+      <span class="text-xs text-green-600">W</span>
+    <% end %>
+  </div>
+  
+  <span class="text-gray-500">@</span>
+  
+  <div class="flex items-center space-x-2">
+    <% if game.final? && game.winner == game.home_team %>
+      <span class="text-xs text-green-600">W</span>
+    <% end %>
+    <span class="font-medium"><%= game.home_team.abbreviation %></span>
+    <% if game.home_team.logo.attached? %>
+      <%= image_tag game.home_team.logo, class: "w-8 h-8 object-contain" %>
+    <% else %>
+      <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white" 
+           style="background-color: <%= game.home_team.theme_color %>">
+        <%= game.home_team.abbreviation[0..1] %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Time/Score with overtime indicator -->
+<div class="text-center text-sm text-gray-600 mb-3">
+  <% if game.final? %>
+    <div class="font-semibold text-gray-900">
+      <%= game.away_score %> - <%= game.home_score %>
+    </div>
+    <% if game.overtimes > 0 %>
+      <span class="text-xs text-orange-600">
+        <%= game.overtimes == 1 ? 'OT' : "#{game.overtimes}OT" %>
+      </span>
+    <% end %>
+  <% elsif game.display_time %>
+    <%= game.display_time %>
+  <% else %>
+    TBD
+  <% end %>
+</div>
+
+<!-- Watch Status -->
+<% if game.watched? %>
+  <div class="space-y-1">
+    <!-- Visual progress bar for quarters watched -->
+    <div class="flex space-x-1 mb-2">
+      <% 4.times do |q| %>
+        <div class="flex-1 h-1 rounded-full <%= q < game.quarters_watched ? 'bg-green-500' : 'bg-gray-200' %>"></div>
+      <% end %>
+    </div>
+    
+    <div class="grid grid-cols-2 gap-1 text-xs">
+      <% if game.network.present? %>
+        <div class="text-gray-600">
+          <span class="font-medium"><%= game.network %></span>
+        </div>
+      <% end %>
+      <% if game.screen.present? %>
+        <div class="text-gray-600">
+          <span class="font-medium"><%= game.screen %></span>
+        </div>
+      <% end %>
+      <% if game.place.present? %>
+        <div class="text-gray-600 col-span-2">
+          📍 <%= game.place %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% else %>
+  <div class="text-center text-sm text-gray-400">
+    Not watched
+  </div>
+<% end %>

@@ -1,3 +1,4 @@
+# app/models/user.rb
 class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
@@ -14,14 +15,17 @@ class User < ApplicationRecord
   end
 
   def self.from_omniauth(auth)
-    where(email: auth.info.email).first_or_create do |user|
-      user.email = auth.info.email
-      user.password = Devise.friendly_token[0, 20]
-      user.provider = auth.provider
-      user.uid = auth.uid
-      user.name = auth.info.name
-      user.image = auth.info.image
+    user = where(email: auth.info.email).first_or_initialize do |u|
+      u.password = Devise.friendly_token[0, 20]
     end
+    
+    # Always update these attributes to keep them fresh
+    user.provider = auth.provider
+    user.uid = auth.uid
+    user.name = auth.info.name
+    user.image = auth.info.image
+    
+    user.save! if user.new_record? || user.changed?
+    user
   end
-
 end

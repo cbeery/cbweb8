@@ -34,20 +34,14 @@
 
 <!-- Time/Score with overtime indicator -->
 <div class="text-center text-sm text-gray-600 mb-3">
-  <% if game.final? %>
-    <div class="font-semibold text-gray-900">
-      <%= game.away_score %> - <%= game.home_score %>
-    </div>
-    <% if game.overtimes > 0 %>
-      <span class="text-xs text-orange-600">
-        <%= game.overtimes == 1 ? 'OT' : "#{game.overtimes}OT" %>
-      </span>
-    <% end %>
-  <% elsif game.display_time %>
-    <%= game.display_time %>
+
+  <% if game.display_time %>
+    <%= zone_time game.display_time %>
   <% else %>
     TBD
   <% end %>
+
+  
 </div>
 
 <!-- Watch Status -->

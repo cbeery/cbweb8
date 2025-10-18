@@ -4,7 +4,7 @@
       <%= image_tag game.away_team.logo, class: "w-8 h-8 object-contain" %>
     <% else %>
       <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white" 
-           style="background-color: <%= game.away_team.theme_color %>">
+           style="background-color: <%= game.away_team.color %>">
         <%= game.away_team.abbreviation[0..1] %>
       </div>
     <% end %>
@@ -25,7 +25,7 @@
       <%= image_tag game.home_team.logo, class: "w-8 h-8 object-contain" %>
     <% else %>
       <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white" 
-           style="background-color: <%= game.home_team.theme_color %>">
+           style="background-color: <%= game.home_team.color %>">
         <%= game.home_team.abbreviation[0..1] %>
       </div>
     <% end %>

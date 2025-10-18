@@ -7,7 +7,7 @@
             <%= image_tag @team.logo, class: "w-20 h-20 object-contain" %>
           <% else %>
             <div class="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold text-white" 
-                 style="background-color: <%= @team.theme_color %>">
+                 style="background-color: <%= @team.color %>">
               <%= @team.abbreviation %>
             </div>
           <% end %>

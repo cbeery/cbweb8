@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_09_201827) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_17_184847) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -90,6 +90,54 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_09_201827) do
     t.index ["title"], name: "index_movies_on_title"
     t.index ["tmdb_id"], name: "index_movies_on_tmdb_id"
     t.index ["year"], name: "index_movies_on_year"
+  end
+
+  create_table "nba_games", force: :cascade do |t|
+    t.bigint "away_id", null: false
+    t.bigint "home_id", null: false
+    t.date "played_on", null: false
+    t.datetime "played_at"
+    t.string "gametime"
+    t.string "season"
+    t.boolean "preseason", default: false
+    t.boolean "postseason", default: false
+    t.integer "playoff_round"
+    t.string "playoff_conference"
+    t.integer "playoff_series_game_number"
+    t.integer "away_score"
+    t.integer "home_score"
+    t.integer "overtimes", default: 0
+    t.integer "quarters_watched", default: 0
+    t.string "network"
+    t.string "screen"
+    t.string "place"
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["away_id"], name: "index_nba_games_on_away_id"
+    t.index ["home_id"], name: "index_nba_games_on_home_id"
+    t.index ["played_on", "away_id", "home_id"], name: "index_nba_games_uniqueness", unique: true
+    t.index ["played_on", "position"], name: "index_nba_games_on_played_on_and_position"
+    t.index ["played_on"], name: "index_nba_games_on_played_on"
+    t.index ["playoff_round", "playoff_conference"], name: "index_nba_games_on_playoff_round_and_playoff_conference"
+    t.index ["postseason"], name: "index_nba_games_on_postseason"
+    t.index ["quarters_watched"], name: "index_nba_games_on_quarters_watched"
+    t.index ["season"], name: "index_nba_games_on_season"
+  end
+
+  create_table "nba_teams", force: :cascade do |t|
+    t.string "city", null: false
+    t.string "name", null: false
+    t.string "abbreviation", null: false
+    t.string "color"
+    t.string "conference"
+    t.string "division"
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["abbreviation"], name: "index_nba_teams_on_abbreviation", unique: true
+    t.index ["active"], name: "index_nba_teams_on_active"
+    t.index ["name"], name: "index_nba_teams_on_name"
   end
 
   create_table "scrobble_albums", force: :cascade do |t|
@@ -439,6 +487,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_09_201827) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "log_entries", "users"
   add_foreign_key "movie_posters", "movies"
+  add_foreign_key "nba_games", "nba_teams", column: "away_id"
+  add_foreign_key "nba_games", "nba_teams", column: "home_id"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

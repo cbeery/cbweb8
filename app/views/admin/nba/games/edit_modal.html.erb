@@ -1,0 +1,106 @@
+<div class="fixed inset-0 z-50 overflow-y-auto" data-controller="modal-backdrop">
+  <div class="flex items-center justify-center min-h-screen px-4">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+         data-action="click->modal-backdrop#close"></div>
+    
+    <!-- Modal -->
+    <div class="relative bg-white rounded-lg max-w-lg w-full">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">
+          Edit Game: <%= @game.display_name %>
+        </h3>
+        <p class="mt-1 text-sm text-gray-500">
+          <%= @game.played_on.strftime("%B %d, %Y") %>
+        </p>
+      </div>
+      
+      <%= form_with model: @game, url: update_modal_admin_nba_game_path(@game),
+                    data: { turbo_frame: "game_#{@game.id}" } do |f| %>
+        <div class="px-6 py-4 space-y-6">
+          <!-- Quarters Watched -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Quarters Watched
+            </label>
+            <div class="flex space-x-2" data-controller="button-group">
+              <% (0..4).each do |q| %>
+                <button type="button"
+                        class="flex-1 px-3 py-2 text-sm font-medium rounded-md border <%= @game.quarters_watched == q ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50' %>"
+                        data-action="click->button-group#select"
+                        data-button-group-value="<%= q %>">
+                  <%= q %>
+                </button>
+              <% end %>
+              <%= f.hidden_field :quarters_watched, data: { button_group_target: "input" } %>
+            </div>
+          </div>
+          
+          <!-- Network -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Network
+            </label>
+            <div class="grid grid-cols-3 gap-2" data-controller="button-group">
+              <% %w[TNT ESPN ABC NBA_TV Local League_Pass].each do |network| %>
+                <button type="button"
+                        class="px-3 py-2 text-sm font-medium rounded-md border <%= @game.network == network ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50' %>"
+                        data-action="click->button-group#select"
+                        data-button-group-value="<%= network %>">
+                  <%= network.humanize %>
+                </button>
+              <% end %>
+              <%= f.hidden_field :network, data: { button_group_target: "input" } %>
+            </div>
+          </div>
+          
+          <!-- Screen -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Screen
+            </label>
+            <div class="grid grid-cols-3 gap-2" data-controller="button-group">
+              <% %w[TV iPad iPhone].each do |screen| %>
+                <button type="button"
+                        class="px-3 py-2 text-sm font-medium rounded-md border <%= @game.screen == screen ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50' %>"
+                        data-action="click->button-group#select"
+                        data-button-group-value="<%= screen %>">
+                  <%= screen %>
+                </button>
+              <% end %>
+              <%= f.hidden_field :screen, data: { button_group_target: "input" } %>
+            </div>
+          </div>
+          
+          <!-- Place -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Place
+            </label>
+            <div class="grid grid-cols-2 gap-2" data-controller="button-group">
+              <% %w[Home Away].each do |place| %>
+                <button type="button"
+                        class="px-3 py-2 text-sm font-medium rounded-md border <%= @game.place == place ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50' %>"
+                        data-action="click->button-group#select"
+                        data-button-group-value="<%= place %>">
+                  <%= place %>
+                </button>
+              <% end %>
+              <%= f.hidden_field :place, data: { button_group_target: "input" } %>
+            </div>
+          </div>
+        </div>
+        
+        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+          <button type="button"
+                  class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                  data-action="click->modal-backdrop#close">
+            Cancel
+          </button>
+          <%= f.submit "Save Changes",
+              class: "px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

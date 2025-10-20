@@ -1,0 +1,112 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-white shadow rounded-lg mb-8">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <% if @team.logo.attached? %>
+            <%= image_tag @team.logo, class: "w-20 h-20 object-contain" %>
+          <% else %>
+            <div class="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold text-white" 
+                 style="background-color: <%= @team.color %>">
+              <%= @team.abbreviation %>
+            </div>
+          <% end %>
+          
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">
+              <%= @team.display_name %>
+            </h1>
+            <p class="text-gray-500">
+              <%= @team.conference %> Conference
+              <% if @team.division.present? %>
+                • <%= @team.division %> Division
+              <% end %>
+            </p>
+          </div>
+        </div>
+        
+        <%= link_to "Edit Team", edit_admin_nba_team_path(@team), 
+            class: "px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700" %>
+      </div>
+    </div>
+    
+    <div class="px-6 py-4">
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Total Games</dt>
+          <dd class="mt-1 text-2xl font-semibold text-gray-900"><%= @total_games %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Games Watched</dt>
+          <dd class="mt-1 text-2xl font-semibold text-green-600"><%= @games_watched %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Watch %</dt>
+          <dd class="mt-1 text-2xl font-semibold text-gray-900"><%= @watch_percentage %>%</dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Quarters Watched</dt>
+          <dd class="mt-1 text-2xl font-semibold text-gray-900"><%= @total_quarters %></dd>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Games List -->
+  <div class="bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-medium text-gray-900">Games</h2>
+    </div>
+    <div class="overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matchup</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Watched</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @games.each do |game| %>
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <%= game.played_on.strftime("%b %d, %Y") %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <%= game.display_name %>
+                <% if game.postseason %>
+                  <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                    Playoffs
+                  </span>
+                <% end %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <% if game.final? %>
+                  <%= game.away_score %> - <%= game.home_score %>
+                <% else %>
+                  -
+                <% end %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <% if game.watched? %>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                    <%= game.quarters_watched %>Q
+                  </span>
+                <% else %>
+                  <span class="text-gray-400">-</span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    
+    <% if @games.respond_to?(:total_pages) %>
+      <div class="px-6 py-4 border-t border-gray-200">
+        <%= paginate @games %>
+      </div>
+    <% end %>
+  </div>
+</div>

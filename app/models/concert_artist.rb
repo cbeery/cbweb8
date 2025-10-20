@@ -1,0 +1,2 @@
+class ConcertArtist < ApplicationRecord
+end

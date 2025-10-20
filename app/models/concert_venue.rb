@@ -1,0 +1,2 @@
+class ConcertVenue < ApplicationRecord
+end

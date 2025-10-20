@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  concert: one
+  concert_artist: one
+  position: 1
+
+two:
+  concert: two
+  concert_artist: two
+  position: 1

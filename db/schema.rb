@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_17_184847) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_20_210343) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,45 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_17_184847) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "concert_artists", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_concert_artists_on_name", unique: true
+  end
+
+  create_table "concert_performances", force: :cascade do |t|
+    t.bigint "concert_id", null: false
+    t.bigint "concert_artist_id", null: false
+    t.integer "position", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["concert_artist_id"], name: "index_concert_performances_on_concert_artist_id"
+    t.index ["concert_id", "concert_artist_id"], name: "index_concert_performances_uniqueness", unique: true
+    t.index ["concert_id", "position"], name: "index_concert_performances_on_concert_id_and_position"
+    t.index ["concert_id"], name: "index_concert_performances_on_concert_id"
+  end
+
+  create_table "concert_venues", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "city"
+    t.string "state"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["city", "state"], name: "index_concert_venues_on_city_and_state"
+    t.index ["name"], name: "index_concert_venues_on_name"
+  end
+
+  create_table "concerts", force: :cascade do |t|
+    t.date "played_on", null: false
+    t.text "notes"
+    t.bigint "concert_venue_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["concert_venue_id"], name: "index_concerts_on_concert_venue_id"
+    t.index ["played_on"], name: "index_concerts_on_played_on"
   end
 
   create_table "log_entries", force: :cascade do |t|
@@ -485,6 +524,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_17_184847) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "concert_performances", "concert_artists"
+  add_foreign_key "concert_performances", "concerts"
+  add_foreign_key "concerts", "concert_venues"
   add_foreign_key "log_entries", "users"
   add_foreign_key "movie_posters", "movies"
   add_foreign_key "nba_games", "nba_teams", column: "away_id"

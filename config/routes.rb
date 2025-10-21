@@ -87,6 +87,16 @@ Rails.application.routes.draw do
       # get 'import', to: 'import#index'
     end
 
+    # Concerts
+    resources :concerts do
+      member do
+        post :add_artist
+        delete :remove_artist
+      end
+    end
+    resources :concert_venues, only: [:index, :new, :create]
+    resources :concert_artists, only: [:index, :new, :create]
+
   end # namespace :admin
 
   # Mission Control for job monitoring (admin only)

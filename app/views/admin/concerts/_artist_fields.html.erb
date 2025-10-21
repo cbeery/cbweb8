@@ -1,0 +1,43 @@
+<div class="artist-fields mb-3" data-concert-form-target="artistField">
+  <div class="flex space-x-2">
+    <input type="hidden" 
+           name="concert[concert_performances_attributes][<%= index %>][id]" 
+           value="<%= performance.id if performance.persisted? %>" />
+    
+    <input type="hidden" 
+           name="concert[concert_performances_attributes][<%= index %>][position]" 
+           value="<%= performance.position || 0 %>" />
+    
+    <select name="concert[concert_performances_attributes][<%= index %>][concert_artist_id]"
+            data-concert-form-target="artistSelect"
+            data-action="change->concert-form#handleArtistSelection"
+            class="block flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+      <option value="">Select an artist...</option>
+      <% ConcertArtist.alphabetical.each do |artist| %>
+        <option value="<%= artist.id %>" <%= 'selected' if performance.concert_artist_id == artist.id %>>
+          <%= artist.name %>
+        </option>
+      <% end %>
+      <option value="new">-- Add New Artist --</option>
+    </select>
+    
+    <input type="text" 
+           name="concert[concert_performances_attributes][<%= index %>][new_artist_name]"
+           placeholder="New artist name..."
+           data-concert-form-target="newArtistInput"
+           class="hidden flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+    
+    <input type="hidden" 
+           name="concert[concert_performances_attributes][<%= index %>][_destroy]" 
+           value="false"
+           data-concert-form-target="destroyInput" />
+    
+    <button type="button"
+            data-action="click->concert-form#removeArtist"
+            class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  </div>
+</div>

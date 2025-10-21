@@ -104,3 +104,6 @@ gem "dartsass-rails"
 # Local time display
 gem "local_time"
 
+# Positioning
+gem "acts_as_list"
+

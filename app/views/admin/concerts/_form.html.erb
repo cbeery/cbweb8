@@ -1,0 +1,119 @@
+<%= form_with model: [:admin, @concert], local: false, 
+    data: { controller: "concert-form" } do |form| %>
+  
+  <% if @concert.errors.any? %>
+    <div class="rounded-md bg-red-50 p-4 mb-4">
+      <div class="flex">
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">
+            There were <%= pluralize(@concert.errors.count, "error") %> with your submission
+          </h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc pl-5 space-y-1">
+              <% @concert.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="space-y-6">
+    <!-- Date Field -->
+    <div>
+      <%= form.label :played_on, class: "block text-sm font-medium text-gray-700" %>
+      <%= form.date_field :played_on, 
+          class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+    </div>
+
+    <!-- Venue Selection with "Add New" Option -->
+    <div>
+      <%= form.label :concert_venue_id, "Venue", class: "block text-sm font-medium text-gray-700" %>
+      <div class="mt-1">
+        <%= form.select :concert_venue_id,
+            options_from_collection_for_select(
+              ConcertVenue.alphabetical, 
+              :id, 
+              :display_name, 
+              @concert.concert_venue_id
+            ),
+            { 
+              prompt: "Select a venue...",
+              include_blank: "-- Add New Venue --"
+            },
+            class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
+            data: { 
+              concert_form_target: "venueSelect",
+              action: "change->concert-form#toggleVenueFields"
+            } %>
+      </div>
+      
+      <!-- New Venue Fields (hidden by default) -->
+      <div data-concert-form-target="newVenueFields" class="hidden mt-3 p-4 bg-gray-50 rounded-md space-y-3">
+        <h4 class="text-sm font-medium text-gray-900 mb-2">New Venue Details</h4>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Venue Name</label>
+          <input type="text" 
+                 name="concert[new_venue_name]" 
+                 data-concert-form-target="newVenueName"
+                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">City</label>
+            <input type="text" 
+                   name="concert[new_venue_city]"
+                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">State</label>
+            <input type="text" 
+                   name="concert[new_venue_state]"
+                   maxlength="2"
+                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm uppercase" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Artists with Dynamic Add/Remove -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Artists</label>
+      <div data-concert-form-target="artistsContainer">
+        <% if @concert.concert_performances.any? %>
+          <% @concert.concert_performances.each do |performance| %>
+            <%= render 'artist_fields', performance: performance, index: performance.id || Time.now.to_i %>
+          <% end %>
+        <% else %>
+          <%= render 'artist_fields', performance: @concert.concert_performances.build, index: Time.now.to_i %>
+        <% end %>
+      </div>
+      
+      <button type="button"
+              data-action="click->concert-form#addArtist"
+              class="mt-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        Add Artist
+      </button>
+    </div>
+
+    <!-- Notes -->
+    <div>
+      <%= form.label :notes, class: "block text-sm font-medium text-gray-700" %>
+      <%= form.text_area :notes, 
+          rows: 4,
+          class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+    </div>
+
+    <!-- Submit Buttons -->
+    <div class="flex justify-end space-x-3">
+      <%= link_to "Cancel", admin_concerts_path, 
+          class: "px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+      <%= form.submit class: "px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer" %>
+    </div>
+  </div>
+<% end %>

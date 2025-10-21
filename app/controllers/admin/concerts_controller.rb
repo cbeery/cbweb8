@@ -41,6 +41,27 @@ class Admin::ConcertsController < Admin::BaseController
     @concert.destroy!
     redirect_to admin_concerts_path, notice: 'Concert was successfully deleted.'
   end
+
+  def search_artists
+    @artists = ConcertArtist.where("name ILIKE ?", "%#{params[:q]}%")
+                            .limit(10)
+                            .order(:name)
+    
+    render json: @artists.map { |a| { id: a.id, name: a.name } }
+  end
+  
+  def search_venues
+    @venues = ConcertVenue.where("name ILIKE ? OR city ILIKE ?", "%#{params[:q]}%", "%#{params[:q]}%")
+                          .limit(10)
+                          .order(:name)
+    
+    render json: @venues.map { |v| { 
+      id: v.id, 
+      name: v.name,
+      display_name: v.display_name 
+    }}
+  end
+
   
   private
   

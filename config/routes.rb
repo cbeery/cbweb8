@@ -93,7 +93,11 @@ Rails.application.routes.draw do
         post :add_artist
         delete :remove_artist
       end
-    end
+      collection do
+        get :search_artists
+        get :search_venues
+      end
+      end
     resources :concert_venues, only: [:index, :new, :create]
     resources :concert_artists, only: [:index, :new, :create]
 

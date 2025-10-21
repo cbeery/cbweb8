@@ -16,7 +16,7 @@ class Admin::ConcertsController < Admin::BaseController
   end
   
   def create
-    @concert = Concert.new(concert_params)
+    @concert = Concert.new(concert_params_with_new_records)
     
     if @concert.save
       redirect_to admin_concert_path(@concert), notice: 'Concert was successfully created.'
@@ -30,7 +30,7 @@ class Admin::ConcertsController < Admin::BaseController
   end
   
   def update
-    if @concert.update(concert_params)
+    if @concert.update(concert_params_with_new_records)
       redirect_to admin_concert_path(@concert), notice: 'Concert was successfully updated.'
     else
       render :edit, status: :unprocessable_entity
@@ -53,9 +53,36 @@ class Admin::ConcertsController < Admin::BaseController
       :played_on, 
       :notes,
       :concert_venue_id,
-      concert_venue_attributes: [:name, :city, :state],
-      concert_performances_attributes: [:id, :concert_artist_id, :position, :_destroy,
-        concert_artist_attributes: [:name]]
+      concert_performances_attributes: [:id, :concert_artist_id, :position, :_destroy]
     )
+  end
+  
+  def concert_params_with_new_records
+    modified_params = concert_params.to_h.deep_dup
+    
+    # Handle new venue
+    if params[:concert][:concert_venue_id].blank? && params[:concert][:new_venue_name].present?
+      new_venue = ConcertVenue.find_or_create_by!(
+        name: params[:concert][:new_venue_name]
+      ) do |v|
+        v.city = params[:concert][:new_venue_city]
+        v.state = params[:concert][:new_venue_state]
+      end
+      modified_params[:concert_venue_id] = new_venue.id
+    end
+    
+    # Handle new artists in performances
+    if modified_params[:concert_performances_attributes].present?
+      modified_params[:concert_performances_attributes].each do |key, perf_params|
+        if perf_params[:concert_artist_id].blank? && params[:concert][:concert_performances_attributes][key][:new_artist_name].present?
+          new_artist = ConcertArtist.find_or_create_by!(
+            name: params[:concert][:concert_performances_attributes][key][:new_artist_name]
+          )
+          perf_params[:concert_artist_id] = new_artist.id
+        end
+      end
+    end
+    
+    modified_params
   end
 end

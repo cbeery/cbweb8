@@ -14,14 +14,15 @@
         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Artists</th>
         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Venue</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
       </tr>
     </thead>
     <tbody class="bg-white divide-y divide-gray-200">
       <% @concerts.each do |concert| %>
-        <tr>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-            <%= concert.played_on&.strftime('%b %d, %Y') %>
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <%= link_to concert.played_on&.strftime('%b %d, %Y'), 
+                admin_concert_path(concert),
+                class: "text-indigo-600 hover:text-indigo-900" %>
           </td>
           <td class="px-6 py-4 text-sm text-gray-500">
             <%= concert.concert_artists.pluck(:name).join(', ') %>
@@ -29,18 +30,10 @@
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             <%= concert.concert_venue&.display_name %>
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-            <%= link_to "View", admin_concert_path(concert), class: "text-indigo-600 hover:text-indigo-900 mr-3" %>
-            <%= link_to "Edit", edit_admin_concert_path(concert), class: "text-indigo-600 hover:text-indigo-900 mr-3" %>
-            <%= link_to "Delete", admin_concert_path(concert), 
-                data: { 
-                  turbo_method: :delete,
-                  turbo_confirm: "Are you sure?"
-                },
-                class: "text-red-600 hover:text-red-900" %>
-          </td>
         </tr>
       <% end %>
     </tbody>
   </table>
 </div>
+
+<%= paginate @concerts %>

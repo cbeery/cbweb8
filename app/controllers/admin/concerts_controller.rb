@@ -3,8 +3,20 @@ class Admin::ConcertsController < Admin::BaseController
   
   def index
     @concerts = Concert.includes(:concert_venue, :concert_artists)
-                       .recent
-                       .page(params[:page])
+    
+    # Apply filters
+    if params[:artist_id].present?
+      @concerts = @concerts.joins(:concert_performances)
+                          .where(concert_performances: { concert_artist_id: params[:artist_id] })
+    end
+    
+    if params[:venue_id].present?
+      @concerts = @concerts.where(concert_venue_id: params[:venue_id])
+    end
+    
+    @concerts = @concerts.recent
+                         .page(params[:page])
+                         .per(25)
   end
   
   def show
@@ -64,6 +76,11 @@ class Admin::ConcertsController < Admin::BaseController
 
   
   private
+  
+  def load_filter_context
+    @filtered_artist = ConcertArtist.find(params[:artist_id]) if params[:artist_id]
+    @filtered_venue = ConcertVenue.find(params[:venue_id]) if params[:venue_id]
+  end
   
   def set_concert
     @concert = Concert.find(params[:id])

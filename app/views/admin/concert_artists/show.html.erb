@@ -1,0 +1,79 @@
+<%# app/views/admin/concert_artists/show.html.erb %>
+<% content_for :title, @artist.name %>
+
+<div class="mb-6">
+  <div class="flex justify-between items-start">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900"><%= @artist.name %></h1>
+      <p class="mt-1 text-sm text-gray-600">
+        <%= pluralize(@artist.concerts.count, 'concert') %> total
+      </p>
+    </div>
+    <div class="flex space-x-3">
+      <%= link_to "View All Artists", admin_concert_artists_path, 
+          class: "px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+      <%= link_to "View Concerts", admin_concerts_path(artist_id: @artist.id), 
+          class: "px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700" %>
+    </div>
+  </div>
+</div>
+
+<!-- Concert History -->
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+  <div class="px-6 py-4 border-b border-gray-200">
+    <h3 class="text-lg font-medium text-gray-900">Concert History</h3>
+  </div>
+  
+  <% if @concerts.any? %>
+    <ul class="divide-y divide-gray-200">
+      <% @concerts.each do |concert| %>
+        <li>
+          <%= link_to admin_concert_path(concert), class: "block hover:bg-gray-50 px-6 py-4" do %>
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-indigo-600">
+                  <%= concert.played_on&.strftime('%B %d, %Y') %>
+                </p>
+                <p class="text-sm text-gray-500 mt-1">
+                  <%= concert.concert_venue&.display_name %>
+                </p>
+                <% if concert.concert_artists.count > 1 %>
+                  <p class="text-xs text-gray-400 mt-1">
+                    with <%= (concert.concert_artists - [@artist]).map(&:name).join(', ') %>
+                  </p>
+                <% end %>
+              </div>
+              <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+    
+    <div class="px-6 py-3 border-t border-gray-200">
+      <%= paginate @concerts %>
+    </div>
+  <% else %>
+    <div class="px-6 py-12 text-center">
+      <p class="text-gray-500">No concerts found for this artist.</p>
+    </div>
+  <% end %>
+</div>
+
+<!-- Venue Stats -->
+<div class="mt-8 bg-white shadow sm:rounded-lg">
+  <div class="px-6 py-5">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">Venues Played</h3>
+    <div class="space-y-3">
+      <% @artist.concerts.group(:concert_venue).count.sort_by { |_, count| -count }.first(5).each do |venue, count| %>
+        <div class="flex justify-between items-center">
+          <%= link_to venue.display_name, admin_concerts_path(venue_id: venue.id, artist_id: @artist.id),
+              class: "text-sm text-indigo-600 hover:text-indigo-900" %>
+          <span class="text-sm text-gray-500"><%= pluralize(count, 'show') %></span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,2 @@
+module Admin::ConcertArtistsHelper
+end

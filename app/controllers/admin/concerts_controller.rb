@@ -1,10 +1,23 @@
 class Admin::ConcertsController < Admin::BaseController
   before_action :set_concert, only: [:show, :edit, :update, :destroy]
+  before_action :load_filter_context, only: [:index]
   
   def index
     @concerts = Concert.includes(:concert_venue, :concert_artists)
-                       .recent
-                       .page(params[:page])
+    
+    # Apply filters
+    if params[:artist_id].present?
+      @concerts = @concerts.joins(:concert_performances)
+                          .where(concert_performances: { concert_artist_id: params[:artist_id] })
+    end
+    
+    if params[:venue_id].present?
+      @concerts = @concerts.where(concert_venue_id: params[:venue_id])
+    end
+    
+    @concerts = @concerts.recent
+                         .page(params[:page])
+                         .per(25)
   end
   
   def show
@@ -41,8 +54,34 @@ class Admin::ConcertsController < Admin::BaseController
     @concert.destroy!
     redirect_to admin_concerts_path, notice: 'Concert was successfully deleted.'
   end
+
+  def search_artists
+    @artists = ConcertArtist.where("name ILIKE ?", "%#{params[:q]}%")
+                            .limit(10)
+                            .order(:name)
+    
+    render json: @artists.map { |a| { id: a.id, name: a.name } }
+  end
+  
+  def search_venues
+    @venues = ConcertVenue.where("name ILIKE ? OR city ILIKE ?", "%#{params[:q]}%", "%#{params[:q]}%")
+                          .limit(10)
+                          .order(:name)
+    
+    render json: @venues.map { |v| { 
+      id: v.id, 
+      name: v.name,
+      display_name: v.display_name 
+    }}
+  end
+
   
   private
+  
+  def load_filter_context
+    @filtered_artist = ConcertArtist.find(params[:artist_id]) if params[:artist_id]
+    @filtered_venue = ConcertVenue.find(params[:venue_id]) if params[:venue_id]
+  end
   
   def set_concert
     @concert = Concert.find(params[:id])

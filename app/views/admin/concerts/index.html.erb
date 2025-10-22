@@ -54,6 +54,7 @@
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Venue</th>
         </tr>
       </thead>
+
       <tbody class="bg-white divide-y divide-gray-200">
         <% @concerts.each do |concert| %>
           <tr class="hover:bg-gray-50">
@@ -65,19 +66,24 @@
             <td class="px-6 py-4 text-sm">
               <% concert.concert_artists.each_with_index do |artist, index| %>
                 <%= link_to artist.name, 
-                    admin_concerts_path(artist_id: artist.id),
+                    admin_concert_artist_path(artist),
                     class: "text-gray-700 hover:text-indigo-600 hover:underline transition-colors" %>
                 <%= ", " unless index == concert.concert_artists.size - 1 %>
               <% end %>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm">
-              <%= link_to concert.concert_venue&.display_name,
-                  admin_concerts_path(venue_id: concert.concert_venue&.id),
-                  class: "text-gray-700 hover:text-indigo-600 hover:underline transition-colors" %>
+              <% if concert.concert_venue %>
+                <%= link_to concert.concert_venue.display_name,
+                    admin_concert_venue_path(concert.concert_venue),
+                    class: "text-gray-700 hover:text-indigo-600 hover:underline transition-colors" %>
+              <% else %>
+                <span class="text-gray-400 italic">No venue</span>
+              <% end %>
             </td>
           </tr>
         <% end %>
       </tbody>
+
     </table>
     
     <div class="px-6 py-3 border-t border-gray-200">

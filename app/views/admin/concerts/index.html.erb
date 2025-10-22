@@ -1,35 +1,41 @@
+<%# app/views/admin/concerts/index.html.erb %>
 <% content_for :title, "Concerts" %>
 
 <div class="mb-6">
   <% if @filtered_artist || @filtered_venue %>
-    <!-- Filter Header -->
+    <!-- Blue Filter Notification Bar -->
     <div class="bg-indigo-50 border-l-4 border-indigo-400 p-4 mb-6">
       <div class="flex items-center justify-between">
         <div class="flex items-center">
-          <div class="ml-3">
-            <p class="text-sm text-indigo-700">
-              Showing concerts
-              <% if @filtered_artist %>
-                by <span class="font-semibold"><%= @filtered_artist.name %></span>
-              <% end %>
-              <% if @filtered_venue %>
-                at <span class="font-semibold"><%= @filtered_venue.display_name %></span>
-              <% end %>
-            </p>
-          </div>
+          <svg class="h-5 w-5 text-indigo-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clip-rule="evenodd" />
+          </svg>
+          <p class="text-sm text-indigo-700">
+            Showing concerts
+            <% if @filtered_artist %>
+              by <span class="font-semibold"><%= @filtered_artist.name %></span>
+            <% end %>
+            <% if @filtered_venue %>
+              at <span class="font-semibold"><%= @filtered_venue.display_name %></span>
+            <% end %>
+          </p>
         </div>
-        <%= link_to "Clear Filter", admin_concerts_path, 
-            class: "text-sm text-indigo-600 hover:text-indigo-500 font-medium" %>
+        <%= link_to "✕ Clear Filter", admin_concerts_path, 
+            class: "text-sm text-indigo-600 hover:text-indigo-800 font-medium" %>
       </div>
     </div>
   <% end %>
   
-  <!-- Page Header -->
+  <!-- Dynamic Page Header -->
   <div class="flex justify-between items-center">
     <h1 class="text-3xl font-bold text-gray-900">
-      <%= @filtered_artist ? "#{@filtered_artist.name} Concerts" : 
-          @filtered_venue ? "Concerts at #{@filtered_venue.name}" : 
-          "Concerts" %>
+      <% if @filtered_artist %>
+        <%= @filtered_artist.name %> Concerts
+      <% elsif @filtered_venue %>
+        Concerts at <%= @filtered_venue.name %>
+      <% else %>
+        Concerts
+      <% end %>
     </h1>
     <%= link_to "New Concert", new_admin_concert_path, 
         class: "px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors",
@@ -37,6 +43,7 @@
   </div>
 </div>
 
+<!-- Main Table -->
 <div class="bg-white shadow overflow-hidden sm:rounded-lg">
   <% if @concerts.any? %>
     <table class="min-w-full divide-y divide-gray-200">
@@ -55,18 +62,18 @@
                   admin_concert_path(concert),
                   class: "text-indigo-600 hover:text-indigo-900" %>
             </td>
-            <td class="px-6 py-4 text-sm text-gray-500">
+            <td class="px-6 py-4 text-sm">
               <% concert.concert_artists.each_with_index do |artist, index| %>
                 <%= link_to artist.name, 
                     admin_concerts_path(artist_id: artist.id),
-                    class: "text-gray-700 hover:text-indigo-600 hover:underline" %>
+                    class: "text-gray-700 hover:text-indigo-600 hover:underline transition-colors" %>
                 <%= ", " unless index == concert.concert_artists.size - 1 %>
               <% end %>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <td class="px-6 py-4 whitespace-nowrap text-sm">
               <%= link_to concert.concert_venue&.display_name,
                   admin_concerts_path(venue_id: concert.concert_venue&.id),
-                  class: "text-gray-700 hover:text-indigo-600 hover:underline" %>
+                  class: "text-gray-700 hover:text-indigo-600 hover:underline transition-colors" %>
             </td>
           </tr>
         <% end %>
@@ -77,7 +84,8 @@
       <%= paginate @concerts %>
     </div>
   <% else %>
-    <div class="text-center py-12">
+    <!-- Context-aware empty state -->
+    <div class="text-center py-12 px-6">
       <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
       </svg>
@@ -104,29 +112,29 @@
   <% end %>
 </div>
 
+<!-- Artist Statistics (only shows when filtering by artist) -->
 <% if @filtered_artist && @concerts.any? %>
-  <!-- Stats for filtered artist -->
   <div class="mt-8 bg-white shadow sm:rounded-lg">
     <div class="px-6 py-5">
       <h3 class="text-lg font-medium text-gray-900 mb-4">
-        <%= @filtered_artist.name %> Stats
+        <%= @filtered_artist.name %> Statistics
       </h3>
       <dl class="grid grid-cols-1 gap-5 sm:grid-cols-3">
-        <div>
+        <div class="bg-gray-50 px-4 py-5 sm:p-6 rounded-lg">
           <dt class="text-sm font-medium text-gray-500">Total Shows</dt>
-          <dd class="mt-1 text-2xl font-semibold text-gray-900">
+          <dd class="mt-1 text-3xl font-semibold text-gray-900">
             <%= @filtered_artist.concerts.count %>
           </dd>
         </div>
-        <div>
+        <div class="bg-gray-50 px-4 py-5 sm:p-6 rounded-lg">
           <dt class="text-sm font-medium text-gray-500">Different Venues</dt>
-          <dd class="mt-1 text-2xl font-semibold text-gray-900">
+          <dd class="mt-1 text-3xl font-semibold text-gray-900">
             <%= @filtered_artist.concerts.distinct.count(:concert_venue_id) %>
           </dd>
         </div>
-        <div>
+        <div class="bg-gray-50 px-4 py-5 sm:p-6 rounded-lg">
           <dt class="text-sm font-medium text-gray-500">First Show</dt>
-          <dd class="mt-1 text-xl font-semibold text-gray-900">
+          <dd class="mt-1 text-2xl font-semibold text-gray-900">
             <%= @filtered_artist.concerts.minimum(:played_on)&.strftime('%b %Y') || "N/A" %>
           </dd>
         </div>
@@ -135,29 +143,29 @@
   </div>
 <% end %>
 
+<!-- Venue Statistics (only shows when filtering by venue) -->
 <% if @filtered_venue && @concerts.any? %>
-  <!-- Stats for filtered venue -->
   <div class="mt-8 bg-white shadow sm:rounded-lg">
     <div class="px-6 py-5">
       <h3 class="text-lg font-medium text-gray-900 mb-4">
-        <%= @filtered_venue.display_name %> Stats
+        <%= @filtered_venue.display_name %> Statistics
       </h3>
       <dl class="grid grid-cols-1 gap-5 sm:grid-cols-3">
-        <div>
+        <div class="bg-gray-50 px-4 py-5 sm:p-6 rounded-lg">
           <dt class="text-sm font-medium text-gray-500">Total Shows</dt>
-          <dd class="mt-1 text-2xl font-semibold text-gray-900">
+          <dd class="mt-1 text-3xl font-semibold text-gray-900">
             <%= @filtered_venue.concerts.count %>
           </dd>
         </div>
-        <div>
+        <div class="bg-gray-50 px-4 py-5 sm:p-6 rounded-lg">
           <dt class="text-sm font-medium text-gray-500">Different Artists</dt>
-          <dd class="mt-1 text-2xl font-semibold text-gray-900">
+          <dd class="mt-1 text-3xl font-semibold text-gray-900">
             <%= @filtered_venue.concerts.joins(:concert_artists).distinct.count("concert_artists.id") %>
           </dd>
         </div>
-        <div>
+        <div class="bg-gray-50 px-4 py-5 sm:p-6 rounded-lg">
           <dt class="text-sm font-medium text-gray-500">Most Recent</dt>
-          <dd class="mt-1 text-xl font-semibold text-gray-900">
+          <dd class="mt-1 text-2xl font-semibold text-gray-900">
             <%= @filtered_venue.concerts.maximum(:played_on)&.strftime('%b %d, %Y') || "N/A" %>
           </dd>
         </div>

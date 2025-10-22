@@ -1,5 +1,6 @@
 class Admin::ConcertsController < Admin::BaseController
   before_action :set_concert, only: [:show, :edit, :update, :destroy]
+  before_action :load_filter_context, only: [:index]
   
   def index
     @concerts = Concert.includes(:concert_venue, :concert_artists)

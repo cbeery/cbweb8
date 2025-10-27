@@ -72,7 +72,7 @@ namespace :import do
     success_count = 0
     error_count = 0
     
-    CSV.foreach(file_path, headers: true) do |row|
+    CSV.foreach(file_path, headers: true, liberal_parsing: true) do |row|
       begin
         activity = StravaActivity.find_or_initialize_by(id: row['id'])
         
@@ -131,7 +131,7 @@ namespace :import do
     error_count = 0
     legacy_count = 0
     
-    CSV.foreach(file_path, headers: true) do |row|
+    CSV.foreach(file_path, headers: true, liberal_parsing: true) do |row|
       begin
         ride = Ride.find_or_initialize_by(id: row['id'])
         
@@ -185,7 +185,7 @@ namespace :import do
     success_count = 0
     error_count = 0
     
-    CSV.foreach(file_path, headers: true) do |row|
+    CSV.foreach(file_path, headers: true, liberal_parsing: true) do |row|
       begin
         milestone = Milestone.find_or_initialize_by(id: row['id'])
         

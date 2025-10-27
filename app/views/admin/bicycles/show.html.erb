@@ -1,0 +1,222 @@
+<!-- app/views/admin/bicycles/show.html.erb -->
+<div class="container mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800"><%= @bicycle.name %></h1>
+      <div class="flex items-center gap-4 mt-2">
+        <% if @bicycle.active? %>
+          <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+            Active
+          </span>
+        <% else %>
+          <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+            Inactive
+          </span>
+        <% end %>
+        <% if @bicycle.strava_gear_id.present? %>
+          <span class="text-sm text-gray-600">
+            Strava ID: <%= @bicycle.strava_gear_id %>
+          </span>
+        <% end %>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <%= link_to "Edit", edit_admin_bicycle_path(@bicycle), 
+                  class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition" %>
+      <%= link_to "Delete", admin_bicycle_path(@bicycle), 
+                  method: :delete,
+                  data: { confirm: "Are you sure? This will delete all rides and milestones for this bicycle." },
+                  class: "bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition" %>
+    </div>
+  </div>
+
+  <% if @bicycle.notes.present? %>
+    <div class="bg-gray-50 rounded p-4 mb-6">
+      <p class="text-gray-700"><%= @bicycle.notes %></p>
+    </div>
+  <% end %>
+
+  <!-- Stats Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-sm text-gray-600 mb-1">Total Miles</p>
+      <p class="text-3xl font-bold text-gray-900">
+        <%= number_with_delimiter(@stats[:total_miles].round) %>
+      </p>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-sm text-gray-600 mb-1">Total Rides</p>
+      <p class="text-3xl font-bold text-gray-900">
+        <%= @stats[:ride_count] %>
+      </p>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-sm text-gray-600 mb-1">Total Time</p>
+      <p class="text-3xl font-bold text-gray-900">
+        <%= @bicycle.total_duration_formatted %>
+      </p>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-sm text-gray-600 mb-1">Avg Speed</p>
+      <p class="text-3xl font-bold text-gray-900">
+        <%= @stats[:average_speed] %> <span class="text-lg font-normal">mph</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- Period Stats -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <div class="bg-blue-50 rounded-lg p-4">
+      <p class="text-sm text-blue-600 font-medium">This Year</p>
+      <p class="text-2xl font-bold text-gray-900">
+        <%= number_with_delimiter(@stats[:this_year_miles].round) %> miles
+      </p>
+    </div>
+    
+    <div class="bg-green-50 rounded-lg p-4">
+      <p class="text-sm text-green-600 font-medium">This Month</p>
+      <p class="text-2xl font-bold text-gray-900">
+        <%= number_with_delimiter(@stats[:this_month_miles].round) %> miles
+      </p>
+    </div>
+    
+    <div class="bg-purple-50 rounded-lg p-4">
+      <p class="text-sm text-purple-600 font-medium">Last 30 Days</p>
+      <p class="text-2xl font-bold text-gray-900">
+        <%= number_with_delimiter(@stats[:last_30_days_miles].round) %> miles
+      </p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Maintenance Milestones -->
+    <div class="bg-white rounded-lg shadow">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex justify-between items-center">
+          <h2 class="text-lg font-semibold text-gray-900">Maintenance</h2>
+          <%= link_to "Add Milestone", new_admin_milestone_path(bicycle_id: @bicycle.id), 
+                      class: "text-sm text-blue-600 hover:text-blue-900" %>
+        </div>
+      </div>
+      <div class="p-6">
+        <% if @maintenance_milestones.any? %>
+          <div class="space-y-4">
+            <% @maintenance_milestones.each do |item| %>
+              <div class="border-l-4 border-orange-400 pl-4">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <p class="font-medium text-gray-900">
+                      <%= link_to item[:milestone].title, admin_milestone_path(item[:milestone]),
+                          class: "hover:text-blue-600" %>
+                    </p>
+                    <p class="text-sm text-gray-600">
+                      <%= item[:milestone].occurred_on.strftime("%B %d, %Y") %>
+                    </p>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-semibold text-gray-900">
+                      <%= number_with_delimiter(item[:miles_since].round) %> miles
+                    </p>
+                    <p class="text-xs text-gray-500">
+                      <%= pluralize(item[:days_since], 'day') %>
+                    </p>
+                  </div>
+                </div>
+                <% if item[:milestone].description.present? %>
+                  <p class="text-sm text-gray-500 mt-1"><%= item[:milestone].description %></p>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-gray-500">No maintenance milestones recorded.</p>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Recent Rides -->
+    <div class="bg-white rounded-lg shadow">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex justify-between items-center">
+          <h2 class="text-lg font-semibold text-gray-900">Recent Rides</h2>
+          <%= link_to "View All", admin_rides_path(bicycle_id: @bicycle.id), 
+                      class: "text-sm text-blue-600 hover:text-blue-900" %>
+        </div>
+      </div>
+      <div class="divide-y divide-gray-200">
+        <% @recent_rides.each do |ride| %>
+          <div class="px-6 py-4">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-medium text-gray-900">
+                  <%= link_to ride.rode_on.strftime("%B %d, %Y"), admin_ride_path(ride),
+                      class: "hover:text-blue-600" %>
+                </p>
+                <p class="text-sm text-gray-600">
+                  <%= ride.miles %> miles
+                  <% if ride.duration.present? && ride.duration > 0 %>
+                    • <%= ride.duration_formatted %>
+                    • <%= ride.average_speed %> mph
+                  <% end %>
+                </p>
+                <% if ride.notes.present? %>
+                  <p class="text-sm text-gray-500 mt-1"><%= truncate(ride.notes, length: 100) %></p>
+                <% end %>
+              </div>
+              <div>
+                <% if ride.from_strava? %>
+                  <span class="text-green-600 text-sm" title="Synced from Strava">
+                    <svg class="w-4 h-4 inline" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                    </svg>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+        
+        <% if @recent_rides.empty? %>
+          <div class="px-6 py-4">
+            <p class="text-gray-500">No rides recorded yet.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- All Milestones -->
+  <div class="mt-8 bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-900">All Milestones</h2>
+    </div>
+    <div class="p-6">
+      <% if @recent_milestones.any? %>
+        <div class="space-y-3">
+          <% @recent_milestones.each do |milestone| %>
+            <div class="flex justify-between items-center py-2 border-b last:border-0">
+              <div>
+                <%= link_to milestone.title, admin_milestone_path(milestone),
+                    class: "font-medium text-gray-900 hover:text-blue-600" %>
+                <span class="text-sm text-gray-500 ml-2">
+                  <%= milestone.occurred_on.strftime("%B %d, %Y") %>
+                </span>
+              </div>
+              <div class="text-sm text-gray-600">
+                <%= milestone.miles_since.round %> miles since
+              </div>
+            </div>
+          <% end %>
+        </div>
+        <%= link_to "View All Milestones", admin_milestones_path(bicycle_id: @bicycle.id), 
+                    class: "inline-block mt-4 text-blue-600 hover:text-blue-900" %>
+      <% else %>
+        <p class="text-gray-500">No milestones recorded.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

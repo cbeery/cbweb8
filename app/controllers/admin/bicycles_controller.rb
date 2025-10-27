@@ -1,6 +1,6 @@
 # app/controllers/admin/bicycles_controller.rb
 class Admin::BicyclesController < Admin::BaseController
-  before_action :set_bicycle, only: [:show, :edit, :update, :destroy, :sync]
+  before_action :set_bicycle, only: [:show, :edit, :update, :destroy]
   
   def index
     @bicycles = Bicycle.includes(:rides, :milestones)

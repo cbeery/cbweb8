@@ -1,0 +1,171 @@
+<!-- app/views/admin/bicycles/index.html.erb -->
+<div class="container mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800">Bicycles</h1>
+      <p class="text-gray-600 mt-2">
+        <%= @active_bikes %> active bikes • 
+        <%= number_with_delimiter(@total_miles.round) %> total miles • 
+        <%= number_with_delimiter(@total_rides) %> total rides
+      </p>
+    </div>
+    <%= link_to "Add New Bicycle", new_admin_bicycle_path, 
+                class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition" %>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white rounded-lg shadow mb-6 p-4">
+    <%= form_with url: admin_bicycles_path, method: :get, local: true, class: "space-y-4" do |f| %>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Search -->
+        <div>
+          <%= f.text_field :q, value: params[:q], 
+              placeholder: "Search bicycles...",
+              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        
+        <!-- Active Filter -->
+        <div>
+          <%= f.select :active, 
+              options_for_select([
+                ['All Status', ''],
+                ['Active Only', 'true'],
+                ['Inactive Only', 'false']
+              ], params[:active]),
+              {}, 
+              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        
+        <!-- Strava Filter -->
+        <div>
+          <%= f.select :strava, 
+              options_for_select([
+                ['All Bikes', ''],
+                ['With Strava', 'true']
+              ], params[:strava]),
+              {}, 
+              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        
+        <!-- Sort -->
+        <div>
+          <%= f.select :sort, 
+              options_for_select([
+                ['Name', 'name'],
+                ['Total Miles', 'miles'],
+                ['Ride Count', 'rides'],
+                ['Most Recent', 'recent']
+              ], params[:sort]),
+              {}, 
+              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+      </div>
+      
+      <div class="flex gap-2">
+        <%= f.submit "Apply Filters", class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>
+        <%= link_to "Clear", admin_bicycles_path, class: "bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Bicycles Table -->
+  <div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Bicycle
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Status
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Total Miles
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Rides
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Milestones
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Last Ride
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Strava
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @bicycles.each do |bicycle| %>
+          <% stats = @bike_stats[bicycle.id] %>
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <%= link_to bicycle.name, admin_bicycle_path(bicycle), 
+                  class: "text-blue-600 hover:text-blue-900 font-medium" %>
+              <% if bicycle.notes.present? %>
+                <p class="text-sm text-gray-500"><%= truncate(bicycle.notes, length: 50) %></p>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <% if bicycle.active? %>
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                  Active
+                </span>
+              <% else %>
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                  Inactive
+                </span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <%= number_with_delimiter(stats[:total_miles].round) %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <%= stats[:ride_count] %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <%= stats[:milestone_count] %>
+              <% if stats[:milestone_count] > 0 %>
+                <%= link_to "(view)", admin_milestones_path(bicycle_id: bicycle.id), 
+                    class: "text-blue-600 hover:text-blue-900 text-xs ml-1" %>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <% if stats[:recent_ride] %>
+                <%= stats[:recent_ride].rode_on.strftime("%b %d, %Y") %>
+              <% else %>
+                <span class="text-gray-400">Never</span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <% if bicycle.strava_gear_id.present? %>
+                <span class="text-green-600" title="<%= bicycle.strava_gear_id %>">✓</span>
+              <% else %>
+                <span class="text-gray-400">-</span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <%= link_to "Edit", edit_admin_bicycle_path(bicycle), 
+                  class: "text-indigo-600 hover:text-indigo-900" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="mt-8 flex gap-4">
+    <%= link_to "Mileage Calculator", calculator_admin_rides_path, 
+                class: "bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition" %>
+    <%= link_to "View All Rides", admin_rides_path, 
+                class: "bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition" %>
+    <%= link_to "View Milestones", admin_milestones_path, 
+                class: "bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition" %>
+  </div>
+</div>

@@ -17,7 +17,7 @@ production:
 strava_daily:
   class: StravaActivitySyncJob
   queue: default
-  cron: "0 3 40 * *"  # 6:00 AM every day
+  schedule: "every day at 3:40 PM"
   args:
     days_back: 7      # Sync last 7 days
     broadcast: false  # No real-time updates for scheduled jobs

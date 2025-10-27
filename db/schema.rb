@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_20_210343) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_27_183109) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_20_210343) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "bicycles", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "notes"
+    t.boolean "active", default: true
+    t.string "strava_gear_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_bicycles_on_active"
+    t.index ["strava_gear_id"], name: "index_bicycles_on_strava_gear_id"
   end
 
   create_table "concert_artists", force: :cascade do |t|
@@ -96,6 +107,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_20_210343) do
     t.index ["loggable_type", "loggable_id", "created_at"], name: "index_log_entries_on_loggable_and_created"
     t.index ["loggable_type", "loggable_id"], name: "index_log_entries_on_loggable"
     t.index ["user_id"], name: "index_log_entries_on_user_id"
+  end
+
+  create_table "milestones", force: :cascade do |t|
+    t.bigint "bicycle_id", null: false
+    t.date "occurred_on", null: false
+    t.string "title", null: false
+    t.string "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["bicycle_id", "occurred_on"], name: "index_milestones_on_bicycle_id_and_occurred_on"
+    t.index ["bicycle_id"], name: "index_milestones_on_bicycle_id"
+    t.index ["occurred_on"], name: "index_milestones_on_occurred_on"
   end
 
   create_table "movie_posters", force: :cascade do |t|
@@ -177,6 +200,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_20_210343) do
     t.index ["abbreviation"], name: "index_nba_teams_on_abbreviation", unique: true
     t.index ["active"], name: "index_nba_teams_on_active"
     t.index ["name"], name: "index_nba_teams_on_name"
+  end
+
+  create_table "rides", force: :cascade do |t|
+    t.bigint "bicycle_id", null: false
+    t.bigint "strava_activity_id"
+    t.date "rode_on", null: false
+    t.decimal "miles", precision: 5, scale: 2
+    t.integer "duration"
+    t.string "notes"
+    t.bigint "strava_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["bicycle_id", "rode_on"], name: "index_rides_on_bicycle_id_and_rode_on"
+    t.index ["bicycle_id"], name: "index_rides_on_bicycle_id"
+    t.index ["rode_on"], name: "index_rides_on_rode_on"
+    t.index ["strava_activity_id"], name: "index_rides_on_strava_activity_id"
+    t.index ["strava_id"], name: "index_rides_on_strava_id"
   end
 
   create_table "scrobble_albums", force: :cascade do |t|
@@ -448,6 +488,30 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_20_210343) do
     t.index ["spotify_id"], name: "index_spotify_tracks_on_spotify_id", unique: true
   end
 
+  create_table "strava_activities", force: :cascade do |t|
+    t.string "name"
+    t.bigint "strava_id", null: false
+    t.datetime "started_at"
+    t.datetime "ended_at"
+    t.integer "moving_time"
+    t.integer "elapsed_time"
+    t.decimal "distance", precision: 7, scale: 1
+    t.decimal "distance_in_miles", precision: 5, scale: 2
+    t.string "activity_type"
+    t.boolean "commute", default: false
+    t.string "gear_id"
+    t.string "city"
+    t.string "state"
+    t.boolean "private", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["activity_type"], name: "index_strava_activities_on_activity_type"
+    t.index ["commute"], name: "index_strava_activities_on_commute"
+    t.index ["gear_id"], name: "index_strava_activities_on_gear_id"
+    t.index ["started_at"], name: "index_strava_activities_on_started_at"
+    t.index ["strava_id"], name: "index_strava_activities_on_strava_id", unique: true
+  end
+
   create_table "sync_statuses", force: :cascade do |t|
     t.string "source_type", null: false
     t.string "status", default: "pending"
@@ -528,9 +592,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_20_210343) do
   add_foreign_key "concert_performances", "concerts"
   add_foreign_key "concerts", "concert_venues"
   add_foreign_key "log_entries", "users"
+  add_foreign_key "milestones", "bicycles"
   add_foreign_key "movie_posters", "movies"
   add_foreign_key "nba_games", "nba_teams", column: "away_id"
   add_foreign_key "nba_games", "nba_teams", column: "home_id"
+  add_foreign_key "rides", "bicycles"
+  add_foreign_key "rides", "strava_activities"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

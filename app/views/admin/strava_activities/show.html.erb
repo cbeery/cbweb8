@@ -1,0 +1,219 @@
+<!-- app/views/admin/strava_activities/show.html.erb -->
+<div class="container mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800"><%= @activity.name %></h1>
+    <p class="text-gray-600 mt-2">
+      <%= @activity.activity_type %> • 
+      <%= @activity.started_at.strftime("%B %d, %Y at %I:%M %p") %>
+    </p>
+    <div class="mt-2">
+      <% if @activity.commute? %>
+        <span class="inline-flex px-2 text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+          Commute
+        </span>
+      <% end %>
+      <% if @activity.private? %>
+        <span class="inline-flex px-2 text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+          Private
+        </span>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Main Stats -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-sm text-gray-600 mb-1">Distance</p>
+      <p class="text-3xl font-bold text-gray-900">
+        <%= @activity.distance_in_miles %> <span class="text-lg font-normal">mi</span>
+      </p>
+      <p class="text-sm text-gray-500 mt-1">
+        <%= number_with_delimiter(@activity.distance&.round) %> meters
+      </p>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-sm text-gray-600 mb-1">Moving Time</p>
+      <p class="text-3xl font-bold text-gray-900">
+        <%= @activity.duration_formatted %>
+      </p>
+      <p class="text-sm text-gray-500 mt-1">
+        Elapsed: <%= @activity.elapsed_time_formatted %>
+      </p>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-sm text-gray-600 mb-1">Average Speed</p>
+      <p class="text-3xl font-bold text-gray-900">
+        <%= @activity.average_speed_mph %> <span class="text-lg font-normal">mph</span>
+      </p>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-sm text-gray-600 mb-1">Location</p>
+      <p class="text-xl font-bold text-gray-900">
+        <%= @activity.location %>
+      </p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Activity Details -->
+    <div class="bg-white rounded-lg shadow">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900">Details</h2>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <p class="text-sm text-gray-600">Strava ID</p>
+          <p class="text-gray-900 font-mono text-sm"><%= @activity.strava_id %></p>
+        </div>
+        
+        <% if @activity.gear_id.present? %>
+          <div>
+            <p class="text-sm text-gray-600">Gear</p>
+            <% if @bicycle %>
+              <p class="text-gray-900">
+                <%= link_to @bicycle.name, admin_bicycle_path(@bicycle), 
+                    class: "text-blue-600 hover:text-blue-900" %>
+                <span class="text-sm text-gray-500">(ID: <%= @activity.gear_id %>)</span>
+              </p>
+            <% else %>
+              <p class="text-orange-600">
+                Unmapped Gear ID: <%= @activity.gear_id %>
+              </p>
+              <p class="text-sm text-gray-500">
+                Update a bicycle with this Strava gear ID to link them.
+              </p>
+            <% end %>
+          </div>
+        <% end %>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-sm text-gray-600">Started At</p>
+            <p class="text-gray-900"><%= @activity.started_at.strftime("%I:%M %p") %></p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Ended At</p>
+            <p class="text-gray-900"><%= @activity.ended_at&.strftime("%I:%M %p") || '-' %></p>
+          </div>
+        </div>
+        
+        <div>
+          <p class="text-sm text-gray-600">Activity Date</p>
+          <p class="text-gray-900"><%= @activity.activity_date.strftime("%A, %B %d, %Y") %></p>
+        </div>
+        
+        <div>
+          <p class="text-sm text-gray-600">Synced</p>
+          <p class="text-gray-900"><%= @activity.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+        </div>
+        
+        <div>
+          <p class="text-sm text-gray-600">Last Updated</p>
+          <p class="text-gray-900"><%= @activity.updated_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Associated Ride -->
+    <% if @ride %>
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex justify-between items-center">
+            <h2 class="text-lg font-semibold text-gray-900">Linked Ride</h2>
+            <%= link_to "View →", admin_ride_path(@ride), 
+                        class: "text-sm text-blue-600 hover:text-blue-900" %>
+          </div>
+        </div>
+        <div class="p-6 space-y-4">
+          <div>
+            <p class="text-sm text-gray-600">Bicycle</p>
+            <p class="text-gray-900">
+              <%= link_to @ride.bicycle.name, admin_bicycle_path(@ride.bicycle), 
+                  class: "text-blue-600 hover:text-blue-900" %>
+            </p>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p class="text-sm text-gray-600">Ride Date</p>
+              <p class="text-gray-900"><%= @ride.rode_on.strftime("%b %d, %Y") %></p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">Miles</p>
+              <p class="text-gray-900"><%= @ride.miles %> mi</p>
+            </div>
+          </div>
+          
+          <div>
+            <p class="text-sm text-gray-600">Notes</p>
+            <p class="text-gray-900">
+              <%= @ride.notes.presence || content_tag(:span, "No notes", class: "text-gray-400") %>
+            </p>
+          </div>
+        </div>
+      </div>
+    <% elsif @activity.should_sync_ride? %>
+      <div class="bg-orange-50 border border-orange-200 rounded-lg p-6">
+        <h2 class="text-lg font-semibold text-orange-900 mb-2">
+          Missing Ride Record
+        </h2>
+        <p class="text-orange-800">
+          This is a <%= @activity.activity_type %> activity with gear, but no associated Ride record exists.
+        </p>
+        <% if @bicycle %>
+          <p class="text-orange-700 mt-2">
+            The gear ID matches <%= @bicycle.name %>. You can run the sync to create the missing ride.
+          </p>
+          <%= link_to "Run Strava Sync", sync_admin_strava_activities_path, 
+                      method: :post,
+                      class: "mt-4 inline-block bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700" %>
+        <% else %>
+          <p class="text-orange-700 mt-2">
+            The gear ID (<%= @activity.gear_id %>) doesn't match any bicycle. 
+            Update a bicycle with this Strava gear ID to enable ride creation.
+          </p>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="bg-gray-50 rounded-lg p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-2">No Associated Ride</h2>
+        <p class="text-gray-600">
+          This <%= @activity.activity_type %> activity doesn't have an associated ride record.
+          <% unless @activity.gear_id.present? %>
+            No gear was specified for this activity in Strava.
+          <% end %>
+        </p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Navigation -->
+  <div class="mt-8 flex justify-between items-center">
+    <div>
+      <% if @previous_activity %>
+        <%= link_to "← Previous", admin_strava_activity_path(@previous_activity), 
+                    class: "text-gray-600 hover:text-gray-900" %>
+        <span class="text-gray-400 ml-2">
+          <%= @previous_activity.started_at.strftime("%b %d") %>
+        </span>
+      <% end %>
+    </div>
+    
+    <%= link_to "All Activities", admin_strava_activities_path, 
+                class: "text-gray-600 hover:text-gray-900" %>
+    
+    <div>
+      <% if @next_activity %>
+        <span class="text-gray-400 mr-2">
+          <%= @next_activity.started_at.strftime("%b %d") %>
+        </span>
+        <%= link_to "Next →", admin_strava_activity_path(@next_activity), 
+                    class: "text-gray-600 hover:text-gray-900" %>
+      <% end %>
+    </div>
+  </div>
+</div>

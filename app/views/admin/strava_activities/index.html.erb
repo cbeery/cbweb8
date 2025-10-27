@@ -1,0 +1,230 @@
+<!-- app/views/admin/strava_activities/index.html.erb -->
+<div class="container mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800">Strava Activities</h1>
+      <p class="text-gray-600 mt-2">
+        <%= @stats[:total_activities] %> activities • 
+        <%= number_with_delimiter(@stats[:total_distance]&.round || 0) %> miles • 
+        <%= (@stats[:total_time] / 3600.0).round rescue 0 %> hours
+      </p>
+    </div>
+    <div class="flex gap-2">
+      <%= link_to "Sync Now", sync_admin_strava_activities_path, 
+                  method: :post,
+                  data: { confirm: "This will sync the last 7 days of activities. Continue?" },
+                  class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition" %>
+      <%= link_to "View Syncs", admin_syncs_path(source: 'strava'), 
+                  class: "bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition" %>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white rounded-lg shadow mb-6 p-4">
+    <%= form_with url: admin_strava_activities_path, method: :get, local: true, class: "space-y-4" do |f| %>
+      <!-- Row 1: Date Range -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <%= f.label :start_date, "Start Date", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.date_field :start_date, value: params[:start_date], 
+              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        <div>
+          <%= f.label :end_date, "End Date", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.date_field :end_date, value: params[:end_date], 
+              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        <div>
+          <%= f.label :activity_type, "Activity Type", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.select :activity_type, 
+              options_for_select([['All Types', '']] + @activity_types.map { |t| [t, t] }, params[:activity_type]),
+              {}, 
+              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        <div>
+          <%= f.label :sort, "Sort By", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.select :sort, 
+              options_for_select([
+                ['Most Recent', 'date_desc'],
+                ['Oldest First', 'date_asc'],
+                ['Longest Distance', 'distance'],
+                ['Longest Duration', 'duration'],
+                ['By Type', 'type']
+              ], params[:sort]),
+              {}, 
+              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+      </div>
+      
+      <!-- Row 2: Other Filters -->
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div>
+          <%= f.select :has_gear, 
+              options_for_select([
+                ['All Activities', ''],
+                ['With Bike', 'true']
+              ], params[:has_gear]),
+              {}, 
+              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        <div>
+          <%= f.select :commute, 
+              options_for_select([
+                ['All Rides', ''],
+                ['Commutes', 'true'],
+                ['Non-Commutes', 'false']
+              ], params[:commute]),
+              {}, 
+              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        <div>
+          <%= f.select :private, 
+              options_for_select([
+                ['All Privacy', ''],
+                ['Public', 'false'],
+                ['Private', 'true']
+              ], params[:private]),
+              {}, 
+              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        <div>
+          <%= f.select :city, 
+              options_for_select([['All Locations', '']] + @cities.map { |c| [c, c] }, params[:city]),
+              {}, 
+              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        <div>
+          <%= f.text_field :q, value: params[:q], 
+              placeholder: "Search activities...",
+              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+      </div>
+      
+      <div class="flex gap-2">
+        <%= f.submit "Apply Filters", class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>
+        <%= link_to "Clear", admin_strava_activities_path, class: "bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Activity Type Summary -->
+  <% if @stats[:activity_types].any? %>
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+      <% @stats[:activity_types].sort_by { |_, count| -count }.first(6).each do |type, count| %>
+        <div class="bg-white rounded-lg shadow p-4 text-center">
+          <p class="text-sm text-gray-600"><%= type %></p>
+          <p class="text-xl font-bold text-gray-900"><%= count %></p>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Activities Table -->
+  <div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Activity
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Type
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Date
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Distance
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Duration
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Speed
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Gear
+          </th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Ride
+          </th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @activities.each do |activity| %>
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <%= link_to activity.name, admin_strava_activity_path(activity), 
+                  class: "text-blue-600 hover:text-blue-900 font-medium" %>
+              <div class="text-xs text-gray-500 mt-1">
+                <% if activity.commute? %>
+                  <span class="inline-flex px-2 text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                    Commute
+                  </span>
+                <% end %>
+                <% if activity.private? %>
+                  <span class="inline-flex px-2 text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                    Private
+                  </span>
+                <% end %>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <%= activity.activity_type %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <%= activity.started_at.strftime("%b %d, %Y") %>
+              <p class="text-xs text-gray-500"><%= activity.started_at.strftime("%I:%M %p") %></p>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <%= activity.distance_in_miles %> mi
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <%= activity.duration_formatted %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <%= activity.average_speed_mph %> mph
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <% if activity.gear_id.present? %>
+                <% bike = Bicycle.find_by(strava_gear_id: activity.gear_id) %>
+                <% if bike %>
+                  <%= link_to bike.name, admin_bicycle_path(bike), 
+                      class: "text-gray-900 hover:text-blue-600" %>
+                <% else %>
+                  <span class="text-orange-600" title="<%= activity.gear_id %>">Unmapped</span>
+                <% end %>
+              <% else %>
+                <span class="text-gray-400">-</span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <% if activity.ride %>
+                <%= link_to "View", admin_ride_path(activity.ride), 
+                    class: "text-green-600 hover:text-green-900" %>
+              <% elsif activity.should_sync_ride? %>
+                <span class="text-orange-600">Missing</span>
+              <% else %>
+                <span class="text-gray-400">-</span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+        
+        <% if @activities.empty? %>
+          <tr>
+            <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+              No activities found matching your filters.
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="mt-6 flex justify-center">
+    <%= paginate @activities %>
+  </div>
+</div>

@@ -1,0 +1,216 @@
+<!-- app/views/admin/rides/show.html.erb -->
+<div class="container mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800">
+      Ride on <%= @ride.rode_on.strftime("%B %d, %Y") %>
+    </h1>
+    <p class="text-gray-600 mt-2">
+      <%= link_to @bicycle.name, admin_bicycle_path(@bicycle), 
+          class: "text-blue-600 hover:text-blue-900" %> • 
+      <%= @ride.rode_on.strftime("%A") %>
+    </p>
+  </div>
+
+  <!-- Main Stats -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-sm text-gray-600 mb-1">Distance</p>
+      <p class="text-3xl font-bold text-gray-900">
+        <%= @ride.miles %> <span class="text-lg font-normal">miles</span>
+      </p>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-sm text-gray-600 mb-1">Duration</p>
+      <p class="text-3xl font-bold text-gray-900">
+        <%= @ride.duration_formatted %>
+      </p>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-sm text-gray-600 mb-1">Average Speed</p>
+      <p class="text-3xl font-bold text-gray-900">
+        <%= @ride.average_speed %> <span class="text-lg font-normal">mph</span>
+      </p>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-sm text-gray-600 mb-1">Source</p>
+      <p class="text-xl font-bold text-gray-900">
+        <% if @ride.from_strava? %>
+          <span class="text-green-600">Strava</span>
+        <% else %>
+          <span class="text-gray-600">Manual</span>
+        <% end %>
+      </p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Ride Details -->
+    <div class="bg-white rounded-lg shadow">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900">Details</h2>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <p class="text-sm text-gray-600">Notes</p>
+          <p class="text-gray-900">
+            <%= @ride.notes.presence || content_tag(:span, "No notes", class: "text-gray-400") %>
+          </p>
+        </div>
+        
+        <% if @ride.strava_id.present? %>
+          <div>
+            <p class="text-sm text-gray-600">Strava ID</p>
+            <p class="text-gray-900 font-mono text-sm"><%= @ride.strava_id %></p>
+          </div>
+        <% end %>
+        
+        <div>
+          <p class="text-sm text-gray-600">Created</p>
+          <p class="text-gray-900"><%= @ride.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+        </div>
+        
+        <div>
+          <p class="text-sm text-gray-600">Last Updated</p>
+          <p class="text-gray-900"><%= @ride.updated_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Strava Activity (if linked) -->
+    <% if @strava_activity %>
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex justify-between items-center">
+            <h2 class="text-lg font-semibold text-gray-900">Strava Activity</h2>
+            <%= link_to "View →", admin_strava_activity_path(@strava_activity), 
+                        class: "text-sm text-blue-600 hover:text-blue-900" %>
+          </div>
+        </div>
+        <div class="p-6 space-y-4">
+          <div>
+            <p class="text-sm text-gray-600">Activity Name</p>
+            <p class="text-gray-900 font-medium"><%= @strava_activity.name %></p>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p class="text-sm text-gray-600">Moving Time</p>
+              <p class="text-gray-900"><%= @strava_activity.duration_formatted %></p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">Elapsed Time</p>
+              <p class="text-gray-900"><%= @strava_activity.elapsed_time_formatted %></p>
+            </div>
+          </div>
+          
+          <div>
+            <p class="text-sm text-gray-600">Location</p>
+            <p class="text-gray-900"><%= @strava_activity.location %></p>
+          </div>
+          
+          <div>
+            <p class="text-sm text-gray-600">Type</p>
+            <p class="text-gray-900">
+              <%= @strava_activity.activity_type %>
+              <% if @strava_activity.commute? %>
+                <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                  Commute
+                </span>
+              <% end %>
+              <% if @strava_activity.private? %>
+                <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                  Private
+                </span>
+              <% end %>
+            </p>
+          </div>
+        </div>
+      </div>
+    <% else %>
+      <div class="bg-gray-50 rounded-lg p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-2">No Strava Data</h2>
+        <p class="text-gray-600">
+          This ride was entered manually or predates your Strava integration.
+        </p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Milestones Context -->
+  <div class="mt-8 bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-900">Milestone Context</h2>
+    </div>
+    <div class="p-6">
+      <div class="space-y-4">
+        <% if @milestones_before.any? %>
+          <div>
+            <p class="text-sm text-gray-600 mb-2">Recent milestones before this ride:</p>
+            <div class="space-y-2">
+              <% @milestones_before.each do |milestone| %>
+                <div class="flex justify-between items-center py-2 border-b last:border-0">
+                  <%= link_to milestone.title, admin_milestone_path(milestone),
+                      class: "text-gray-900 hover:text-blue-600" %>
+                  <span class="text-sm text-gray-500">
+                    <%= (@ride.rode_on - milestone.occurred_on).to_i %> days before
+                  </span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+        
+        <% if @milestones_after.any? %>
+          <div>
+            <p class="text-sm text-gray-600 mb-2">Next milestones after this ride:</p>
+            <div class="space-y-2">
+              <% @milestones_after.each do |milestone| %>
+                <div class="flex justify-between items-center py-2 border-b last:border-0">
+                  <%= link_to milestone.title, admin_milestone_path(milestone),
+                      class: "text-gray-900 hover:text-blue-600" %>
+                  <span class="text-sm text-gray-500">
+                    <%= (milestone.occurred_on - @ride.rode_on).to_i %> days after
+                  </span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+        
+        <% if @milestones_before.empty? && @milestones_after.empty? %>
+          <p class="text-gray-500">No milestones near this ride.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="mt-8 flex justify-between items-center">
+    <div>
+      <% if @previous_ride %>
+        <%= link_to "← Previous Ride", admin_ride_path(@previous_ride), 
+                    class: "text-gray-600 hover:text-gray-900" %>
+        <span class="text-gray-400 ml-2">
+          <%= @previous_ride.rode_on.strftime("%b %d") %>
+        </span>
+      <% end %>
+    </div>
+    
+    <%= link_to "All Rides", admin_rides_path, 
+                class: "text-gray-600 hover:text-gray-900" %>
+    
+    <div>
+      <% if @next_ride %>
+        <span class="text-gray-400 mr-2">
+          <%= @next_ride.rode_on.strftime("%b %d") %>
+        </span>
+        <%= link_to "Next Ride →", admin_ride_path(@next_ride), 
+                    class: "text-gray-600 hover:text-gray-900" %>
+      <% end %>
+    </div>
+  </div>
+</div>

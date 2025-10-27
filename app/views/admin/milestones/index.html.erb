@@ -1,0 +1,150 @@
+<!-- app/views/admin/milestones/index.html.erb -->
+<div class="container mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800">Milestones</h1>
+      <p class="text-gray-600 mt-2">
+        <%= @milestones.count %> milestones • 
+        <%= @milestones.select(&:maintenance?).count %> maintenance items
+      </p>
+    </div>
+    <%= link_to "Add New Milestone", new_admin_milestone_path, 
+                class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition" %>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white rounded-lg shadow mb-6 p-4">
+    <%= form_with url: admin_milestones_path, method: :get, local: true, class: "space-y-4" do |f| %>
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <!-- Search -->
+        <div>
+          <%= f.text_field :q, value: params[:q], 
+              placeholder: "Search milestones...",
+              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        
+        <!-- Bicycle Filter -->
+        <div>
+          <%= f.select :bicycle_id, 
+              options_for_select([['All Bicycles', '']] + @available_bicycles, params[:bicycle_id]),
+              {}, 
+              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        
+        <!-- Year Filter -->
+        <div>
+          <%= f.select :year, 
+              options_for_select([['All Years', '']] + @available_years.map { |y| [y, y] }, params[:year]),
+              {}, 
+              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        
+        <!-- Maintenance Filter -->
+        <div>
+          <%= f.select :maintenance, 
+              options_for_select([
+                ['All Types', ''],
+                ['Maintenance Only', 'true'],
+                ['Non-Maintenance', 'false']
+              ], params[:maintenance]),
+              {}, 
+              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        
+        <!-- Sort -->
+        <div>
+          <%= f.select :sort, 
+              options_for_select([
+                ['Most Recent', 'date_desc'],
+                ['Oldest First', 'date_asc'],
+                ['By Bicycle', 'bicycle']
+              ], params[:sort]),
+              {}, 
+              class: "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+      </div>
+      
+      <div class="flex gap-2">
+        <%= f.submit "Apply Filters", class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>
+        <%= link_to "Clear", admin_milestones_path, class: "bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Milestones Table -->
+  <div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Milestone
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Bicycle
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Date
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Type
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Miles Since
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @milestones.each do |milestone| %>
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <%= link_to milestone.title, admin_milestone_path(milestone), 
+                  class: "text-blue-600 hover:text-blue-900 font-medium" %>
+              <% if milestone.description.present? %>
+                <p class="text-sm text-gray-500"><%= truncate(milestone.description, length: 50) %></p>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <%= link_to milestone.bicycle.name, admin_bicycle_path(milestone.bicycle), 
+                  class: "text-gray-900 hover:text-blue-600" %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <%= milestone.occurred_on.strftime("%b %d, %Y") %>
+              <p class="text-xs text-gray-500"><%= pluralize(milestone.days_since, 'day') %> ago</p>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <% if milestone.maintenance? %>
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
+                  Maintenance
+                </span>
+              <% else %>
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                  General
+                </span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <span class="font-medium"><%= number_with_delimiter(milestone.miles_since.round) %></span>
+              <p class="text-xs text-gray-500"><%= milestone.rides_since %> rides</p>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <%= link_to "Edit", edit_admin_milestone_path(milestone), 
+                  class: "text-indigo-600 hover:text-indigo-900" %>
+            </td>
+          </tr>
+        <% end %>
+        
+        <% if @milestones.empty? %>
+          <tr>
+            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+              No milestones found matching your filters.
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

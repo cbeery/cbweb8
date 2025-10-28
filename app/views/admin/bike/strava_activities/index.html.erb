@@ -1,4 +1,4 @@
-<!-- app/views/admin/strava_activities/index.html.erb -->
+<!-- app/views/admin/bike/strava_activities/index.html.erb -->
 <div class="container mx-auto px-4 py-8">
   <!-- Header -->
   <div class="flex justify-between items-center mb-8">
@@ -11,7 +11,7 @@
       </p>
     </div>
     <div class="flex gap-2">
-      <%= link_to "Sync Now", sync_admin_strava_activities_path, 
+      <%= link_to "Sync Now", sync_admin_bike_strava_activities_path, 
                   method: :post,
                   data: { confirm: "This will sync the last 7 days of activities. Continue?" },
                   class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition" %>
@@ -22,7 +22,7 @@
 
   <!-- Filters -->
   <div class="bg-white rounded-lg shadow mb-6 p-4">
-    <%= form_with url: admin_strava_activities_path, method: :get, local: true, class: "space-y-4" do |f| %>
+    <%= form_with url: admin_bike_strava_activities_path, method: :get, local: true, class: "space-y-4" do |f| %>
       <!-- Row 1: Date Range -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
@@ -103,7 +103,7 @@
       
       <div class="flex gap-2">
         <%= f.submit "Apply Filters", class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>
-        <%= link_to "Clear", admin_strava_activities_path, class: "bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300" %>
+        <%= link_to "Clear", admin_bike_strava_activities_path, class: "bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300" %>
       </div>
     <% end %>
   </div>
@@ -155,7 +155,7 @@
         <% @activities.each do |activity| %>
           <tr>
             <td class="px-6 py-4 whitespace-nowrap">
-              <%= link_to activity.name, admin_strava_activity_path(activity), 
+              <%= link_to activity.name, admin_bike_strava_activity_path(activity), 
                   class: "text-blue-600 hover:text-blue-900 font-medium" %>
               <div class="text-xs text-gray-500 mt-1">
                 <% if activity.commute? %>
@@ -190,7 +190,7 @@
               <% if activity.gear_id.present? %>
                 <% bike = Bicycle.find_by(strava_gear_id: activity.gear_id) %>
                 <% if bike %>
-                  <%= link_to bike.name, admin_bicycle_path(bike), 
+                  <%= link_to bike.name, admin_bike_bicycles_path(bike), 
                       class: "text-gray-900 hover:text-blue-600" %>
                 <% else %>
                   <span class="text-orange-600" title="<%= activity.gear_id %>">Unmapped</span>
@@ -201,7 +201,7 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-center">
               <% if activity.ride %>
-                <%= link_to "View", admin_ride_path(activity.ride), 
+                <%= link_to "View", admin_bike_rides_path(activity.ride), 
                     class: "text-green-600 hover:text-green-900" %>
               <% elsif activity.should_sync_ride? %>
                 <span class="text-orange-600">Missing</span>

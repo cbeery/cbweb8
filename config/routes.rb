@@ -102,26 +102,30 @@ Rails.application.routes.draw do
     resources :concert_venues, only: [:index, :show, :new, :create]
 
     # Bicycles & Related
-    resources :bicycles do
-      member do
-        post :sync_strava  # Future: sync rides from Strava for this bike
+    namespace :bike do
+      root to: 'dashboard#index'  # /admin/bike
+      
+      resources :bicycles do
+        member do
+          post :sync_strava  # Future: sync rides from Strava for this bike
+        end
+      end
+      
+      resources :rides do
+        collection do
+          get :calculator  # Mileage calculator
+        end
+      end
+      
+      resources :milestones
+
+      resources :strava_activities do
+        collection do
+          post :sync  # Trigger Strava sync
+        end
       end
     end
-    
-    resources :milestones
-    
-    resources :rides, only: [:index, :show] do
-      collection do
-        get :calculator  # Mileage calculator
-      end
-    end
-    
-    resources :strava_activities, only: [:index, :show] do
-      collection do
-        post :sync  # Trigger Strava sync
-      end
-    end
-    
+        
   end # namespace :admin
 
   # Mission Control for job monitoring (admin only)

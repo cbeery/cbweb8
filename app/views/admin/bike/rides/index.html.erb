@@ -1,4 +1,4 @@
-<!-- app/views/admin/rides/index.html.erb -->
+<!-- app/views/admin/bike/rides/index.html.erb -->
 <div class="container mx-auto px-4 py-8">
   <!-- Header -->
   <div class="flex justify-between items-center mb-8">
@@ -10,13 +10,13 @@
         <%= (@stats[:total_duration] / 3600.0).round rescue 0 %> hours
       </p>
     </div>
-    <%= link_to "Mileage Calculator", calculator_admin_rides_path, 
+    <%= link_to "Mileage Calculator", calculator_admin_bike_rides_path, 
                 class: "bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition" %>
   </div>
 
   <!-- Filters -->
   <div class="bg-white rounded-lg shadow mb-6 p-4">
-    <%= form_with url: admin_rides_path, method: :get, local: true, class: "space-y-4" do |f| %>
+    <%= form_with url: admin_bike_rides_path, method: :get, local: true, class: "space-y-4" do |f| %>
       <!-- Row 1: Date Range -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
@@ -104,8 +104,8 @@
         </div>
         <div class="flex gap-2">
           <%= f.submit "Apply Filters", class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>
-          <%= link_to "Clear", admin_rides_path, class: "bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300" %>
-          <%= link_to "Export CSV", admin_rides_path(format: :csv, **params.permit!), 
+          <%= link_to "Clear", admin_bike_rides_path, class: "bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300" %>
+          <%= link_to "Export CSV", admin_bike_rides_path(format: :csv, **params.permit!), 
               class: "bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" if false %>
         </div>
       </div>
@@ -172,12 +172,12 @@
         <% @rides.each do |ride| %>
           <tr>
             <td class="px-6 py-4 whitespace-nowrap">
-              <%= link_to ride.rode_on.strftime("%b %d, %Y"), admin_ride_path(ride), 
+              <%= link_to ride.rode_on.strftime("%b %d, %Y"), admin_bike_ride_path(ride), 
                   class: "text-blue-600 hover:text-blue-900 font-medium" %>
               <p class="text-xs text-gray-500"><%= ride.rode_on.strftime("%A") %></p>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <%= link_to ride.bicycle.name, admin_bicycle_path(ride.bicycle), 
+              <%= link_to ride.bicycle.name, admin_bike_bicycles_path(ride.bicycle), 
                   class: "text-gray-900 hover:text-blue-600" %>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

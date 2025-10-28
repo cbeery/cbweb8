@@ -1,4 +1,4 @@
-<!-- app/views/admin/milestones/index.html.erb -->
+<!-- app/views/admin/bike/milestones/index.html.erb -->
 <div class="container mx-auto px-4 py-8">
   <!-- Header -->
   <div class="flex justify-between items-center mb-8">
@@ -9,13 +9,13 @@
         <%= @milestones.select(&:maintenance?).count %> maintenance items
       </p>
     </div>
-    <%= link_to "Add New Milestone", new_admin_milestone_path, 
+    <%= link_to "Add New Milestone", new_admin_bike_milestone_path, 
                 class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition" %>
   </div>
 
   <!-- Filters -->
   <div class="bg-white rounded-lg shadow mb-6 p-4">
-    <%= form_with url: admin_milestones_path, method: :get, local: true, class: "space-y-4" do |f| %>
+    <%= form_with url: admin_bike_milestones_path, method: :get, local: true, class: "space-y-4" do |f| %>
       <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
         <!-- Search -->
         <div>
@@ -67,7 +67,7 @@
       
       <div class="flex gap-2">
         <%= f.submit "Apply Filters", class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>
-        <%= link_to "Clear", admin_milestones_path, class: "bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300" %>
+        <%= link_to "Clear", admin_bike_milestones_path, class: "bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300" %>
       </div>
     <% end %>
   </div>
@@ -101,14 +101,14 @@
         <% @milestones.each do |milestone| %>
           <tr>
             <td class="px-6 py-4 whitespace-nowrap">
-              <%= link_to milestone.title, admin_milestone_path(milestone), 
+              <%= link_to milestone.title, admin_bike_milestone_path(milestone), 
                   class: "text-blue-600 hover:text-blue-900 font-medium" %>
               <% if milestone.description.present? %>
                 <p class="text-sm text-gray-500"><%= truncate(milestone.description, length: 50) %></p>
               <% end %>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <%= link_to milestone.bicycle.name, admin_bicycle_path(milestone.bicycle), 
+              <%= link_to milestone.bicycle.name, admin_bike_bicycles_path(milestone.bicycle), 
                   class: "text-gray-900 hover:text-blue-600" %>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -131,7 +131,7 @@
               <p class="text-xs text-gray-500"><%= milestone.rides_since %> rides</p>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-              <%= link_to "Edit", edit_admin_milestone_path(milestone), 
+              <%= link_to "Edit", edit_admin_bike_milestone_path(milestone), 
                   class: "text-indigo-600 hover:text-indigo-900" %>
             </td>
           </tr>

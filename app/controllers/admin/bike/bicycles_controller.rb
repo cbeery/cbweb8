@@ -1,5 +1,5 @@
 # app/controllers/admin/bicycles_controller.rb
-class Admin::BicyclesController < Admin::BaseController
+class Admin::Bike::BicyclesController < Admin::BaseController
   before_action :set_bicycle, only: [:show, :edit, :update, :destroy]
   
   def index
@@ -84,7 +84,7 @@ class Admin::BicyclesController < Admin::BaseController
     @bicycle = Bicycle.new(bicycle_params)
     
     if @bicycle.save
-      redirect_to admin_bicycle_path(@bicycle), 
+      redirect_to admin_bike_bicycles_path(@bicycle), 
                   notice: 'Bicycle was successfully created.'
     else
       render :new
@@ -96,7 +96,7 @@ class Admin::BicyclesController < Admin::BaseController
   
   def update
     if @bicycle.update(bicycle_params)
-      redirect_to admin_bicycle_path(@bicycle), 
+      redirect_to admin_bike_bicycles_path(@bicycle), 
                   notice: 'Bicycle was successfully updated.'
     else
       render :edit
@@ -105,7 +105,7 @@ class Admin::BicyclesController < Admin::BaseController
   
   def destroy
     @bicycle.destroy
-    redirect_to admin_bicycles_path, 
+    redirect_to admin_bike_bicycles_path, 
                 notice: 'Bicycle was successfully deleted.'
   end
   

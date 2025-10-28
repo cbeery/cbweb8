@@ -1,19 +1,19 @@
-<!-- app/views/admin/milestones/show.html.erb -->
+<!-- app/views/admin/bike/milestones/show.html.erb -->
 <div class="container mx-auto px-4 py-8">
   <!-- Header -->
   <div class="flex justify-between items-center mb-8">
     <div>
       <h1 class="text-3xl font-bold text-gray-800"><%= @milestone.title %></h1>
       <p class="text-gray-600 mt-2">
-        <%= link_to @milestone.bicycle.name, admin_bicycle_path(@milestone.bicycle), 
+        <%= link_to @milestone.bicycle.name, admin_bike_bicycles_path(@milestone.bicycle), 
             class: "text-blue-600 hover:text-blue-900" %> • 
         <%= @milestone.occurred_on.strftime("%B %d, %Y") %>
       </p>
     </div>
     <div class="flex gap-2">
-      <%= link_to "Edit", edit_admin_milestone_path(@milestone), 
+      <%= link_to "Edit", edit_admin_bike_milestone_path(@milestone), 
                   class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition" %>
-      <%= link_to "Delete", admin_milestone_path(@milestone), 
+      <%= link_to "Delete", admin_bike_milestone_path(@milestone), 
                   method: :delete,
                   data: { confirm: "Are you sure?" },
                   class: "bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition" %>
@@ -69,7 +69,7 @@
         <% if @previous_milestone %>
           <div class="border-l-4 border-gray-300 pl-4">
             <p class="text-sm text-gray-500">Previous</p>
-            <%= link_to @previous_milestone.title, admin_milestone_path(@previous_milestone),
+            <%= link_to @previous_milestone.title, admin_bike_milestone_path(@previous_milestone),
                 class: "font-medium text-gray-900 hover:text-blue-600" %>
             <p class="text-sm text-gray-600">
               <%= @previous_milestone.occurred_on.strftime("%B %d, %Y") %> • 
@@ -87,7 +87,7 @@
         <% if @next_milestone %>
           <div class="border-l-4 border-gray-300 pl-4">
             <p class="text-sm text-gray-500">Next</p>
-            <%= link_to @next_milestone.title, admin_milestone_path(@next_milestone),
+            <%= link_to @next_milestone.title, admin_bike_milestone_path(@next_milestone),
                 class: "font-medium text-gray-900 hover:text-blue-600" %>
             <p class="text-sm text-gray-600">
               <%= @next_milestone.occurred_on.strftime("%B %d, %Y") %> • 
@@ -103,7 +103,7 @@
       <div class="px-6 py-4 border-b border-gray-200">
         <div class="flex justify-between items-center">
           <h2 class="text-lg font-semibold text-gray-900">Rides Since</h2>
-          <%= link_to "View All", admin_rides_path(bicycle_id: @milestone.bicycle_id, start_date: @milestone.occurred_on), 
+          <%= link_to "View All", admin_bike_rides_path(bicycle_id: @milestone.bicycle_id, start_date: @milestone.occurred_on), 
                       class: "text-sm text-blue-600 hover:text-blue-900" %>
         </div>
       </div>
@@ -113,7 +113,7 @@
             <div class="flex justify-between items-start">
               <div>
                 <p class="font-medium text-gray-900">
-                  <%= link_to ride.rode_on.strftime("%B %d, %Y"), admin_ride_path(ride),
+                  <%= link_to ride.rode_on.strftime("%B %d, %Y"), admin_bike_rides_path(ride),
                       class: "hover:text-blue-600" %>
                 </p>
                 <p class="text-sm text-gray-600">
@@ -160,9 +160,9 @@
 
   <!-- Navigation -->
   <div class="mt-8 flex justify-between">
-    <%= link_to "← Back to Milestones", admin_milestones_path, 
+    <%= link_to "← Back to Milestones", admin_bike_milestones_path, 
                 class: "text-gray-600 hover:text-gray-900" %>
-    <%= link_to "View Bicycle →", admin_bicycle_path(@milestone.bicycle), 
+    <%= link_to "View Bicycle →", admin_bike_bicycles_path(@milestone.bicycle), 
                 class: "text-gray-600 hover:text-gray-900" %>
   </div>
 </div>

@@ -172,7 +172,7 @@
         <% @rides.each do |ride| %>
           <tr>
             <td class="px-6 py-4 whitespace-nowrap">
-              <%= link_to ride.rode_on.strftime("%b %d, %Y"), admin_bike_rides_path(ride), 
+              <%= link_to ride.rode_on.strftime("%b %d, %Y"), admin_bike_ride_path(ride), 
                   class: "text-blue-600 hover:text-blue-900 font-medium" %>
               <p class="text-xs text-gray-500"><%= ride.rode_on.strftime("%A") %></p>
             </td>

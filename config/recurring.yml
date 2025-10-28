@@ -13,11 +13,12 @@ production:
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12
-# Daily Strava sync - runs at 6 AM Mountain Time
-strava_daily:
-  class: StravaActivitySyncJob
-  queue: default
-  schedule: "every day at 3:40 PM"
-  args:
-    days_back: 7      # Sync last 7 days
-    broadcast: false  # No real-time updates for scheduled jobs
+
+  # Daily Strava sync - runs at...
+  strava_daily:
+    class: StravaActivitySyncJob
+    queue: default
+    schedule: "every day at 3:40 PM"
+    args:
+      days_back: 7      # Sync last 7 days
+      broadcast: false  # No real-time updates for scheduled jobs

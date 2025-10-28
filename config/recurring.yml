@@ -18,7 +18,7 @@ production:
   strava_daily:
     class: StravaActivitySyncJob
     queue: default
-    schedule: "every day at 12:00 PM"
+    schedule: "every day at 12:15 PM"
     args:
-      days_back: 7      # Sync last 7 days
-      broadcast: false  # No real-time updates for scheduled jobs
+      - days_back: 7
+        broadcast: false      

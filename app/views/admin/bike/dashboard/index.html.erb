@@ -139,16 +139,16 @@
               <% @recent_rides.each do |ride| %>
                 <tr class="hover:bg-gray-50">
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <%= ride.ride_date.strftime("%b %d, %Y") %>
+                    <%= ride.rode_on.strftime("%b %d, %Y") %>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <%= ride.bicycle&.name || "—" %>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <%= number_with_precision(ride.distance_miles, precision: 1) %> mi
+                    <%= number_with_precision(ride.miles, precision: 1) %> mi
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <%= distance_of_time_in_words(ride.duration_seconds) if ride.duration_seconds %>
+                    <%= distance_of_time_in_words(ride.duration) if ride.duration %>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <% if ride.average_speed %>
@@ -200,14 +200,11 @@
             <% @upcoming_milestones.each do |milestone| %>
               <div class="flex justify-between items-start">
                 <div>
-                  <p class="text-sm font-medium text-gray-900"><%= milestone.name %></p>
+                  <p class="text-sm font-medium text-gray-900"><%= milestone.title %></p>
                   <p class="text-xs text-gray-500">
-                    <%= milestone.target_date&.strftime("%b %d, %Y") || "No date set" %>
+                    <%= milestone.occurred_on&.strftime("%b %d, %Y") || "No date set" %>
                   </p>
                 </div>
-                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                  <%= milestone.status %>
-                </span>
               </div>
             <% end %>
           </div>

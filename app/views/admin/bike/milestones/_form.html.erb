@@ -1,4 +1,4 @@
-<!-- app/views/admin/milestones/_form.html.erb -->
+<!-- app/views/admin/bike/milestones/_form.html.erb -->
 <%= form_with(model: [:admin, milestone], local: true) do |form| %>
   <% if milestone.errors.any? %>
     <div class="bg-red-50 border border-red-200 rounded p-4 mb-6">
@@ -52,7 +52,7 @@
         <%= link_to "Cancel", admin_milestone_path(milestone), 
             class: "bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 transition" %>
       <% else %>
-        <%= link_to "Cancel", admin_milestones_path, 
+        <%= link_to "Cancel", admin_bike_milestones_path, 
             class: "bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 transition" %>
       <% end %>
     </div>

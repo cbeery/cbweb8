@@ -1,4 +1,4 @@
-<!-- app/views/admin/milestones/show.html.erb -->
+<!-- app/views/admin/bike/milestones/show.html.erb -->
 <div class="container mx-auto px-4 py-8">
   <!-- Header -->
   <div class="flex justify-between items-center mb-8">
@@ -103,7 +103,7 @@
       <div class="px-6 py-4 border-b border-gray-200">
         <div class="flex justify-between items-center">
           <h2 class="text-lg font-semibold text-gray-900">Rides Since</h2>
-          <%= link_to "View All", admin_rides_path(bicycle_id: @milestone.bicycle_id, start_date: @milestone.occurred_on), 
+          <%= link_to "View All", admin_bike_rides_path(bicycle_id: @milestone.bicycle_id, start_date: @milestone.occurred_on), 
                       class: "text-sm text-blue-600 hover:text-blue-900" %>
         </div>
       </div>
@@ -160,7 +160,7 @@
 
   <!-- Navigation -->
   <div class="mt-8 flex justify-between">
-    <%= link_to "← Back to Milestones", admin_milestones_path, 
+    <%= link_to "← Back to Milestones", admin_bike_milestones_path, 
                 class: "text-gray-600 hover:text-gray-900" %>
     <%= link_to "View Bicycle →", admin_bicycle_path(@milestone.bicycle), 
                 class: "text-gray-600 hover:text-gray-900" %>

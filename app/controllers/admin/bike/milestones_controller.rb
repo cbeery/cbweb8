@@ -1,5 +1,5 @@
 # app/controllers/admin/milestones_controller.rb
-class Admin::MilestonesController < Admin::BaseController
+class Admin::Bike::MilestonesController < Admin::BaseController
   before_action :set_milestone, only: [:show, :edit, :update, :destroy]
   before_action :load_bicycles, only: [:new, :edit, :create, :update]
   
@@ -87,7 +87,7 @@ class Admin::MilestonesController < Admin::BaseController
   def destroy
     bicycle = @milestone.bicycle
     @milestone.destroy
-    redirect_to admin_milestones_path(bicycle_id: bicycle.id), 
+    redirect_to admin_bike_milestones_path(bicycle_id: bicycle.id), 
                 notice: 'Milestone was successfully deleted.'
   end
   

@@ -1,5 +1,5 @@
 # app/controllers/admin/strava_activities_controller.rb
-class Admin::StravaActivitiesController < Admin::BaseController
+class Admin::Bike::StravaActivitiesController < Admin::BaseController
   before_action :set_activity, only: [:show]
   
   def index

@@ -1,5 +1,5 @@
 # app/controllers/admin/rides_controller.rb
-class Admin::RidesController < Admin::BaseController
+class Admin::Bike::RidesController < Admin::BaseController
   before_action :set_ride, only: [:show]
   
   def index

@@ -1,4 +1,4 @@
-<!-- app/views/admin/strava_activities/show.html.erb -->
+<!-- app/views/admin/bike/strava_activities/show.html.erb -->
 <div class="container mx-auto px-4 py-8">
   <!-- Header -->
   <div class="mb-8">
@@ -168,7 +168,7 @@
           <p class="text-orange-700 mt-2">
             The gear ID matches <%= @bicycle.name %>. You can run the sync to create the missing ride.
           </p>
-          <%= link_to "Run Strava Sync", sync_admin_strava_activities_path, 
+          <%= link_to "Run Strava Sync", sync_admin_bike_strava_activities_path, 
                       method: :post,
                       class: "mt-4 inline-block bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700" %>
         <% else %>
@@ -203,7 +203,7 @@
       <% end %>
     </div>
     
-    <%= link_to "All Activities", admin_strava_activities_path, 
+    <%= link_to "All Activities", admin_bike_strava_activities_path, 
                 class: "text-gray-600 hover:text-gray-900" %>
     
     <div>

@@ -1,4 +1,4 @@
-<!-- app/views/admin/bicycles/_form.html.erb -->
+<!-- app/views/admin/bike/bicycles/_form.html.erb -->
 <%= form_with(model: [:admin, bicycle], local: true) do |form| %>
   <% if bicycle.errors.any? %>
     <div class="bg-red-50 border border-red-200 rounded p-4 mb-6">
@@ -48,7 +48,7 @@
 
     <div class="flex gap-2">
       <%= form.submit class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition" %>
-      <%= link_to "Cancel", admin_bicycles_path, 
+      <%= link_to "Cancel", admin_bike_bicycles_path, 
           class: "bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 transition" %>
     </div>
   </div>

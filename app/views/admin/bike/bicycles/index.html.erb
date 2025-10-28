@@ -1,4 +1,4 @@
-<!-- app/views/admin/bicycles/index.html.erb -->
+<!-- app/views/admin/bike/bicycles/index.html.erb -->
 <div class="container mx-auto px-4 py-8">
   <!-- Header -->
   <div class="flex justify-between items-center mb-8">
@@ -16,7 +16,7 @@
 
   <!-- Filters -->
   <div class="bg-white rounded-lg shadow mb-6 p-4">
-    <%= form_with url: admin_bicycles_path, method: :get, local: true, class: "space-y-4" do |f| %>
+    <%= form_with url: admin_bike_bicycles_path, method: :get, local: true, class: "space-y-4" do |f| %>
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <!-- Search -->
         <div>
@@ -64,7 +64,7 @@
       
       <div class="flex gap-2">
         <%= f.submit "Apply Filters", class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>
-        <%= link_to "Clear", admin_bicycles_path, class: "bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300" %>
+        <%= link_to "Clear", admin_bike_bicycles_path, class: "bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300" %>
       </div>
     <% end %>
   </div>
@@ -131,7 +131,7 @@
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
               <%= stats[:milestone_count] %>
               <% if stats[:milestone_count] > 0 %>
-                <%= link_to "(view)", admin_milestones_path(bicycle_id: bicycle.id), 
+                <%= link_to "(view)", admin_bike_milestones_path(bicycle_id: bicycle.id), 
                     class: "text-blue-600 hover:text-blue-900 text-xs ml-1" %>
               <% end %>
             </td>
@@ -161,11 +161,11 @@
 
   <!-- Quick Actions -->
   <div class="mt-8 flex gap-4">
-    <%= link_to "Mileage Calculator", calculator_admin_rides_path, 
+    <%= link_to "Mileage Calculator", calculator_admin_bike_rides_path, 
                 class: "bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition" %>
-    <%= link_to "View All Rides", admin_rides_path, 
+    <%= link_to "View All Rides", admin_bike_rides_path, 
                 class: "bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition" %>
-    <%= link_to "View Milestones", admin_milestones_path, 
+    <%= link_to "View Milestones", admin_bike_milestones_path, 
                 class: "bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition" %>
   </div>
 </div>

@@ -33,7 +33,7 @@ namespace :import do
         bicycle.assign_attributes(
           name: row['name'],
           notes: row['notes'],
-          active: row['active'].to_s.downcase == 'true',
+          active: row['active'].to_i == 1,
           strava_gear_id: row['strava_gear_id'].presence,
           created_at: row['created_at'].presence || Time.current,
           updated_at: row['updated_at'].presence || Time.current

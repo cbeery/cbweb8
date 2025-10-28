@@ -6,7 +6,7 @@
       Ride on <%= @ride.rode_on.strftime("%B %d, %Y") %>
     </h1>
     <p class="text-gray-600 mt-2">
-      <%= link_to @bicycle.name, admin_bicycle_path(@bicycle), 
+      <%= link_to @bicycle.name, admin_bike_bicycles_path(@bicycle), 
           class: "text-blue-600 hover:text-blue-900" %> • 
       <%= @ride.rode_on.strftime("%A") %>
     </p>
@@ -192,7 +192,7 @@
   <div class="mt-8 flex justify-between items-center">
     <div>
       <% if @previous_ride %>
-        <%= link_to "← Previous Ride", admin_ride_path(@previous_ride), 
+        <%= link_to "← Previous Ride", admin_bike_rides_path(@previous_ride), 
                     class: "text-gray-600 hover:text-gray-900" %>
         <span class="text-gray-400 ml-2">
           <%= @previous_ride.rode_on.strftime("%b %d") %>
@@ -208,7 +208,7 @@
         <span class="text-gray-400 mr-2">
           <%= @next_ride.rode_on.strftime("%b %d") %>
         </span>
-        <%= link_to "Next Ride →", admin_ride_path(@next_ride), 
+        <%= link_to "Next Ride →", admin_bike_rides_path(@next_ride), 
                     class: "text-gray-600 hover:text-gray-900" %>
       <% end %>
     </div>

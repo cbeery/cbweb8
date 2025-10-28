@@ -5,7 +5,7 @@
     <div>
       <h1 class="text-3xl font-bold text-gray-800"><%= @milestone.title %></h1>
       <p class="text-gray-600 mt-2">
-        <%= link_to @milestone.bicycle.name, admin_bicycle_path(@milestone.bicycle), 
+        <%= link_to @milestone.bicycle.name, admin_bike_bicycles_path(@milestone.bicycle), 
             class: "text-blue-600 hover:text-blue-900" %> • 
         <%= @milestone.occurred_on.strftime("%B %d, %Y") %>
       </p>
@@ -113,7 +113,7 @@
             <div class="flex justify-between items-start">
               <div>
                 <p class="font-medium text-gray-900">
-                  <%= link_to ride.rode_on.strftime("%B %d, %Y"), admin_ride_path(ride),
+                  <%= link_to ride.rode_on.strftime("%B %d, %Y"), admin_bike_rides_path(ride),
                       class: "hover:text-blue-600" %>
                 </p>
                 <p class="text-sm text-gray-600">
@@ -162,7 +162,7 @@
   <div class="mt-8 flex justify-between">
     <%= link_to "← Back to Milestones", admin_bike_milestones_path, 
                 class: "text-gray-600 hover:text-gray-900" %>
-    <%= link_to "View Bicycle →", admin_bicycle_path(@milestone.bicycle), 
+    <%= link_to "View Bicycle →", admin_bike_bicycles_path(@milestone.bicycle), 
                 class: "text-gray-600 hover:text-gray-900" %>
   </div>
 </div>

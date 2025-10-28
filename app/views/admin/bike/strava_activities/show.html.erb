@@ -75,7 +75,7 @@
             <p class="text-sm text-gray-600">Gear</p>
             <% if @bicycle %>
               <p class="text-gray-900">
-                <%= link_to @bicycle.name, admin_bicycle_path(@bicycle), 
+                <%= link_to @bicycle.name, admin_bike_bicycles_path(@bicycle), 
                     class: "text-blue-600 hover:text-blue-900" %>
                 <span class="text-sm text-gray-500">(ID: <%= @activity.gear_id %>)</span>
               </p>
@@ -124,7 +124,7 @@
         <div class="px-6 py-4 border-b border-gray-200">
           <div class="flex justify-between items-center">
             <h2 class="text-lg font-semibold text-gray-900">Linked Ride</h2>
-            <%= link_to "View →", admin_ride_path(@ride), 
+            <%= link_to "View →", admin_bike_rides_path(@ride), 
                         class: "text-sm text-blue-600 hover:text-blue-900" %>
           </div>
         </div>
@@ -132,7 +132,7 @@
           <div>
             <p class="text-sm text-gray-600">Bicycle</p>
             <p class="text-gray-900">
-              <%= link_to @ride.bicycle.name, admin_bicycle_path(@ride.bicycle), 
+              <%= link_to @ride.bicycle.name, admin_bike_bicycles_path(@ride.bicycle), 
                   class: "text-blue-600 hover:text-blue-900" %>
             </p>
           </div>

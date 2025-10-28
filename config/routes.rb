@@ -107,33 +107,21 @@ Rails.application.routes.draw do
       
       resources :bicycles do
         member do
-          post :set_default
-          post :retire
+          post :sync_strava  # Future: sync rides from Strava for this bike
         end
       end
       
       resources :rides do
         collection do
-          get :by_month
-          get :by_year
-          post :bulk_import
-        end
-        member do
-          patch :update_stats
+          get :calculator  # Mileage calculator
         end
       end
       
-      resources :milestones do
-        member do
-          post :complete
-        end
-      end
-      
+      resources :milestones
+
       resources :strava_activities do
         collection do
-          post :sync
-          get :unmatched
-          post :match_ride
+          post :sync  # Trigger Strava sync
         end
       end
     end

@@ -84,7 +84,7 @@ class Admin::Bike::BicyclesController < Admin::BaseController
     @bicycle = Bicycle.new(bicycle_params)
     
     if @bicycle.save
-      redirect_to admin_bicycle_path(@bicycle), 
+      redirect_to admin_bike_bicycles_path(@bicycle), 
                   notice: 'Bicycle was successfully created.'
     else
       render :new
@@ -96,7 +96,7 @@ class Admin::Bike::BicyclesController < Admin::BaseController
   
   def update
     if @bicycle.update(bicycle_params)
-      redirect_to admin_bicycle_path(@bicycle), 
+      redirect_to admin_bike_bicycles_path(@bicycle), 
                   notice: 'Bicycle was successfully updated.'
     else
       render :edit

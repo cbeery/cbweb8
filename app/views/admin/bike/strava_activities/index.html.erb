@@ -190,7 +190,7 @@
               <% if activity.gear_id.present? %>
                 <% bike = Bicycle.find_by(strava_gear_id: activity.gear_id) %>
                 <% if bike %>
-                  <%= link_to bike.name, admin_bicycle_path(bike), 
+                  <%= link_to bike.name, admin_bike_bicycles_path(bike), 
                       class: "text-gray-900 hover:text-blue-600" %>
                 <% else %>
                   <span class="text-orange-600" title="<%= activity.gear_id %>">Unmapped</span>
@@ -201,7 +201,7 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-center">
               <% if activity.ride %>
-                <%= link_to "View", admin_ride_path(activity.ride), 
+                <%= link_to "View", admin_bike_rides_path(activity.ride), 
                     class: "text-green-600 hover:text-green-900" %>
               <% elsif activity.should_sync_ride? %>
                 <span class="text-orange-600">Missing</span>

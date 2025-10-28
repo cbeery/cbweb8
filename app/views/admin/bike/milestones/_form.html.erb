@@ -49,7 +49,7 @@
     <div class="flex gap-2">
       <%= form.submit class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition" %>
       <% if milestone.persisted? %>
-        <%= link_to "Cancel", admin_milestone_path(milestone), 
+        <%= link_to "Cancel", admin_bike_milestone_path(milestone), 
             class: "bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 transition" %>
       <% else %>
         <%= link_to "Cancel", admin_bike_milestones_path, 

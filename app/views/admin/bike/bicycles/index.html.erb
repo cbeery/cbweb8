@@ -10,7 +10,7 @@
         <%= number_with_delimiter(@total_rides) %> total rides
       </p>
     </div>
-    <%= link_to "Add New Bicycle", new_admin_bike_bicycles_path, 
+    <%= link_to "Add New Bicycle", new_admin_bike_bicycle_path, 
                 class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition" %>
   </div>
 
@@ -105,7 +105,7 @@
           <% stats = @bike_stats[bicycle.id] %>
           <tr>
             <td class="px-6 py-4 whitespace-nowrap">
-              <%= link_to bicycle.name, admin_bike_bicycles_path(bicycle), 
+              <%= link_to bicycle.name, admin_bike_bicycle_path(bicycle), 
                   class: "text-blue-600 hover:text-blue-900 font-medium" %>
               <% if bicycle.notes.present? %>
                 <p class="text-sm text-gray-500"><%= truncate(bicycle.notes, length: 50) %></p>
@@ -150,7 +150,7 @@
               <% end %>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-              <%= link_to "Edit", edit_admin_bike_bicycles_path(bicycle), 
+              <%= link_to "Edit", edit_admin_bike_bicycle_path(bicycle), 
                   class: "text-indigo-600 hover:text-indigo-900" %>
             </td>
           </tr>

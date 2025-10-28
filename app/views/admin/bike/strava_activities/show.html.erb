@@ -195,7 +195,7 @@
   <div class="mt-8 flex justify-between items-center">
     <div>
       <% if @previous_activity %>
-        <%= link_to "← Previous", admin_strava_activity_path(@previous_activity), 
+        <%= link_to "← Previous", admin_bike_strava_activity_path(@previous_activity), 
                     class: "text-gray-600 hover:text-gray-900" %>
         <span class="text-gray-400 ml-2">
           <%= @previous_activity.started_at.strftime("%b %d") %>
@@ -211,7 +211,7 @@
         <span class="text-gray-400 mr-2">
           <%= @next_activity.started_at.strftime("%b %d") %>
         </span>
-        <%= link_to "Next →", admin_strava_activity_path(@next_activity), 
+        <%= link_to "Next →", admin_bike_strava_activity_path(@next_activity), 
                     class: "text-gray-600 hover:text-gray-900" %>
       <% end %>
     </div>

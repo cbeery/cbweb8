@@ -86,7 +86,7 @@
         <div class="px-6 py-4 border-b border-gray-200">
           <div class="flex justify-between items-center">
             <h2 class="text-lg font-semibold text-gray-900">Strava Activity</h2>
-            <%= link_to "View →", admin_strava_activity_path(@strava_activity), 
+            <%= link_to "View →", admin_bike_strava_activity_path(@strava_activity), 
                         class: "text-sm text-blue-600 hover:text-blue-900" %>
           </div>
         </div>
@@ -153,7 +153,7 @@
             <div class="space-y-2">
               <% @milestones_before.each do |milestone| %>
                 <div class="flex justify-between items-center py-2 border-b last:border-0">
-                  <%= link_to milestone.title, admin_milestone_path(milestone),
+                  <%= link_to milestone.title, admin_bike_milestone_path(milestone),
                       class: "text-gray-900 hover:text-blue-600" %>
                   <span class="text-sm text-gray-500">
                     <%= (@ride.rode_on - milestone.occurred_on).to_i %> days before
@@ -170,7 +170,7 @@
             <div class="space-y-2">
               <% @milestones_after.each do |milestone| %>
                 <div class="flex justify-between items-center py-2 border-b last:border-0">
-                  <%= link_to milestone.title, admin_milestone_path(milestone),
+                  <%= link_to milestone.title, admin_bike_milestone_path(milestone),
                       class: "text-gray-900 hover:text-blue-600" %>
                   <span class="text-sm text-gray-500">
                     <%= (milestone.occurred_on - @ride.rode_on).to_i %> days after

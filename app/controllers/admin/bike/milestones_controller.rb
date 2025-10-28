@@ -63,7 +63,7 @@ class Admin::Bike::MilestonesController < Admin::BaseController
     @milestone = Milestone.new(milestone_params)
     
     if @milestone.save
-      redirect_to admin_milestone_path(@milestone), 
+      redirect_to admin_bike_milestone_path(@milestone), 
                   notice: 'Milestone was successfully created.'
     else
       load_bicycles
@@ -76,7 +76,7 @@ class Admin::Bike::MilestonesController < Admin::BaseController
   
   def update
     if @milestone.update(milestone_params)
-      redirect_to admin_milestone_path(@milestone), 
+      redirect_to admin_bike_milestone_path(@milestone), 
                   notice: 'Milestone was successfully updated.'
     else
       load_bicycles

@@ -11,9 +11,9 @@
       </p>
     </div>
     <div class="flex gap-2">
-      <%= link_to "Edit", edit_admin_milestone_path(@milestone), 
+      <%= link_to "Edit", edit_admin_bike_milestone_path(@milestone), 
                   class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition" %>
-      <%= link_to "Delete", admin_milestone_path(@milestone), 
+      <%= link_to "Delete", admin_bike_milestone_path(@milestone), 
                   method: :delete,
                   data: { confirm: "Are you sure?" },
                   class: "bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition" %>
@@ -69,7 +69,7 @@
         <% if @previous_milestone %>
           <div class="border-l-4 border-gray-300 pl-4">
             <p class="text-sm text-gray-500">Previous</p>
-            <%= link_to @previous_milestone.title, admin_milestone_path(@previous_milestone),
+            <%= link_to @previous_milestone.title, admin_bike_milestone_path(@previous_milestone),
                 class: "font-medium text-gray-900 hover:text-blue-600" %>
             <p class="text-sm text-gray-600">
               <%= @previous_milestone.occurred_on.strftime("%B %d, %Y") %> • 
@@ -87,7 +87,7 @@
         <% if @next_milestone %>
           <div class="border-l-4 border-gray-300 pl-4">
             <p class="text-sm text-gray-500">Next</p>
-            <%= link_to @next_milestone.title, admin_milestone_path(@next_milestone),
+            <%= link_to @next_milestone.title, admin_bike_milestone_path(@next_milestone),
                 class: "font-medium text-gray-900 hover:text-blue-600" %>
             <p class="text-sm text-gray-600">
               <%= @next_milestone.occurred_on.strftime("%B %d, %Y") %> • 

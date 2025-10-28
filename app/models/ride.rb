@@ -18,6 +18,7 @@ class Ride < ApplicationRecord
   
   # Scopes
   scope :recent, -> { order(rode_on: :desc) }
+  scope :oldest_first, -> { order(rode_on: :asc) }
   scope :by_year, ->(year) { 
     where('EXTRACT(YEAR FROM rode_on) = ?', year) if year.present? 
   }

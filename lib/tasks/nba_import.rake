@@ -1,9 +1,17 @@
 # lib/tasks/nba_import.rake
 namespace :nba do
+
   desc "Import NBA teams from legacy CSV"
   task :import_teams_legacy, [:file_path] => :environment do |t, args|
     require 'csv'
-    
+
+    # TEMPORARY: Disable SSL verification for S3 uploads during import
+    # Remove this in production!
+    if Rails.env.development?
+      require 'openssl'
+      OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
+    end
+
     unless args[:file_path]
       puts "Usage: rails nba:import_teams_legacy[path/to/teams.csv]"
       exit
@@ -14,16 +22,26 @@ namespace :nba do
       exit
     end
     
+    # Determine logo directory path (subfolder of CSV location)
+    csv_dir = File.dirname(args[:file_path])
+    logo_dir = File.join(csv_dir, 'nba_logos')
+    
     puts "Importing NBA teams from #{args[:file_path]}..."
+    puts "Looking for logos in: #{logo_dir}"
     puts "-" * 50
     
     successful = 0
     failed = 0
     skipped = 0
+    logos_attached = 0
+    max_id = 0
     
     CSV.foreach(args[:file_path], headers: true, header_converters: :symbol) do |row|
       begin
-        # Legacy schema has these columns: city, name, abbreviation, logo, color
+        # Extract ID from legacy data
+        legacy_id = row[:id]&.to_i
+        
+        # Legacy schema has these columns: id, city, name, abbreviation, logo, color
         city = row[:city]&.strip
         name = row[:name]&.strip
         abbreviation = row[:abbreviation]&.strip&.upcase
@@ -36,22 +54,50 @@ namespace :nba do
           next
         end
         
-        # Check for duplicates
+        # Check for duplicates (by ID or abbreviation)
+        if legacy_id && NbaTeam.exists?(id: legacy_id)
+          puts "⚠️  Team with ID #{legacy_id} already exists"
+          skipped += 1
+          next
+        end
+        
         if NbaTeam.exists?(abbreviation: abbreviation)
           puts "⚠️  Team #{abbreviation} already exists"
           skipped += 1
           next
         end
         
-        team = NbaTeam.create!(
+        # Create team with explicit ID if provided
+        team_attributes = {
           city: city,
           name: name,
           abbreviation: abbreviation,
           color: color,
           active: true
-        )
+        }
         
-        puts "✅ Imported: #{team.display_name} (#{abbreviation})"
+        # Add ID if present in CSV
+        team_attributes[:id] = legacy_id if legacy_id && legacy_id > 0
+        
+        team = NbaTeam.create!(team_attributes)
+        
+        # Track the highest ID for sequence reset
+        max_id = [max_id, team.id].max
+        
+        # Attach logo if it exists
+        logo_path = File.join(logo_dir, "#{abbreviation.downcase}.png")
+        if File.exist?(logo_path)
+          team.logo.attach(
+            io: File.open(logo_path),
+            filename: "#{abbreviation.downcase}.png",
+            content_type: 'image/png'
+          )
+          logos_attached += 1
+          puts "✅ Imported: #{team.display_name} (#{abbreviation}) [ID: #{team.id}] with logo"
+        else
+          puts "✅ Imported: #{team.display_name} (#{abbreviation}) [ID: #{team.id}] - no logo found"
+        end
+        
         successful += 1
         
       rescue => e
@@ -61,16 +107,25 @@ namespace :nba do
       end
     end
     
+    # Reset PostgreSQL sequence to avoid conflicts with future inserts
+    if successful > 0 && max_id > 0
+      ActiveRecord::Base.connection.execute(
+        "SELECT setval('nba_teams_id_seq', #{max_id}, true)"
+      )
+      puts "\n✅ Reset ID sequence to: #{max_id}"
+    end
+    
     puts "-" * 50
     puts "Import Complete!"
     puts "✅ Successful: #{successful}"
+    puts "🖼️  Logos attached: #{logos_attached}"
     puts "⚠️  Skipped: #{skipped}" if skipped > 0
     puts "❌ Failed: #{failed}" if failed > 0
     
     # Add conference/division data if needed
     puts "\n💡 Tip: You may want to update conference and division data manually or via Rails console"
   end
-
+  
   desc "Import NBA games from legacy CSV"
   task :import_games_legacy, [:file_path] => :environment do |t, args|
     require 'csv'

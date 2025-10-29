@@ -1,0 +1,45 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyString
+  author: MyString
+  status: 1
+  started_on: 2025-10-29
+  finished_on: 2025-10-29
+  times_read: 1
+  rating: 9.99
+  isbn: MyString
+  isbn13: MyString
+  hardcover_id: MyString
+  goodreads_id: MyString
+  series: MyString
+  series_position: 1
+  page_count: 1
+  published_year: 1
+  publisher: MyString
+  description: MyText
+  metadata: 
+  cover_manually_uploaded: false
+  last_synced_at: 2025-10-29 12:07:45
+
+two:
+  title: MyString
+  author: MyString
+  status: 1
+  started_on: 2025-10-29
+  finished_on: 2025-10-29
+  times_read: 1
+  rating: 9.99
+  isbn: MyString
+  isbn13: MyString
+  hardcover_id: MyString
+  goodreads_id: MyString
+  series: MyString
+  series_position: 1
+  page_count: 1
+  published_year: 1
+  publisher: MyString
+  description: MyText
+  metadata: 
+  cover_manually_uploaded: false
+  last_synced_at: 2025-10-29 12:07:45

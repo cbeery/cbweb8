@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_27_183109) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_29_180745) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -51,6 +51,39 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_27_183109) do
     t.datetime "updated_at", null: false
     t.index ["active"], name: "index_bicycles_on_active"
     t.index ["strava_gear_id"], name: "index_bicycles_on_strava_gear_id"
+  end
+
+  create_table "books", force: :cascade do |t|
+    t.string "title", null: false
+    t.string "author", null: false
+    t.integer "status", default: 0, null: false
+    t.date "started_on"
+    t.date "finished_on"
+    t.integer "times_read", default: 0, null: false
+    t.decimal "rating", precision: 2, scale: 1
+    t.integer "progress"
+    t.string "isbn"
+    t.string "isbn13"
+    t.string "hardcover_id"
+    t.string "goodreads_id"
+    t.string "series"
+    t.integer "series_position"
+    t.integer "page_count"
+    t.integer "published_year"
+    t.string "publisher"
+    t.text "description"
+    t.jsonb "metadata", default: {}
+    t.boolean "cover_manually_uploaded", default: false
+    t.datetime "last_synced_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author"], name: "index_books_on_author"
+    t.index ["finished_on"], name: "index_books_on_finished_on"
+    t.index ["goodreads_id"], name: "index_books_on_goodreads_id"
+    t.index ["hardcover_id"], name: "index_books_on_hardcover_id", unique: true
+    t.index ["series"], name: "index_books_on_series"
+    t.index ["status", "finished_on"], name: "index_books_on_status_and_finished_on"
+    t.index ["status"], name: "index_books_on_status"
   end
 
   create_table "concert_artists", force: :cascade do |t|

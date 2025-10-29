@@ -183,4 +183,70 @@ namespace :hardcover do
       end
     end
   end
+
+  desc "Debug cover images from Hardcover"
+  task debug_covers: :environment do
+    puts "Debugging Hardcover cover images..."
+    
+    token = ENV['HARDCOVER_ACCESS_TOKEN'] || 
+            Rails.application.credentials.dig(:hardcover, :access_token)
+    
+    token = token.sub(/^bearer\s+/i, '')
+    
+    require 'httparty'
+    
+    # Get a few books with their image data
+    query = <<-GRAPHQL
+      query {
+        me {
+          user_books(limit: 3) {
+            book_id
+            book {
+              id
+              title
+              cached_image
+            }
+          }
+        }
+      }
+    GRAPHQL
+    
+    response = HTTParty.post(
+      'https://api.hardcover.app/v1/graphql',
+      headers: {
+        'Authorization' => "Bearer #{token}",
+        'Content-Type' => 'application/json'
+      },
+      body: { query: query }.to_json
+    )
+    
+    data = response.parsed_response
+    
+    if data['errors']
+      puts "❌ Error: #{data['errors'][0]['message']}"
+    else
+      user = data['data']['me'][0]
+      user_books = user['user_books']
+      
+      user_books.each do |ub|
+        book = ub['book']
+        puts "\n📚 Book: #{book['title']}"
+        puts "  Book ID: #{book['id']}"
+        puts "  cached_image value: #{book['cached_image'].inspect}"
+        puts "  Type: #{book['cached_image'].class}"
+        
+        # If it's a string, try to parse it
+        if book['cached_image'].is_a?(String)
+          begin
+            # Check if it's JSON
+            parsed = JSON.parse(book['cached_image'])
+            puts "  Parsed JSON:"
+            puts "    #{JSON.pretty_generate(parsed)}"
+          rescue JSON::ParserError
+            puts "  Raw string (not JSON): #{book['cached_image']}"
+          end
+        end
+      end
+    end
+  end  
 end

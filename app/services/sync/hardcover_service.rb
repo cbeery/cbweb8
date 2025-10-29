@@ -307,11 +307,12 @@ module Sync
     def extract_cover_url(cached_image)
       return nil unless cached_image.present?
       
-      # cached_image is likely a string URL
-      if cached_image.is_a?(String)
-        cached_image
-      elsif cached_image.is_a?(Hash) && cached_image['url']
+      # cached_image is a Hash with 'url' key
+      if cached_image.is_a?(Hash)
         cached_image['url']
+      elsif cached_image.is_a?(String)
+        # Just in case it's sometimes a string
+        cached_image
       else
         nil
       end

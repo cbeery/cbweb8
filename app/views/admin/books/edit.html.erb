@@ -1,0 +1,168 @@
+<%# app/views/admin/books/edit.html.erb %>
+<% content_for :title, "Edit #{@book.title}" %>
+
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6">
+      <%= link_to admin_book_path(@book), class: "inline-flex items-center text-indigo-600 hover:text-indigo-800" do %>
+        <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+        </svg>
+        Back to Book
+      <% end %>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <h1 class="text-2xl font-bold text-gray-900 mb-6">Edit Book</h1>
+      
+      <%= form_with model: @book, url: admin_book_path(@book), local: true do |f| %>
+        <% if @book.errors.any? %>
+          <div class="mb-4 bg-red-50 border border-red-200 rounded-md p-4">
+            <h3 class="text-sm font-medium text-red-800 mb-2">
+              <%= pluralize(@book.errors.count, "error") %> prohibited this book from being saved:
+            </h3>
+            <ul class="list-disc list-inside text-sm text-red-600">
+              <% @book.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+        
+        <div class="space-y-6">
+          <!-- Basic Information -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <%= f.label :title, class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.text_field :title, class: "w-full rounded-md border-gray-300" %>
+              </div>
+              
+              <div>
+                <%= f.label :author, class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.text_field :author, class: "w-full rounded-md border-gray-300" %>
+              </div>
+              
+              <div>
+                <%= f.label :status, class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.select :status,
+                    options_for_select(Book.statuses.map { |k,v| [k.humanize, k] }, @book.status),
+                    {},
+                    class: "w-full rounded-md border-gray-300" %>
+              </div>
+              
+              <div>
+                <%= f.label :rating, class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.number_field :rating, step: 0.5, min: 0, max: 5,
+                    class: "w-full rounded-md border-gray-300" %>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Reading Dates -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Reading Information</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <%= f.label :started_on, class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.date_field :started_on, class: "w-full rounded-md border-gray-300" %>
+              </div>
+              
+              <div>
+                <%= f.label :finished_on, class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.date_field :finished_on, class: "w-full rounded-md border-gray-300" %>
+              </div>
+              
+              <div>
+                <%= f.label :times_read, class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.number_field :times_read, min: 0,
+                    class: "w-full rounded-md border-gray-300" %>
+              </div>
+              
+              <div>
+                <%= f.label :progress, "Progress (%)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.number_field :progress, min: 0, max: 100,
+                    class: "w-full rounded-md border-gray-300",
+                    placeholder: "For currently reading books" %>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Book Details -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Book Details</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <%= f.label :series, class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.text_field :series, class: "w-full rounded-md border-gray-300" %>
+              </div>
+              
+              <div>
+                <%= f.label :series_position, class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.number_field :series_position, min: 1,
+                    class: "w-full rounded-md border-gray-300" %>
+              </div>
+              
+              <div>
+                <%= f.label :page_count, class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.number_field :page_count, min: 0,
+                    class: "w-full rounded-md border-gray-300" %>
+              </div>
+              
+              <div>
+                <%= f.label :published_year, class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.number_field :published_year, min: 1000, max: Date.current.year + 1,
+                    class: "w-full rounded-md border-gray-300" %>
+              </div>
+              
+              <div class="md:col-span-2">
+                <%= f.label :publisher, class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.text_field :publisher, class: "w-full rounded-md border-gray-300" %>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Description -->
+          <div>
+            <%= f.label :description, class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.text_area :description, rows: 4,
+                class: "w-full rounded-md border-gray-300" %>
+          </div>
+          
+          <!-- Cover Image -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Cover Image</h3>
+            
+            <% if @book.cover_image.attached? %>
+              <div class="mb-4">
+                <p class="text-sm text-gray-600 mb-2">Current cover:</p>
+                <%= image_tag @book.cover_image, class: "h-32 object-contain" %>
+              </div>
+            <% end %>
+            
+            <div>
+              <%= f.label :cover_image, "Upload New Cover", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= f.file_field :cover_image, 
+                  class: "w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" %>
+              <p class="text-xs text-gray-500 mt-1">
+                Uploading a new cover will prevent the sync service from overwriting it.
+              </p>
+            </div>
+          </div>
+          
+          <!-- Form Actions -->
+          <div class="flex justify-end gap-2 pt-6 border-t">
+            <%= link_to "Cancel", admin_book_path(@book),
+                class: "px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50" %>
+            <%= f.submit "Update Book",
+                class: "px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 cursor-pointer" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

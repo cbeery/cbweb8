@@ -1,11 +1,11 @@
 # app/models/book.rb
 class Book < ApplicationRecord
-  # Enums
-  enum status: {
+  # Enums - Rails 8 syntax
+  enum :status, {
     want_to_read: 0,
     currently_reading: 1,
     read: 2
-  }
+  }, default: :want_to_read
   
   # ActiveStorage
   has_one_attached :cover_image

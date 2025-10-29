@@ -9,9 +9,9 @@ module Sync
     BATCH_SIZE = 20
     DEFAULT_SYNC_MONTHS = 3
     
-    def initialize(sync_status: nil, broadcast: false, months_back: DEFAULT_SYNC_MONTHS)
+    def initialize(sync_status: nil, broadcast: false, months_back: nil)
       super(sync_status: sync_status, broadcast: broadcast)
-      @months_back = months_back
+      @months_back = months_back || DEFAULT_SYNC_MONTHS
       @access_token = fetch_access_token
     end
     
@@ -22,28 +22,43 @@ module Sync
     end
     
     def fetch_items
-      log(:info, "Fetching books from Hardcover API")
+      log(:info, "Starting Hardcover sync - fetching books from API")
+      log(:info, "Sync window: last #{@months_back} months")
       
-      # Fetch user's books with status filters
-      read_books = fetch_read_books
-      currently_reading = fetch_currently_reading_books
-      want_to_read = fetch_want_to_read_books
+      begin
+        # Test the API connection first
+        log(:info, "Testing Hardcover API connection...")
+        
+        # Fetch user's books with status filters
+        read_books = fetch_read_books
+        log(:info, "Fetched #{read_books.size} read books")
+        
+        currently_reading = fetch_currently_reading_books
+        log(:info, "Fetched #{currently_reading.size} currently reading books")
+        
+        want_to_read = fetch_want_to_read_books
+        log(:info, "Fetched #{want_to_read.size} want to read books")
+        
+        all_books = read_books + currently_reading + want_to_read
+        
+        log(:info, "Found #{all_books.size} books total")
       
-      all_books = read_books + currently_reading + want_to_read
-      
-      log(:info, "Found #{all_books.size} books total (#{read_books.size} read, #{currently_reading.size} reading, #{want_to_read.size} want to read)")
-      
-      # Filter to recent books if specified
-      if @months_back
-        cutoff_date = @months_back.months.ago
-        filtered_books = all_books.select do |book|
-          next true if book[:status] != 'READ' # Always sync non-read books
-          book[:finished_on] && Date.parse(book[:finished_on]) >= cutoff_date
+        # Filter to recent books if specified
+        if @months_back
+          cutoff_date = @months_back.months.ago
+          filtered_books = all_books.select do |book|
+            next true if book[:status] != 'READ' # Always sync non-read books
+            book[:finished_on] && Date.parse(book[:finished_on]) >= cutoff_date
+          end
+          log(:info, "Filtered to #{filtered_books.size} books from last #{@months_back} months")
+          filtered_books
+        else
+          all_books
         end
-        log(:info, "Filtered to #{filtered_books.size} books from last #{@months_back} months")
-        filtered_books
-      else
-        all_books
+      rescue => e
+        log(:error, "Failed to fetch items from Hardcover: #{e.message}")
+        log(:error, "Backtrace: #{e.backtrace.first(5).join("\n")}")
+        raise
       end
     end
     

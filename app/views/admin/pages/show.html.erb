@@ -1,0 +1,184 @@
+<!-- app/views/admin/pages/show.html.erb -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="mb-8">
+    <div class="sm:flex sm:items-center sm:justify-between">
+      <div>
+        <h1 class="text-2xl font-semibold text-gray-900"><%= @page.name %></h1>
+        <p class="mt-2 text-sm text-gray-700">
+          <code class="bg-gray-100 px-2 py-1 rounded">/<%= @page.slug %></code>
+        </p>
+      </div>
+      <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+        <%= link_to "Edit", edit_admin_page_path(@page), 
+            class: "inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page Status -->
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
+    <div class="px-4 py-5 sm:px-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">Page Information</h3>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">Status and metadata</p>
+    </div>
+    <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Status</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <% if @page.published? %>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                Published
+              </span>
+            <% else %>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                Draft
+              </span>
+            <% end %>
+          </dd>
+        </div>
+        
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Visibility</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <% if @page.public %>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                Public
+              </span>
+            <% else %>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                Private
+              </span>
+            <% end %>
+          </dd>
+        </div>
+        
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Published On</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <%= @page.published_on ? @page.published_on.strftime("%B %-d, %Y") : "Not set" %>
+          </dd>
+        </div>
+        
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Modified On</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <%= @page.modified_on ? @page.modified_on.strftime("%B %-d, %Y") : "Not set" %>
+          </dd>
+        </div>
+        
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Created</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <%= time_tag @page.created_at, @page.created_at.strftime("%B %-d, %Y at %-l:%M %p") %>
+          </dd>
+        </div>
+        
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Last Updated</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <%= time_tag @page.updated_at, @page.updated_at.strftime("%B %-d, %Y at %-l:%M %p") %>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- Display Settings -->
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
+    <div class="px-4 py-5 sm:px-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">Display Settings</h3>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">How the page appears on your site</p>
+    </div>
+    <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Show in Index</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <%= @page.show_in_index ? "✓ Yes" : "✗ No" %>
+          </dd>
+        </div>
+        
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Show in Recent</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <%= @page.show_in_recent ? "✓ Yes" : "✗ No" %>
+          </dd>
+        </div>
+        
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Hide from Search Engines</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <%= @page.hide_from_search_engines ? "✓ Yes (noindex)" : "✗ No (indexable)" %>
+          </dd>
+        </div>
+        
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Hide Breadcrumbs</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <%= @page.hide_breadcrumbs ? "✓ Yes" : "✗ No" %>
+          </dd>
+        </div>
+        
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Hide Footer</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <%= @page.hide_footer ? "✓ Yes" : "✗ No" %>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- Page Content -->
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
+    <div class="px-4 py-5 sm:px-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">Content</h3>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">Page heading and body content</p>
+    </div>
+    <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+      <% if @page.heading.present? %>
+        <div class="mb-6">
+          <dt class="text-sm font-medium text-gray-500 mb-2">Heading</dt>
+          <dd class="text-lg font-medium text-gray-900">
+            <%= @page.heading %>
+          </dd>
+        </div>
+      <% end %>
+      
+      <% if @page.subheading.present? %>
+        <div class="mb-6">
+          <dt class="text-sm font-medium text-gray-500 mb-2">Subheading</dt>
+          <dd class="text-sm text-gray-700">
+            <%= @page.subheading %>
+          </dd>
+        </div>
+      <% end %>
+      
+      <div>
+        <dt class="text-sm font-medium text-gray-500 mb-2">Body Content</dt>
+        <dd class="prose max-w-none">
+          <%= @page.content %>
+        </dd>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="flex justify-between">
+    <%= link_to "← Back to Pages", admin_pages_path, 
+        class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+    
+    <div>
+      <%= link_to "Edit Page", edit_admin_page_path(@page), 
+          class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-2" %>
+      <%= link_to "Delete", admin_page_path(@page), 
+          method: :delete,
+          data: { 
+            turbo_method: :delete,
+            turbo_confirm: "Are you sure you want to delete this page? This action cannot be undone."
+          },
+          class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" %>
+    </div>
+  </div>
+</div>

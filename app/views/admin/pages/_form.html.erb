@@ -1,0 +1,195 @@
+<!-- app/views/admin/pages/_form.html.erb -->
+<%= form_with(model: [:admin, page]) do |form| %>
+  <% if page.errors.any? %>
+    <div class="rounded-md bg-red-50 p-4 mb-6">
+      <div class="flex">
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">
+            There <%= page.errors.count == 1 ? 'was' : 'were' %> <%= pluralize(page.errors.count, "error") %> with your submission
+          </h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc pl-5 space-y-1">
+              <% page.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="space-y-8 divide-y divide-gray-200">
+    <!-- Basic Information -->
+    <div class="space-y-6">
+      <div>
+        <h3 class="text-lg font-medium leading-6 text-gray-900">Basic Information</h3>
+        <p class="mt-1 text-sm text-gray-500">Core page details and metadata</p>
+      </div>
+
+      <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+        <div class="sm:col-span-3">
+          <%= form.label :slug, class: "block text-sm font-medium text-gray-700" %>
+          <div class="mt-1">
+            <%= form.text_field :slug, 
+                class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md",
+                placeholder: "page-url-slug" %>
+          </div>
+          <p class="mt-2 text-sm text-gray-500">URL-friendly identifier (lowercase, hyphens only)</p>
+        </div>
+
+        <div class="sm:col-span-3">
+          <%= form.label :name, class: "block text-sm font-medium text-gray-700" %>
+          <div class="mt-1">
+            <%= form.text_field :name, 
+                class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" %>
+          </div>
+          <p class="mt-2 text-sm text-gray-500">Internal page name for admin reference</p>
+        </div>
+
+        <div class="sm:col-span-4">
+          <%= form.label :heading, class: "block text-sm font-medium text-gray-700" %>
+          <div class="mt-1">
+            <%= form.text_area :heading, rows: 2,
+                class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" %>
+          </div>
+        </div>
+
+        <div class="sm:col-span-4">
+          <%= form.label :subheading, "Subheading (optional)", class: "block text-sm font-medium text-gray-700" %>
+          <div class="mt-1">
+            <%= form.text_area :subheading, rows: 2,
+                class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="pt-8 space-y-6">
+      <div>
+        <h3 class="text-lg font-medium leading-6 text-gray-900">Content</h3>
+        <p class="mt-1 text-sm text-gray-500">Rich text content with file attachments support</p>
+      </div>
+
+      <div class="sm:col-span-6">
+        <%= form.label :content, class: "block text-sm font-medium text-gray-700" %>
+        <div class="mt-1">
+          <%= form.rich_text_area :content,
+              class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Publishing Settings -->
+    <div class="pt-8 space-y-6">
+      <div>
+        <h3 class="text-lg font-medium leading-6 text-gray-900">Publishing Settings</h3>
+        <p class="mt-1 text-sm text-gray-500">Control when and how the page is published</p>
+      </div>
+
+      <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+        <div class="sm:col-span-2">
+          <%= form.label :published_on, "Published Date", class: "block text-sm font-medium text-gray-700" %>
+          <div class="mt-1">
+            <%= form.date_field :published_on, 
+                class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" %>
+          </div>
+          <p class="mt-2 text-sm text-gray-500">Leave blank to save as draft</p>
+        </div>
+
+        <div class="sm:col-span-2">
+          <%= form.label :modified_on, "Modified Date (optional)", class: "block text-sm font-medium text-gray-700" %>
+          <div class="mt-1">
+            <%= form.date_field :modified_on, 
+                class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Display Options -->
+    <div class="pt-8 space-y-6">
+      <div>
+        <h3 class="text-lg font-medium leading-6 text-gray-900">Display Options</h3>
+        <p class="mt-1 text-sm text-gray-500">Control page visibility and display settings</p>
+      </div>
+
+      <div class="space-y-4">
+        <div class="relative flex items-start">
+          <div class="flex items-center h-5">
+            <%= form.check_box :public, 
+                class: "focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" %>
+          </div>
+          <div class="ml-3 text-sm">
+            <%= form.label :public, class: "font-medium text-gray-700" %>
+            <p class="text-gray-500">Make this page publicly accessible</p>
+          </div>
+        </div>
+
+        <div class="relative flex items-start">
+          <div class="flex items-center h-5">
+            <%= form.check_box :show_in_index, 
+                class: "focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" %>
+          </div>
+          <div class="ml-3 text-sm">
+            <%= form.label :show_in_index, "Show in index", class: "font-medium text-gray-700" %>
+            <p class="text-gray-500">Display in the main page index</p>
+          </div>
+        </div>
+
+        <div class="relative flex items-start">
+          <div class="flex items-center h-5">
+            <%= form.check_box :show_in_recent, 
+                class: "focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" %>
+          </div>
+          <div class="ml-3 text-sm">
+            <%= form.label :show_in_recent, "Show in recent", class: "font-medium text-gray-700" %>
+            <p class="text-gray-500">Include in recent pages section</p>
+          </div>
+        </div>
+
+        <div class="relative flex items-start">
+          <div class="flex items-center h-5">
+            <%= form.check_box :hide_from_search_engines, 
+                class: "focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" %>
+          </div>
+          <div class="ml-3 text-sm">
+            <%= form.label :hide_from_search_engines, "Hide from search engines", class: "font-medium text-gray-700" %>
+            <p class="text-gray-500">Add noindex meta tag to prevent search engine indexing</p>
+          </div>
+        </div>
+
+        <div class="relative flex items-start">
+          <div class="flex items-center h-5">
+            <%= form.check_box :hide_breadcrumbs, 
+                class: "focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" %>
+          </div>
+          <div class="ml-3 text-sm">
+            <%= form.label :hide_breadcrumbs, "Hide breadcrumbs", class: "font-medium text-gray-700" %>
+            <p class="text-gray-500">Don't display navigation breadcrumbs on this page</p>
+          </div>
+        </div>
+
+        <div class="relative flex items-start">
+          <div class="flex items-center h-5">
+            <%= form.check_box :hide_footer, 
+                class: "focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" %>
+          </div>
+          <div class="ml-3 text-sm">
+            <%= form.label :hide_footer, "Hide footer", class: "font-medium text-gray-700" %>
+            <p class="text-gray-500">Don't display the site footer on this page</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pt-5">
+    <div class="flex justify-end">
+      <%= link_to "Cancel", admin_pages_path, 
+          class: "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+      <%= form.submit class: "ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+    </div>
+  </div>
+<% end %>

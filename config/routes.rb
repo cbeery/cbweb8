@@ -19,6 +19,10 @@ Rails.application.routes.draw do
 
   # Admin namespace
   namespace :admin do
+    get "pages/index"
+    get "pages/show"
+    get "pages/new"
+    get "pages/edit"
     root 'dashboard#index'
     
     # Test pages

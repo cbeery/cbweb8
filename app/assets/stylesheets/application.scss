@@ -23,3 +23,19 @@
 body {
   font-family: $primary-font;
 }
+
+@import "trix";
+
+// Make Trix editor match your Tailwind forms
+trix-editor {
+  min-height: 300px;
+  padding: 1rem;
+  border: 1px solid #d1d5db;  // Tailwind gray-300
+  border-radius: 0.375rem;     // Tailwind rounded-md
+  
+  &:focus {
+    outline: none;
+    border-color: #6366f1;      // Tailwind indigo-500
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  }
+}

@@ -15,10 +15,24 @@ production:
     schedule: every hour at minute 12
 
   # Daily Strava sync - runs at...
-  strava_daily:
+  strava_daily_morning:
     class: StravaActivitySyncJob
     queue: default
-    schedule: "every day at 3:15 PM"
+    schedule: "every day at 10:00 AM"
+    args:
+      - days_back: 2
+        broadcast: false
+  strava_daily_afternoon:
+    class: StravaActivitySyncJob
+    queue: default
+    schedule: "every day at 2:00 PM"
+    args:
+      - days_back: 2
+        broadcast: false
+  strava_daily_overnight:
+    class: StravaActivitySyncJob
+    queue: default
+    schedule: "every day at 11:30 PM"
     args:
       - days_back: 7
-        broadcast: false      
+        broadcast: false

@@ -1,12 +1,40 @@
 version: 2
 updates:
-- package-ecosystem: bundler
-  directory: "/"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: github-actions
-  directory: "/"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
+  # Ruby gems (Bundler)
+  - package-ecosystem: "bundler"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Denver"
+    groups:
+      security:
+        applies-to: security-updates
+        patterns: ["*"]              # 1 PR only when security fixes exist
+      rails-family:
+        applies-to: version-updates
+        update-types: ["minor", "patch"]
+        patterns:
+          - "rails"
+          - "activerecord"
+          - "action*"
+          - "activesupport"
+          - "railties"               # keeps Rails core isolated
+      minor-and-patch:
+        applies-to: version-updates
+        update-types: ["minor", "patch"]
+        patterns: ["*"]              # puma, kamal, turbo-rails, solid_queue, selenium, aws-sdk-s3, tailwindcss-rails, thruster, etc.
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Denver"
+    groups:
+      actions-minor-patch:
+        update-types: ["minor", "patch"]
+        patterns: ["*"]              # majors (e.g., upload-artifact 4 -> 5) come as a separate PR

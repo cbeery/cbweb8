@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_30_203526) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_30_204845) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -243,6 +243,27 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_30_203526) do
     t.index ["abbreviation"], name: "index_nba_teams_on_abbreviation", unique: true
     t.index ["active"], name: "index_nba_teams_on_active"
     t.index ["name"], name: "index_nba_teams_on_name"
+  end
+
+  create_table "pages", force: :cascade do |t|
+    t.string "slug", null: false
+    t.text "name", null: false
+    t.text "heading"
+    t.text "subheading"
+    t.date "published_on"
+    t.date "modified_on"
+    t.boolean "public", default: false, null: false
+    t.boolean "show_in_index", default: false, null: false
+    t.boolean "show_in_recent", default: false, null: false
+    t.boolean "hide_from_search_engines", default: false, null: false
+    t.boolean "hide_breadcrumbs", default: false, null: false
+    t.boolean "hide_footer", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["public", "published_on"], name: "index_pages_on_public_and_published_on"
+    t.index ["public"], name: "index_pages_on_public"
+    t.index ["published_on"], name: "index_pages_on_published_on"
+    t.index ["slug"], name: "index_pages_on_slug", unique: true
   end
 
   create_table "rides", force: :cascade do |t|

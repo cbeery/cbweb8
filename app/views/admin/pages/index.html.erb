@@ -1,0 +1,118 @@
+<!-- app/views/admin/pages/index.html.erb -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="sm:flex sm:items-center">
+    <div class="sm:flex-auto">
+      <h1 class="text-2xl font-semibold text-gray-900">Pages</h1>
+      <p class="mt-2 text-sm text-gray-700">Manage your site pages and content</p>
+    </div>
+    <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+      <%= link_to "New Page", new_admin_page_path, 
+          class: "inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto" %>
+    </div>
+  </div>
+  
+  <!-- Search and Filter -->
+  <div class="mt-6 bg-white shadow rounded-lg p-4">
+    <%= form_with(url: admin_pages_path, method: :get, class: "sm:flex sm:items-center sm:space-x-4") do |f| %>
+      <div class="flex-1">
+        <%= f.text_field :q, value: params[:q], 
+            placeholder: "Search by name or slug...",
+            class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+      </div>
+      <div>
+        <%= f.select :status, 
+            options_for_select([['All', ''], ['Published', 'published'], ['Drafts', 'draft']], params[:status]),
+            {},
+            class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+      </div>
+      <%= f.submit "Search", 
+          class: "mt-3 sm:mt-0 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+    <% end %>
+  </div>
+  
+  <!-- Pages Table -->
+  <div class="mt-8 flex flex-col">
+    <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+      <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+        <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+          <table class="min-w-full divide-y divide-gray-300">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Name</th>
+                <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Slug</th>
+                <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+                <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Visibility</th>
+                <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Updated</th>
+                <th class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                  <span class="sr-only">Actions</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 bg-white">
+              <% @pages.each do |page| %>
+                <tr>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                    <%= link_to page.name, admin_page_path(page), 
+                        class: "text-indigo-600 hover:text-indigo-900" %>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <code class="bg-gray-100 px-1 py-0.5 rounded"><%= page.slug %></code>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm">
+                    <% if page.published? %>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Published
+                      </span>
+                    <% else %>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        Draft
+                      </span>
+                    <% end %>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm">
+                    <% if page.public %>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        Public
+                      </span>
+                    <% else %>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        Private
+                      </span>
+                    <% end %>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <%= time_tag page.updated_at, time_ago_in_words(page.updated_at) + " ago" %>
+                  </td>
+                  <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                    <%= link_to "Edit", edit_admin_page_path(page), 
+                        class: "text-indigo-600 hover:text-indigo-900 mr-2" %>
+                    <%= link_to "Delete", admin_page_path(page), 
+                        method: :delete,
+                        data: { 
+                          turbo_method: :delete,
+                          turbo_confirm: "Are you sure you want to delete this page?"
+                        },
+                        class: "text-red-600 hover:text-red-900" %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+          
+          <% if @pages.empty? %>
+            <div class="text-center py-8">
+              <p class="text-gray-500">No pages found.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Pagination -->
+  <% if @pages.respond_to?(:current_page) %>
+    <div class="mt-6">
+      <%= paginate @pages %>
+    </div>
+  <% end %>
+</div>

@@ -128,6 +128,8 @@ Rails.application.routes.draw do
       end
     end
         
+    resources :pages
+        
   end # namespace :admin
 
   # Mission Control for job monitoring (admin only)

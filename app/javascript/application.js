@@ -7,3 +7,6 @@ LocalTime.start()
 document.addEventListener("turbo:morph", () => {
   LocalTime.run()
 })
+
+import "trix"
+import "@rails/actiontext"

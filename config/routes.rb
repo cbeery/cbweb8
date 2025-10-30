@@ -39,6 +39,8 @@ Rails.application.routes.draw do
 
     resources :movies, only: [:index, :show]
 
+    resources :books, only: [:index, :show, :edit, :update]
+
     # Spotify
     resources :spotify, controller: 'spotify', as: 'spotify_playlists' do
       collection do

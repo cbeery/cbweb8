@@ -1,0 +1,147 @@
+<%# app/views/admin/books/index.html.erb %>
+<% content_for :title, "Books" %>
+
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8 flex justify-between items-start">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">Books</h1>
+        <p class="mt-1 text-sm text-gray-600">
+          <%= @total_count %> books in your library
+        </p>
+      </div>
+      
+      <div class="flex gap-2">
+        <%= link_to "Sync Books", 
+            admin_syncs_path(source_type: 'hardcover'),
+            method: :post,
+            class: "px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700",
+            data: { turbo_method: :post } %>
+      </div>
+    </div>
+    
+    <!-- Filters and Search -->
+    <div class="bg-white rounded-lg shadow mb-6 p-4">
+      <%= form_with url: admin_books_path, method: :get, class: "space-y-4" do |f| %>
+        <div class="flex flex-col sm:flex-row gap-4">
+          <%= f.text_field :search,
+              placeholder: "Search books...",
+              value: params[:search],
+              class: "flex-1 rounded-md border-gray-300" %>
+          
+          <%= f.select :status,
+              options_for_select([
+                ['All Books', ''],
+                ['Read', 'read'],
+                ['Currently Reading', 'currently_reading'],
+                ['Want to Read', 'want_to_read']
+              ], params[:status]),
+              {},
+              class: "rounded-md border-gray-300" %>
+          
+          <%= f.submit "Filter", class: "px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 cursor-pointer" %>
+        </div>
+      <% end %>
+      
+      <!-- Sort Options -->
+      <div class="mt-4 flex flex-wrap gap-2 text-sm">
+        <span class="text-gray-500">Sort by:</span>
+        <%= link_to "Recently Finished", admin_books_path(status: params[:status], search: params[:search]),
+            class: "text-indigo-600 hover:text-indigo-800 #{params[:sort].blank? ? 'font-semibold' : ''}" %>
+        <%= link_to "Title", admin_books_path(sort: 'title', status: params[:status], search: params[:search]),
+            class: "text-indigo-600 hover:text-indigo-800 #{params[:sort] == 'title' ? 'font-semibold' : ''}" %>
+        <%= link_to "Author", admin_books_path(sort: 'author', status: params[:status], search: params[:search]),
+            class: "text-indigo-600 hover:text-indigo-800 #{params[:sort] == 'author' ? 'font-semibold' : ''}" %>
+        <%= link_to "Rating", admin_books_path(sort: 'rating', status: params[:status], search: params[:search]),
+            class: "text-indigo-600 hover:text-indigo-800 #{params[:sort] == 'rating' ? 'font-semibold' : ''}" %>
+      </div>
+    </div>
+    
+    <!-- Books Table -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cover</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title / Author</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dates</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Series</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @books.each do |book| %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <% if book.cover_image.attached? %>
+                  <%= image_tag book.cover_image,
+                      class: "h-16 w-12 object-cover rounded",
+                      alt: book.title %>
+                <% else %>
+                  <div class="h-16 w-12 bg-gray-200 rounded flex items-center justify-center">
+                    <span class="text-gray-400 text-xs">No Cover</span>
+                  </div>
+                <% end %>
+              </td>
+              
+              <td class="px-6 py-4">
+                <div>
+                  <%= link_to book.title, admin_book_path(book),
+                      class: "text-sm font-medium text-gray-900 hover:text-indigo-600" %>
+                  <p class="text-sm text-gray-500"><%= book.author %></p>
+                </div>
+              </td>
+              
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs rounded-full
+                  <%= book.read? ? 'bg-green-100 text-green-800' : '' %>
+                  <%= book.currently_reading? ? 'bg-blue-100 text-blue-800' : '' %>
+                  <%= book.want_to_read? ? 'bg-gray-100 text-gray-800' : '' %>">
+                  <%= book.display_status %>
+                </span>
+                <% if book.currently_reading? && book.progress %>
+                  <p class="text-xs text-gray-500 mt-1"><%= book.progress %>%</p>
+                <% end %>
+              </td>
+              
+              <td class="px-6 py-4 whitespace-nowrap">
+                <% if book.rating %>
+                  <div class="flex items-center">
+                    <span class="text-yellow-500">★</span>
+                    <span class="ml-1 text-sm"><%= book.rating %></span>
+                  </div>
+                <% else %>
+                  <span class="text-gray-400">-</span>
+                <% end %>
+              </td>
+              
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <% if book.finished_on %>
+                  <div>Finished: <%= book.finished_on.strftime("%b %d, %Y") %></div>
+                <% elsif book.started_on %>
+                  <div>Started: <%= book.started_on.strftime("%b %d, %Y") %></div>
+                <% else %>
+                  -
+                <% end %>
+                <% if book.times_read > 1 %>
+                  <div class="text-xs">Read <%= book.times_read %> times</div>
+                <% end %>
+              </td>
+              
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <%= book.full_series_name || "-" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="mt-6">
+      <%= paginate @books %>
+    </div>
+  </div>
+</div>

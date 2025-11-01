@@ -1,0 +1,80 @@
+<!-- app/views/admin/movies/tmdb_posters.html.erb -->
+<turbo-frame id="tmdb_modal">
+  <div class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50" data-controller="modal">
+    <div class="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+      <!-- Modal Header -->
+      <div class="border-b px-6 py-4 flex justify-between items-center sticky top-0 bg-white z-10">
+        <div>
+          <h2 class="text-xl font-bold text-gray-900">Select Movie Poster</h2>
+          <p class="text-sm text-gray-600 mt-1">
+            Showing <%= @posters.size %> English posters
+            <% if @total_count > 20 %>
+              (of <%= @total_count %> total)
+            <% end %>
+          </p>
+        </div>
+        <%= link_to admin_movie_path(@movie), 
+            data: { turbo_frame: "_top" },
+            class: "text-gray-400 hover:text-gray-600" do %>
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        <% end %>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="px-6 py-4">
+        <% if @posters.present? %>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <% @posters.each do |poster| %>
+              <div class="group relative">
+                <%= button_to select_poster_admin_movie_path(@movie, poster_path: poster['file_path']),
+                    method: :post,
+                    class: "block w-full" do %>
+                  <%= image_tag TmdbService.poster_url(poster['file_path'], size: 'w342'),
+                      class: "w-full h-auto rounded shadow-lg hover:shadow-xl transition-shadow cursor-pointer" %>
+                  
+                  <!-- Hover overlay -->
+                  <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity rounded flex items-center justify-center">
+                    <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span class="bg-white text-gray-900 px-3 py-1 rounded text-sm font-medium">
+                        Select
+                      </span>
+                    </div>
+                  </div>
+                <% end %>
+                
+                <!-- Poster info -->
+                <div class="mt-2 text-xs text-gray-500 text-center">
+                  <%= poster['width'] %>×<%= poster['height'] %>
+                  <% if poster['vote_average'] && poster['vote_average'] > 0 %>
+                    <br>★ <%= poster['vote_average'].round(1) %>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+          
+          <% if @total_count > 20 %>
+            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p class="text-sm text-blue-800">
+                <strong>Note:</strong> Only showing the first 20 of <%= @total_count %> available English posters.
+              </p>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="text-center py-12">
+            <p class="text-gray-600">No English posters found for this movie.</p>
+          </div>
+        <% end %>
+        
+        <div class="mt-6 pt-4 border-t">
+          <%= link_to "Cancel", 
+              admin_movie_path(@movie), 
+              data: { turbo_frame: "_top" },
+              class: "px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</turbo-frame>

@@ -1,0 +1,121 @@
+<!-- app/views/admin/movies/edit.html.erb -->
+<% content_for :title, "Edit #{@movie.title}" %>
+
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Back Navigation -->
+    <div class="mb-6">
+      <%= link_to admin_movie_path(@movie), class: "inline-flex items-center text-indigo-600 hover:text-indigo-800" do %>
+        <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+        </svg>
+        Back to Movie
+      <% end %>
+    </div>
+
+    <!-- Edit Form Card -->
+    <div class="bg-white rounded-lg shadow-lg">
+      <div class="px-6 py-4 border-b">
+        <h1 class="text-2xl font-bold text-gray-900">Edit Movie</h1>
+      </div>
+
+      <div class="px-6 py-6">
+        <%= form_with model: @movie, url: admin_movie_path(@movie), method: :patch, local: true do |f| %>
+          <% if @movie.errors.any? %>
+            <div class="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+              <h3 class="text-sm font-medium text-red-800">
+                <%= pluralize(@movie.errors.count, "error") %> prohibited this movie from being saved:
+              </h3>
+              <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+                <% @movie.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <div class="space-y-6">
+            <!-- Title -->
+            <div>
+              <%= f.label :title, class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= f.text_field :title, 
+                  class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+            </div>
+
+            <!-- Director -->
+            <div>
+              <%= f.label :director, class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= f.text_field :director, 
+                  class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+            </div>
+
+            <!-- Year -->
+            <div>
+              <%= f.label :year, class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= f.number_field :year, 
+                  class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+            </div>
+
+            <!-- Rating -->
+            <div>
+              <%= f.label :rating, class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= f.number_field :rating, 
+                  step: 0.5, 
+                  min: 0.5, 
+                  max: 5.0,
+                  class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+              <p class="mt-1 text-sm text-gray-500">Rating from 0.5 to 5.0 (in 0.5 increments)</p>
+            </div>
+
+            <!-- Score -->
+            <div>
+              <%= f.label :score, class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= f.number_field :score, 
+                  step: 0.01, 
+                  min: 0, 
+                  max: 100,
+                  class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+              <p class="mt-1 text-sm text-gray-500">Legacy score from 0 to 100</p>
+            </div>
+
+            <!-- Review -->
+            <div>
+              <%= f.label :review, class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= f.text_area :review, 
+                  rows: 4,
+                  class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+            </div>
+
+            <!-- URL -->
+            <div>
+              <%= f.label :url, "Letterboxd URL", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= f.text_field :url, 
+                  class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+            </div>
+
+            <!-- Poster URL -->
+            <div>
+              <%= f.label :poster_url, "Poster URL (to add/replace)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= text_field_tag 'movie[poster_url]', nil,
+                  placeholder: "https://example.com/poster.jpg",
+                  class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+              <p class="mt-1 text-sm text-gray-500">
+                Enter a full URL to an image to add it as a poster. 
+                It will be set as the primary poster if this movie has no posters yet.
+              </p>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="mt-6 pt-6 border-t flex space-x-3">
+            <%= f.submit "Save Changes", 
+                class: "px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 cursor-pointer font-medium" %>
+            <%= link_to "Cancel", 
+                admin_movie_path(@movie), 
+                class: "px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 font-medium" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

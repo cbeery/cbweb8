@@ -41,7 +41,15 @@ Rails.application.routes.draw do
     # Log Entries
     resources :log_entries, only: [:index, :show]
 
-    resources :movies, only: [:index, :show]
+    resources :movies, only: [:index, :show, :edit, :update] do
+      member do
+        get :tmdb_lookup
+        post :tmdb_search
+        patch :update_from_tmdb
+        get :tmdb_posters
+        post :select_poster
+      end
+    end
 
     resources :books, only: [:index, :show, :edit, :update]
 

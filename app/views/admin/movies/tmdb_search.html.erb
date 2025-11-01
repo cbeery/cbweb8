@@ -1,0 +1,56 @@
+<!-- app/views/admin/movies/tmdb_search.html.erb -->
+<turbo-frame id="search_results">
+  <% if @search_results.present? %>
+    <div class="mt-4 space-y-3">
+      <p class="text-sm text-gray-600">Found <%= @search_results.size %> results:</p>
+      
+      <% @search_results.first(10).each do |result| %>
+        <div class="border rounded-lg p-4 hover:bg-gray-50 transition">
+          <div class="flex items-start space-x-4">
+            <% if result['poster_path'].present? %>
+              <%= image_tag TmdbService.poster_url(result['poster_path'], size: 'w92'),
+                  class: "w-16 h-auto rounded shadow-sm" %>
+            <% else %>
+              <div class="w-16 h-24 bg-gray-200 rounded flex items-center justify-center">
+                <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                </svg>
+              </div>
+            <% end %>
+            
+            <div class="flex-1">
+              <h4 class="font-bold text-gray-900">
+                <%= result['title'] %>
+                <% if result['release_date'].present? %>
+                  <span class="text-gray-500 font-normal">
+                    (<%= result['release_date'].split('-').first %>)
+                  </span>
+                <% end %>
+              </h4>
+              
+              <% if result['director_name'].present? %>
+                <p class="text-sm text-gray-600 mt-1">
+                  <span class="font-semibold">Director:</span> <%= result['director_name'] %>
+                </p>
+              <% end %>
+              
+              <% if result['overview'].present? %>
+                <p class="text-sm text-gray-600 mt-1"><%= result['overview'].truncate(150) %></p>
+              <% end %>
+              
+              <%= button_to "Select This Movie", 
+                  update_from_tmdb_admin_movie_path(@movie, tmdb_id: result['id']),
+                  method: :patch,
+                  data: { turbo_frame: "tmdb_modal" },
+                  class: "mt-2 px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700" %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="mt-4 text-center py-8 bg-gray-50 rounded-lg">
+      <p class="text-gray-600">No results found. Try a different search term.</p>
+    </div>
+  <% end %>
+</turbo-frame>

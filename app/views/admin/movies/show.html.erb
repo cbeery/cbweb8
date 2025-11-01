@@ -1,4 +1,7 @@
+<!-- app/views/admin/movies/show.html.erb -->
+<!-- REPLACES your existing show.html.erb -->
 <% content_for :title, "#{@movie.title} - Movies" %>
+
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Back Navigation -->
@@ -14,69 +17,56 @@
     <!-- Movie Details Card -->
     <div class="bg-white rounded-lg shadow-lg overflow-hidden">
       <div class="lg:flex">
-        <!-- Poster Section (in card) -->
+        <!-- Poster Section -->
         <div class="lg:w-1/3 xl:w-1/4 bg-gray-100">
-          <div class="aspect-[2/3] relative">
-            <% if @poster&.image&.attached? %>
-              <%= image_tag @poster.image, 
-                  alt: @movie.title,
-                  class: "w-full h-full object-cover" %>
-            <% else %>
-              <div class="w-full h-full flex items-center justify-center text-gray-400">
-                <svg class="w-24 h-24" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
-                </svg>
-              </div>
-            <% end %>
+          <div class="aspect-[2/3] relative" id="movie_<%= @movie.id %>_poster">
+            <%= render partial: 'admin/movies/poster', locals: { movie: @movie, poster: @poster } %>
           </div>
         </div>
         
-        <!-- Movie Info -->
-        <div class="lg:flex-1 p-6 lg:p-8">
-          <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">
-              <%= @movie.title %>
-            </h1>
-            <% if @movie.year %>
-              <p class="text-xl text-gray-600 mt-1"><%= @movie.year %></p>
+        <!-- Details Section -->
+        <div class="lg:w-2/3 xl:w-3/4 p-6">
+          <!-- Title and Actions -->
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <h1 class="text-3xl font-bold text-gray-900"><%= @movie.title %></h1>
+              <% if @movie.year.present? %>
+                <p class="text-xl text-gray-600 mt-1"><%= @movie.year %></p>
+              <% end %>
+            </div>
+            
+            <div class="flex space-x-2">
+              <%= link_to tmdb_lookup_admin_movie_path(@movie),
+                  data: { turbo_frame: "tmdb_modal" },
+                  class: "inline-flex items-center px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700" do %>
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                TMDB Lookup
+              <% end %>
+              
+              <%= link_to edit_admin_movie_path(@movie), 
+                  class: "inline-flex items-center px-3 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700" do %>
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Edit
+              <% end %>
+            </div>
+          </div>
+          
+          <!-- Movie Info -->
+          <div class="space-y-3">
+            <% if @movie.rating.present? %>
+              <div class="flex">
+                <span class="text-gray-500 w-32">Rating:</span>
+                <span class="text-gray-900">
+                  <%= '★' * @movie.rating.floor %><%='½' if @movie.rating % 1 == 0.5 %> 
+                  (<%= @movie.rating %>/5.0)
+                </span>
+              </div>
             <% end %>
-          </div>
-          
-          <!-- Stats Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            <div class="bg-gray-50 rounded-lg p-4">
-              <p class="text-sm text-gray-500 mb-1">Rating</p>
-              <p class="text-2xl font-bold text-gray-900">
-                <% if @movie.rating %>
-                  <span class="text-yellow-500">★</span> <%= @movie.rating %>
-                <% else %>
-                  <span class="text-gray-400">—</span>
-                <% end %>
-              </p>
-            </div>
             
-            <div class="bg-gray-50 rounded-lg p-4">
-              <p class="text-sm text-gray-500 mb-1">Times Watched</p>
-              <p class="text-2xl font-bold text-gray-900">
-                <%= @movie.viewings.count %>
-                <% rewatch_count = @movie.viewings.where(rewatch: true).count %>
-                <% if rewatch_count > 0 %>
-                  <span class="text-sm text-gray-500">(<%= rewatch_count %> rewatch<%= 'es' if rewatch_count > 1 %>)</span>
-                <% end %>
-              </p>
-            </div>
-            
-            <div class="bg-gray-50 rounded-lg p-4">
-              <p class="text-sm text-gray-500 mb-1">Last Watched</p>
-              <% last_viewed = @movie.viewings.maximum(:viewed_on) %>
-              <p class="text-lg font-bold text-gray-900">
-                <%= last_viewed&.strftime("%b %d, %Y") || "Never" %>
-              </p>
-            </div>
-          </div>
-          
-          <!-- Movie Metadata -->
-          <div class="space-y-3 mb-6">
             <% if @movie.director.present? %>
               <div class="flex">
                 <span class="text-gray-500 w-32">Director:</span>
@@ -123,7 +113,7 @@
           </div>
           
           <% if @movie.review.present? %>
-            <div class="border-t pt-6">
+            <div class="border-t pt-6 mt-6">
               <h3 class="text-lg font-semibold text-gray-900 mb-2">Review</h3>
               <p class="text-gray-700 whitespace-pre-wrap"><%= @movie.review %></p>
             </div>
@@ -138,64 +128,45 @@
       
       <% if @viewings.any? %>
         <div class="bg-white rounded-lg shadow overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="min-w-full">
-              <thead class="bg-gray-50">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Date
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Notes
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Rewatch
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% @viewings.each do |viewing| %>
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Type
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Format
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Location
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Notes
-                  </th>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <%= viewing.viewed_on.strftime('%B %d, %Y') %>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-900">
+                    <%= viewing.notes %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <%= viewing.rewatch? ? 'Yes' : 'No' %>
+                  </td>
                 </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-200">
-                <% @viewings.each do |viewing| %>
-                  <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <%= viewing.viewed_on.strftime("%B %d, %Y") %>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <% if viewing.rewatch %>
-                        <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                          Rewatch
-                        </span>
-                      <% else %>
-                        <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                          First Watch
-                        </span>
-                      <% end %>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      <%= viewing.format || "—" %>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      <%= viewing.location || "—" %>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-700">
-                      <%= truncate(viewing.notes, length: 100) if viewing.notes.present? %>
-                    </td>
-                  </tr>
-                <% end %>
-              </tbody>
-            </table>
-          </div>
+              <% end %>
+            </tbody>
+          </table>
         </div>
       <% else %>
         <div class="bg-white rounded-lg shadow p-8 text-center">
-          <p class="text-gray-500">No viewing history yet.</p>
+          <p class="text-gray-500">No viewing history recorded.</p>
         </div>
       <% end %>
     </div>
   </div>
 </div>
+
+<!-- Turbo Frame for TMDB Modal -->
+<turbo-frame id="tmdb_modal"></turbo-frame>

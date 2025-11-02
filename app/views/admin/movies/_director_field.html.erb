@@ -1,0 +1,7 @@
+<!-- app/views/admin/movies/_director_field.html.erb -->
+<% if movie.director.present? %>
+  <div class="flex">
+    <span class="text-gray-500 w-32">Director:</span>
+    <span class="text-gray-900"><%= movie.director %></span>
+  </div>
+<% end %>

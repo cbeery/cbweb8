@@ -26,22 +26,20 @@
       <div class="px-6 py-4">
         <% if @posters.present? %>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            <% @posters.each do |poster| %>
+            <% @posters.each_with_index do |poster, index| %>
               <div class="group relative">
-                <%= button_to select_poster_admin_movie_path(@movie, poster_path: poster['file_path']),
+                <% poster_url = TmdbService.poster_url(poster['file_path'], size: 'w342') %>
+                
+                <%= link_to select_poster_admin_movie_path(@movie, poster_path: poster['file_path']),
                     method: :post,
-                    class: "block w-full" do %>
-                  <%= image_tag TmdbService.poster_url(poster['file_path'], size: 'w342'),
-                      class: "w-full h-auto rounded shadow-lg hover:shadow-xl transition-shadow cursor-pointer" %>
+                    data: { turbo_method: :post },
+                    class: "block w-full relative" do %>
                   
-                  <!-- Hover overlay -->
-                  <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity rounded flex items-center justify-center">
-                    <div class="opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span class="bg-white text-gray-900 px-3 py-1 rounded text-sm font-medium">
-                        Select
-                      </span>
-                    </div>
-                  </div>
+                  <%= image_tag poster_url,
+                      alt: "Movie poster #{index + 1}",
+                      class: "w-full h-auto rounded shadow-lg hover:shadow-2xl hover:ring-4 hover:ring-indigo-500 transition-all cursor-pointer bg-gray-100",
+                      loading: "lazy",
+                      onerror: "console.error('Failed to load poster:', '#{poster_url}'); this.style.border='3px solid red';" %>
                 <% end %>
                 
                 <!-- Poster info -->
@@ -50,6 +48,11 @@
                   <% if poster['vote_average'] && poster['vote_average'] > 0 %>
                     <br>★ <%= poster['vote_average'].round(1) %>
                   <% end %>
+                </div>
+                
+                <!-- Debug: Show URL (remove this after fixing) -->
+                <div class="mt-1 text-xs text-gray-400 break-all text-center">
+                  <%= poster_url %>
                 </div>
               </div>
             <% end %>

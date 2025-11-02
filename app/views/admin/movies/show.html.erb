@@ -67,12 +67,9 @@
               </div>
             <% end %>
             
-            <% if @movie.director.present? %>
-              <div class="flex">
-                <span class="text-gray-500 w-32">Director:</span>
-                <span class="text-gray-900"><%= @movie.director %></span>
-              </div>
-            <% end %>
+            <div id="movie_<%= @movie.id %>_director">
+              <%= render partial: 'admin/movies/director_field', locals: { movie: @movie } %>
+            </div>
             
             <% if @movie.score.present? %>
               <div class="flex">

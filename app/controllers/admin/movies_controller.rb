@@ -29,7 +29,7 @@ class Admin::MoviesController < Admin::BaseController
   
   def show
     @viewings = @movie.viewings.order(viewed_on: :desc)
-    @poster = @movie.movie_posters.first
+    @poster = @movie.primary_poster
   end
   
   def edit
@@ -125,23 +125,44 @@ class Admin::MoviesController < Admin::BaseController
     poster_path = params[:poster_path]
     poster_url = TmdbService.poster_url(poster_path, size: 'original')
     
-    # Create new poster and set as primary
-    poster = @movie.movie_posters.create!(
-      url: poster_url,
-      source: 'tmdb',
-      primary: true
-    )
+    # First, check if this exact URL already exists for this movie
+    existing_poster = @movie.movie_posters.find_by(url: poster_url)
     
-    # Unset other posters as primary
+    if existing_poster
+      # Just make this existing poster primary
+      poster = existing_poster
+      poster.update!(primary: true, source: 'tmdb')
+    else
+      # Find the current primary poster
+      current_primary = @movie.movie_posters.find_by(primary: true)
+      
+      if current_primary
+        # Update the existing primary poster with new URL
+        poster = current_primary
+        poster.update!(url: poster_url, source: 'tmdb')
+      else
+        # No primary poster exists, create new one
+        poster = @movie.movie_posters.create!(
+          url: poster_url,
+          source: 'tmdb',
+          primary: true
+        )
+      end
+    end
+    
+    # Ensure only this poster is primary
     @movie.movie_posters.where.not(id: poster.id).update_all(primary: false)
     
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
-          turbo_stream.replace("tmdb_modal", ""),
-          turbo_stream.replace("movie_#{@movie.id}_poster", 
+          turbo_stream.update("tmdb_modal", '<turbo-frame id="tmdb_modal"></turbo-frame>'),
+          turbo_stream.update("movie_#{@movie.id}_poster", 
             partial: "admin/movies/poster", 
-            locals: { movie: @movie, poster: poster })
+            locals: { movie: @movie, poster: poster }),
+          turbo_stream.update("movie_#{@movie.id}_director", 
+            partial: "admin/movies/director_field",
+            locals: { movie: @movie })
         ]
       end
       format.html { redirect_to admin_movie_path(@movie), notice: 'Poster updated successfully.' }

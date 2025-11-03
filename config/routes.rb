@@ -41,7 +41,18 @@ Rails.application.routes.draw do
     # Log Entries
     resources :log_entries, only: [:index, :show]
 
-    resources :movies, only: [:index, :show]
+    resources :movies do  # Change from: only: [:index, :show, :edit, :update]
+      member do
+        get :tmdb_lookup
+        post :tmdb_search
+        patch :update_from_tmdb
+        get :tmdb_posters
+        post :select_poster
+      end
+      
+      # Nested viewings routes
+      resources :viewings, only: [:new, :create, :edit, :update, :destroy]
+    end
 
     resources :books, only: [:index, :show, :edit, :update]
 

@@ -1,0 +1,18 @@
+<!-- app/views/admin/movies/_tmdb_search_form.html.erb -->
+<%= form_with url: tmdb_search_admin_movie_path(@movie), 
+    method: :post,
+    data: { turbo_frame: "search_results" },
+    class: "mb-4" do |f| %>
+  <div class="flex space-x-2">
+    <%= f.text_field :query, 
+        placeholder: "Enter movie title...",
+        value: @movie.title,
+        class: "flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+    <%= f.submit "Search TMDB", 
+        class: "px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 cursor-pointer" %>
+  </div>
+<% end %>
+
+<turbo-frame id="search_results">
+  <!-- Search results will appear here -->
+</turbo-frame>

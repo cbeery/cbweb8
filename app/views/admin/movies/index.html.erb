@@ -11,6 +11,15 @@
         </p>
       </div>
       
+      <!-- New Movie Button -->
+      <%= link_to new_admin_movie_path, 
+          class: "px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 font-medium inline-flex items-center" do %>
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        New Movie
+      <% end %>
+              
       <!-- View Mode Switcher -->
       <div class="flex items-center space-x-2">
         <span class="text-sm text-gray-600">View:</span>

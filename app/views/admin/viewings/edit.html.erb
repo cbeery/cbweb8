@@ -1,22 +1,23 @@
-<!-- app/views/admin/movies/edit.html.erb -->
-<% content_for :title, "Edit #{@movie.title}" %>
+<!-- app/views/admin/viewings/edit.html.erb -->
+<% content_for :title, "Edit Viewing for #{@movie.title}" %>
 
 <div class="min-h-screen bg-gray-50">
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Back Navigation -->
     <div class="mb-6">
       <%= link_to admin_movie_path(@movie), class: "inline-flex items-center text-indigo-600 hover:text-indigo-800" do %>
         <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
         </svg>
-        Back to Movie
+        Back to <%= @movie.title %>
       <% end %>
     </div>
 
-    <!-- Edit Form Card -->
+    <!-- Form Card -->
     <div class="bg-white rounded-lg shadow-lg">
       <div class="px-6 py-4 border-b">
-        <h1 class="text-2xl font-bold text-gray-900">Edit Movie</h1>
+        <h1 class="text-2xl font-bold text-gray-900">Edit Viewing</h1>
+        <p class="mt-1 text-sm text-gray-600">Update viewing details for <%= @movie.title %></p>
       </div>
 
       <div class="px-6 py-6">

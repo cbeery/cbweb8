@@ -32,18 +32,58 @@ class Admin::MoviesController < Admin::BaseController
     @poster = @movie.primary_poster
   end
   
+  def new
+    @movie = Movie.new
+  end
+  
+  def create
+    @movie = Movie.new(movie_params)
+    
+    if @movie.save
+      # Handle poster upload if provided
+      if params[:movie][:poster_file].present?
+        poster = @movie.movie_posters.create!(
+          source: 'manual',
+          primary: true
+        )
+        poster.image.attach(params[:movie][:poster_file])
+      elsif params[:movie][:poster_url].present?
+        @movie.movie_posters.create!(
+          url: params[:movie][:poster_url],
+          source: 'manual',
+          primary: true
+        )
+      end
+      
+      redirect_to admin_movie_path(@movie), notice: 'Movie was successfully created.'
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+  
   def edit
   end
   
   def update
     if @movie.update(movie_params)
-      # If poster_url is provided, create or update the poster
-      if params[:movie][:poster_url].present?
-        poster = @movie.movie_posters.find_or_initialize_by(url: params[:movie][:poster_url])
-        if poster.new_record?
-          poster.source = 'manual'
-          poster.primary = @movie.movie_posters.empty?
-          poster.save
+      # Handle poster file upload if provided
+      if params[:movie][:poster_file].present?
+        poster = @movie.movie_posters.find_by(primary: true) || @movie.movie_posters.new(source: 'manual', primary: true)
+        poster.image.attach(params[:movie][:poster_file])
+        poster.save!
+      elsif params[:movie][:poster_url].present?
+        # Handle poster URL
+        existing_url_poster = @movie.movie_posters.find_by(url: params[:movie][:poster_url])
+        if existing_url_poster
+          existing_url_poster.update!(primary: true)
+          @movie.movie_posters.where.not(id: existing_url_poster.id).update_all(primary: false)
+        else
+          poster = @movie.movie_posters.find_or_initialize_by(url: params[:movie][:poster_url])
+          if poster.new_record?
+            poster.source = 'manual'
+            poster.primary = @movie.movie_posters.empty?
+            poster.save
+          end
         end
       end
       

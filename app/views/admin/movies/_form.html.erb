@@ -1,0 +1,122 @@
+<!-- app/views/admin/movies/_form.html.erb -->
+<%= form_with model: @movie, url: @movie.persisted? ? admin_movie_path(@movie) : admin_movies_path, method: @movie.persisted? ? :patch : :post, local: true do |f| %>
+  <% if @movie.errors.any? %>
+    <div class="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+      <h3 class="text-sm font-medium text-red-800">
+        <%= pluralize(@movie.errors.count, "error") %> prohibited this movie from being saved:
+      </h3>
+      <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+        <% @movie.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="space-y-6">
+    <!-- Title -->
+    <div>
+      <%= f.label :title, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_field :title, 
+          class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
+          required: true %>
+    </div>
+
+    <!-- Director -->
+    <div>
+      <%= f.label :director, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_field :director, 
+          class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+    </div>
+
+    <!-- Year -->
+    <div>
+      <%= f.label :year, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.number_field :year, 
+          class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+    </div>
+
+    <!-- Rating -->
+    <div>
+      <%= f.label :rating, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.number_field :rating, 
+          step: 0.5, 
+          min: 0.5, 
+          max: 5.0,
+          class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      <p class="mt-1 text-sm text-gray-500">Rating from 0.5 to 5.0 (in 0.5 increments)</p>
+    </div>
+
+    <!-- Score -->
+    <div>
+      <%= f.label :score, "Legacy Score", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.number_field :score, 
+          step: 0.01, 
+          min: 0, 
+          max: 100,
+          class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      <p class="mt-1 text-sm text-gray-500">Legacy score from 0 to 100</p>
+    </div>
+
+    <!-- Review -->
+    <div>
+      <%= f.label :review, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_area :review, 
+          rows: 4,
+          class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+    </div>
+
+    <!-- URL -->
+    <div>
+      <%= f.label :url, "Movie URL (optional)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_field :url, 
+          placeholder: "https://example.com/movie",
+          class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      <p class="mt-1 text-sm text-gray-500">
+        Link to Letterboxd, IMDb, Kickstarter, or any relevant page
+      </p>
+    </div>
+
+    <!-- Poster Upload -->
+    <div class="border-t pt-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Movie Poster</h3>
+      
+      <div class="space-y-4">
+        <!-- File Upload -->
+        <div>
+          <%= label_tag 'movie[poster_file]', "Upload Poster Image", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= file_field_tag 'movie[poster_file]', 
+              accept: 'image/*',
+              class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" %>
+          <p class="mt-1 text-sm text-gray-500">
+            Upload a poster image from your computer
+          </p>
+        </div>
+
+        <div class="text-center text-sm text-gray-500">
+          — OR —
+        </div>
+
+        <!-- URL Input -->
+        <div>
+          <%= label_tag 'movie[poster_url]', "Poster URL", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= text_field_tag 'movie[poster_url]', nil,
+              placeholder: "https://example.com/poster.jpg",
+              class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          <p class="mt-1 text-sm text-gray-500">
+            Or enter a URL to an image
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="mt-6 pt-6 border-t flex space-x-3">
+    <%= f.submit @movie.persisted? ? "Save Changes" : "Create Movie",
+        class: "px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 cursor-pointer font-medium" %>
+    <%= link_to "Cancel", 
+        @movie.persisted? ? admin_movie_path(@movie) : admin_movies_path, 
+        class: "px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 font-medium" %>
+  </div>
+<% end %>

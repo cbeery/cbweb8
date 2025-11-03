@@ -1,5 +1,9 @@
 <!-- app/views/admin/movies/_poster.html.erb -->
-<% if poster&.url.present? %>
+<% if poster&.image&.attached? %>
+  <%= image_tag poster.image,
+      alt: "#{movie.title} poster",
+      class: "w-full h-full object-cover" %>
+<% elsif poster&.url.present? %>
   <%= image_tag poster.url,
       alt: "#{movie.title} poster",
       class: "w-full h-full object-cover" %>

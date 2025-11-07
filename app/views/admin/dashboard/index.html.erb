@@ -1,171 +1,412 @@
-<div class="bg-white shadow sm:rounded-lg">
-  <div class="px-4 py-5 sm:p-6">
-    <h1 class="text-2xl font-bold text-gray-900 mb-6">Admin Dashboard</h1>
+<%# app/views/admin/dashboard/index.html.erb %>
+<% content_for :title, "Admin Dashboard" %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+    <p class="mt-2 text-gray-600">System overview and quick access</p>
+  </div>
+
+  <!-- Stats Grid - Updated without Users, added music/NBA stats -->
+  <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-8">
+    <div class="bg-white rounded-lg shadow p-3">
+      <dt class="text-xs font-medium text-gray-500 truncate">Movies</dt>
+      <dd class="mt-1 text-xl font-semibold text-blue-600"><%= number_with_delimiter(@total_movies) %></dd>
+    </div>
     
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      <!-- S3 Test Card -->
-      <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-gray-900">S3 Upload Test</h3>
-          <p class="mt-1 text-sm text-gray-600">Test file uploads and image processing</p>
-          <%= link_to "Test S3 →", admin_test_s3_path, 
-              class: "mt-3 inline-block text-indigo-600 hover:text-indigo-500" %>
-        </div>
-      </div>
+    <div class="bg-white rounded-lg shadow p-3">
+      <dt class="text-xs font-medium text-gray-500 truncate">Concerts</dt>
+      <dd class="mt-1 text-xl font-semibold text-purple-600"><%= number_with_delimiter(@total_concerts) %></dd>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-3">
+      <dt class="text-xs font-medium text-gray-500 truncate">Scrobbles</dt>
+      <dd class="mt-1 text-xl font-semibold text-red-600">
+        <%= number_to_human(@total_scrobbles, precision: 1) %>
+      </dd>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-3">
+      <dt class="text-xs font-medium text-gray-500 truncate">Playlists</dt>
+      <dd class="mt-1 text-xl font-semibold text-green-600"><%= @total_playlists %></dd>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-3">
+      <dt class="text-xs font-medium text-gray-500 truncate">NBA Games</dt>
+      <dd class="mt-1 text-xl font-semibold text-orange-600"><%= number_with_delimiter(@total_nba_games) %></dd>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-3">
+      <dt class="text-xs font-medium text-gray-500 truncate">Rides</dt>
+      <dd class="mt-1 text-xl font-semibold text-indigo-600"><%= number_with_delimiter(@total_rides) %></dd>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-3">
+      <dt class="text-xs font-medium text-gray-500 truncate">Active Jobs</dt>
+      <dd class="mt-1 text-xl font-semibold <%= @active_jobs > 0 ? 'text-yellow-600' : 'text-gray-600' %>">
+        <%= @active_jobs %>
+      </dd>
+    </div>
+  </div>
+
+  <!-- Main content grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    
+    <!-- Left column (2/3 width) -->
+    <div class="lg:col-span-2 space-y-6">
       
-      <!-- ActiveJob Test Card -->
-      <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-gray-900">ActiveJob Test</h3>
-          <p class="mt-1 text-sm text-gray-600">Test job queueing with SolidQueue</p>
-          <%= link_to "Test Jobs →", admin_test_job_path, 
-              class: "mt-3 inline-block text-indigo-600 hover:text-indigo-500" %>
-        </div>
-      </div>
-      
-      <!-- Mission Control Card -->
-      <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-gray-900">Mission Control</h3>
-          <p class="mt-1 text-sm text-gray-600">Monitor job queue and processing</p>
-          <%= link_to "Open Mission Control →", mission_control_jobs.root_path, 
-              class: "mt-3 inline-block text-indigo-600 hover:text-indigo-500" %>
-        </div>
-      </div>
-
-      <!-- Syncs -->
-      <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-gray-900">Sync Service</h3>
-          <p class="mt-1 text-sm text-gray-600">Sync jobs</p>
-          <%= link_to "Data Syncs →", admin_syncs_path, 
-              class: "mt-3 inline-block text-indigo-600 hover:text-indigo-500" %>
-        </div>
-      </div>
-
-      <!-- Log -->
-      <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-gray-900">Log Entries</h3>
-          <p class="mt-1 text-sm text-gray-600">Log entries</p>
-          <%= link_to "Open Log →", admin_log_entries_path, 
-              class: "mt-3 inline-block text-indigo-600 hover:text-indigo-500" %>
-        </div>
-      </div>
-
-      <!-- Movies -->
-      <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-gray-900">Movies</h3>
-          <p class="mt-1 text-sm text-gray-600">Movies</p>
-          <%= link_to "Movies →", admin_movies_path, 
-              class: "mt-3 inline-block text-indigo-600 hover:text-indigo-500" %>
-        </div>
-      </div>
-
-      <!-- Spotify -->
-      <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-gray-900">Spotify</h3>
-          <p class="mt-1 text-sm text-gray-600">Spotify</p>
-          <%= link_to "Spotify →", admin_spotify_playlists_path, 
-              class: "mt-3 inline-block text-indigo-600 hover:text-indigo-500" %>,
-          <%= link_to "Mixtapes →", mixtapes_admin_spotify_playlists_path, 
-              class: "mt-3 inline-block text-indigo-600 hover:text-indigo-500" %>
-        </div>
-      </div>
-
-      <!-- Last.fm -->
-      <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-gray-900">Last.fm</h3>
-          <p class="mt-1 text-sm text-gray-600">Last.fm</p>
-          <%= link_to "Last.fm →", top_admin_lastfm_path, 
-              class: "mt-3 inline-block text-indigo-600 hover:text-indigo-500" %>
-        </div>
-      </div>
-
-      <!-- NBA Section Card -->
-      <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <svg class="h-8 w-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
+      <!-- Music Services Section -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Last.fm Card -->
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+          <div class="px-4 py-3 border-b border-gray-200 bg-red-50">
+            <h3 class="text-sm font-semibold text-gray-900">🎵 Last.fm Scrobbles</h3>
+          </div>
+          <div class="p-4">
+            <dl class="space-y-2 text-sm">
+              <div class="flex justify-between">
+                <dt class="text-gray-500">Total Scrobbles</dt>
+                <dd class="font-medium text-gray-900">
+                  <%= number_with_delimiter(@total_scrobbles) %>
+                </dd>
+              </div>
+              <div class="flex justify-between">
+                <dt class="text-gray-500">Days Tracked</dt>
+                <dd class="font-medium text-gray-900"><%= number_with_delimiter(@scrobble_days) %></dd>
+              </div>
+              <div class="flex justify-between">
+                <dt class="text-gray-500">Artists</dt>
+                <dd class="font-medium text-gray-900"><%= number_with_delimiter(@scrobble_artists) %></dd>
+              </div>
+              <div class="flex justify-between">
+                <dt class="text-gray-500">Albums</dt>
+                <dd class="font-medium text-gray-900"><%= number_with_delimiter(@scrobble_albums) %></dd>
+              </div>
+              <% if @last_scrobble_date %>
+                <div class="flex justify-between">
+                  <dt class="text-gray-500">Last Update</dt>
+                  <dd class="text-xs text-gray-600">
+                    <%= @last_scrobble_date.strftime("%b %d, %Y") %>
+                  </dd>
+                </div>
+              <% end %>
+            </dl>
+            <div class="mt-4 space-y-2">
+              <%= link_to "Daily Counts →", counts_admin_lastfm_path, 
+                  class: "block text-center px-3 py-1.5 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition" %>
+              <%= link_to "Weekly Charts →", plays_admin_lastfm_path, 
+                  class: "block text-center px-3 py-1.5 border border-red-300 text-red-700 text-sm rounded hover:bg-red-50 transition" %>
             </div>
-            <div class="ml-4">
-              <h3 class="text-lg font-medium text-gray-900">NBA Section</h3>
-              <p class="mt-1 text-sm text-gray-600">Games, teams, and viewing stats</p>
-              <%= link_to "Open NBA Dashboard →", admin_nba_root_path, 
-                  class: "mt-3 inline-block text-indigo-600 hover:text-indigo-500" %>
+          </div>
+        </div>
+
+        <!-- Spotify Card -->
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+          <div class="px-4 py-3 border-b border-gray-200 bg-green-50">
+            <h3 class="text-sm font-semibold text-gray-900">🎧 Spotify</h3>
+          </div>
+          <div class="p-4">
+            <dl class="space-y-2 text-sm">
+              <div class="flex justify-between">
+                <dt class="text-gray-500">Total Playlists</dt>
+                <dd class="font-medium text-gray-900"><%= @total_playlists %></dd>
+              </div>
+              <div class="flex justify-between">
+                <dt class="text-gray-500">Mixtapes</dt>
+                <dd class="font-medium text-purple-600"><%= @total_mixtapes %></dd>
+              </div>
+              <div class="flex justify-between">
+                <dt class="text-gray-500">Total Tracks</dt>
+                <dd class="font-medium text-gray-900"><%= number_with_delimiter(@spotify_tracks) %></dd>
+              </div>
+              <% if @last_spotify_sync %>
+                <div class="flex justify-between">
+                  <dt class="text-gray-500">Last Sync</dt>
+                  <dd class="text-xs text-gray-600">
+                    <%= time_ago_in_words(@last_spotify_sync) %> ago
+                  </dd>
+                </div>
+              <% end %>
+            </dl>
+            <div class="mt-4 space-y-2">
+              <%= link_to "All Playlists →", admin_spotify_playlists_path, 
+                  class: "block text-center px-3 py-1.5 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition" %>
+              <%= link_to "Mixtapes →", mixtapes_admin_spotify_playlists_path, 
+                  class: "block text-center px-3 py-1.5 border border-green-300 text-green-700 text-sm rounded hover:bg-green-50 transition" %>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Concerts -->
-      <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-gray-900">Shows</h3>
-          <p class="mt-1 text-sm text-gray-600">Shows</p>
-          <%= link_to "Shows →", admin_concerts_path, 
-              class: "mt-3 inline-block text-indigo-600 hover:text-indigo-500" %>
+      <!-- NBA Section -->
+      <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-200 bg-orange-50 flex justify-between items-center">
+          <h3 class="text-sm font-semibold text-gray-900">🏀 NBA Games</h3>
+          <%= link_to "View All Games →", admin_nba_games_path, 
+              class: "text-xs text-orange-600 hover:text-orange-800" %>
+        </div>
+        <div class="p-4">
+          <div class="grid grid-cols-4 gap-4 text-sm">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-gray-900"><%= @total_nba_games %></div>
+              <div class="text-xs text-gray-500">Total Games</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-orange-600"><%= @games_watched %></div>
+              <div class="text-xs text-gray-500">Watched</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-blue-600"><%= @current_season_games %></div>
+              <div class="text-xs text-gray-500">This Season</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-gray-600"><%= @nba_teams %></div>
+              <div class="text-xs text-gray-500">Teams</div>
+            </div>
+          </div>
+          <div class="mt-4 flex gap-2">
+            <%= link_to "Games →", admin_nba_games_path, 
+                class: "flex-1 text-center px-3 py-1.5 bg-orange-600 text-white text-sm rounded hover:bg-orange-700 transition" %>
+            <%= link_to "Teams →", admin_nba_teams_path, 
+                class: "flex-1 text-center px-3 py-1.5 border border-orange-300 text-orange-700 text-sm rounded hover:bg-orange-50 transition" %>
+          </div>
         </div>
       </div>
 
-      <!-- Bike -->
-      <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-gray-900">Bike</h3>
-          <p class="mt-1 text-sm text-gray-600">Bike</p>
-          <%= link_to "Bike →", admin_bike_root_path, 
-              class: "mt-3 inline-block text-indigo-600 hover:text-indigo-500" %>
+      <!-- Recent Sync Activities -->
+      <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <h3 class="text-lg font-medium text-gray-900">Recent Sync Activities</h3>
+          <%= link_to "View all →", admin_syncs_path, class: "text-sm text-indigo-600 hover:text-indigo-900" %>
+        </div>
+        <div class="divide-y divide-gray-200">
+          <% if @recent_syncs.any? %>
+            <% @recent_syncs.each do |sync| %>
+              <div class="px-6 py-4 hover:bg-gray-50">
+                <div class="flex items-center justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center space-x-3">
+                      <span class="text-sm font-medium text-gray-900">
+                        <%= sync.source_type.titleize %>
+                      </span>
+                      <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                 <%= sync.status == 'completed' ? 'bg-green-100 text-green-800' : 
+                                     sync.status == 'failed' ? 'bg-red-100 text-red-800' : 
+                                     sync.status == 'running' ? 'bg-yellow-100 text-yellow-800' : 
+                                     'bg-gray-100 text-gray-800' %>">
+                        <%= sync.status %>
+                      </span>
+                    </div>
+                    <div class="mt-1 flex items-center space-x-4 text-xs text-gray-500">
+                      <span><%= time_ago_in_words(sync.created_at) %> ago</span>
+                      <% if sync.has_progress? %>
+                        <span>• <%= sync.processed_items %> / <%= sync.total_items %> items</span>
+                      <% end %>
+                    </div>
+                  </div>
+                  <%= link_to "View", admin_sync_path(sync), 
+                      class: "ml-4 text-sm text-indigo-600 hover:text-indigo-900" %>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="px-6 py-8 text-center text-gray-500">
+              No sync activities yet
+            </div>
+          <% end %>
         </div>
       </div>
 
-      <!-- Books -->
-      <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-gray-900">Books</h3>
-          <p class="mt-1 text-sm text-gray-600">Books</p>
-          <%= link_to "Books →", admin_books_path, 
-              class: "mt-3 inline-block text-indigo-600 hover:text-indigo-500" %>
+      <!-- Recent Log Entries -->
+      <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <h3 class="text-lg font-medium text-gray-900">Recent Log Entries</h3>
+          <%= link_to "View all →", admin_log_entries_path, class: "text-sm text-indigo-600 hover:text-indigo-900" %>
+        </div>
+        <div class="divide-y divide-gray-200">
+          <% if @recent_logs.any? %>
+            <% @recent_logs.each do |log| %>
+              <div class="px-6 py-3 hover:bg-gray-50">
+                <div class="flex items-start space-x-3">
+                  <span class="<%= log.level == 'error' ? 'text-red-600' : 
+                                  log.level == 'warning' ? 'text-yellow-600' : 
+                                  log.level == 'info' ? 'text-blue-600' : 
+                                  'text-gray-600' %>">
+                    <%= log.icon %>
+                  </span>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-900">
+                      <%= truncate(log.message, length: 80) %>
+                    </p>
+                    <p class="mt-1 text-xs text-gray-500">
+                      <%= log.category %> • <%= time_ago_in_words(log.created_at) %> ago
+                    </p>
+                  </div>
+                  <%= link_to "View", admin_log_entry_path(log), 
+                      class: "text-xs text-indigo-600 hover:text-indigo-900" %>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="px-6 py-8 text-center text-gray-500">
+              No log entries yet
+            </div>
+          <% end %>
         </div>
       </div>
-
-      <!-- Pages -->
-      <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-gray-900">Pages</h3>
-          <p class="mt-1 text-sm text-gray-600">Pages</p>
-          <%= link_to "Pages →", admin_pages_path, 
-              class: "mt-3 inline-block text-indigo-600 hover:text-indigo-500" %>
-        </div>
-      </div>
-
     </div>
-    
-    <div class="mt-8 border-t border-gray-200 pt-8">
-      <h2 class="text-lg font-medium text-gray-900 mb-4">System Status</h2>
-      <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-3">
-        <div>
-          <dt class="text-sm font-medium text-gray-500">Total Users</dt>
-          <dd class="mt-1 text-lg font-medium text-gray-900"><%= User.count %></dd>
+
+    <!-- Right column (1/3 width) -->
+    <div class="space-y-6">
+      
+      <!-- Quick Links -->
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Quick Access</h3>
+        <nav class="space-y-2">
+          <% [
+            ['Movies', admin_movies_path, 'film'],
+            ['Concerts', admin_concerts_path, 'music'],
+            ['Artists', admin_concert_artists_path, 'mic'],
+            ['Books', admin_books_path, 'book-open'],
+            ['NBA Games', admin_nba_games_path, 'basketball'],
+            ['Spotify', admin_spotify_playlists_path, 'spotify'],
+            ['Last.fm', top_admin_lastfm_path, 'lastfm'],
+            ['Bike Dashboard', admin_bike_root_path, 'activity'],
+            ['Pages', admin_pages_path, 'file-text'],
+            ['Syncs', admin_syncs_path, 'refresh-cw'],
+            ['Logs', admin_log_entries_path, 'terminal']
+          ].each do |name, path, icon| %>
+            <%= link_to path, class: "flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors" do %>
+              <% if icon == 'spotify' %>
+                <svg class="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                </svg>
+              <% elsif icon == 'lastfm' %>
+                <svg class="w-4 h-4 mr-2 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M10.599 17.211l-.881-2.393s-1.433 1.596-3.579 1.596c-1.9 0-3.249-1.652-3.249-4.296 0-3.385 1.708-4.596 3.388-4.596 2.418 0 3.184 1.568 3.845 3.578l.871 2.751c.871 2.672 2.523 4.818 7.285 4.818 3.41 0 5.722-1.045 5.722-3.801 0-2.227-1.276-3.383-3.635-3.935l-1.757-.384c-1.217-.274-1.577-.771-1.577-1.597 0-.936.736-1.487 1.952-1.487 1.323 0 2.028.495 2.147 1.679l2.749-.33c-.225-2.479-1.937-3.494-4.745-3.494-2.479 0-4.897.936-4.897 3.934 0 1.873.902 3.058 3.185 3.605l1.862.443c1.397.33 1.863.916 1.863 1.713 0 1.021-.992 1.441-2.869 1.441-2.779 0-3.936-1.457-4.597-3.469l-.901-2.75c-1.156-3.574-3.004-4.896-6.669-4.896C2.147 5.327 0 7.879 0 12.235c0 4.179 2.147 6.445 6.003 6.445 3.108 0 4.596-1.457 4.596-1.457v-.012z"/>
+                </svg>
+              <% elsif icon == 'basketball' %>
+                <svg class="w-4 h-4 mr-2 text-orange-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z"></path>
+                  <path d="M12 2v20"></path>
+                  <path d="M2 12h20"></path>
+                  <path d="M7.5 5.5c1.5 2 2.5 4.5 2.5 6.5s-1 4.5-2.5 6.5"></path>
+                  <path d="M16.5 5.5c-1.5 2-2.5 4.5-2.5 6.5s1 4.5 2.5 6.5"></path>
+                </svg>
+              <% else %>
+                <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <% case icon %>
+                  <% when 'film' %>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 16h4m10 0h4M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z" />
+                  <% when 'music' %>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                  <% when 'mic' %>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                  <% when 'book-open' %>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  <% when 'activity' %>
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                  <% when 'file-text' %>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <% when 'refresh-cw' %>
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <polyline points="1 20 1 14 7 14"></polyline>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                  <% when 'terminal' %>
+                    <polyline points="4 17 10 11 4 5"></polyline>
+                    <line x1="12" y1="19" x2="20" y2="19"></line>
+                  <% end %>
+                </svg>
+              <% end %>
+              <%= name %>
+            <% end %>
+          <% end %>
+        </nav>
+      </div>
+
+      <!-- Today's Activity -->
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Today's Activity</h3>
+        <dl class="space-y-3">
+          <div class="flex justify-between">
+            <dt class="text-sm text-gray-500">Syncs Run</dt>
+            <dd class="text-sm font-medium text-gray-900"><%= @todays_syncs %></dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-sm text-gray-500">Log Entries</dt>
+            <dd class="text-sm font-medium text-gray-900"><%= @todays_logs %></dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-sm text-gray-500">Active Jobs</dt>
+            <dd class="text-sm font-medium <%= @active_jobs > 0 ? 'text-yellow-600' : 'text-green-600' %>">
+              <%= @active_jobs %>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- System Tools -->
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">System Tools</h3>
+        <div class="space-y-3">
+          <%= link_to mission_control_jobs.root_path, 
+              class: "block w-full text-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50",
+              target: "_blank" do %>
+            Mission Control →
+          <% end %>
+          
+          <div class="flex gap-2">
+            <%= link_to "Test Jobs", admin_test_job_path, 
+                class: "flex-1 text-center px-3 py-2 border border-gray-300 rounded-md text-xs font-medium text-gray-600 bg-white hover:bg-gray-50" %>
+            <%= link_to "Test S3", admin_test_s3_path, 
+                class: "flex-1 text-center px-3 py-2 border border-gray-300 rounded-md text-xs font-medium text-gray-600 bg-white hover:bg-gray-50" %>
+          </div>
         </div>
-        <div>
-          <dt class="text-sm font-medium text-gray-500">Storage Service</dt>
-          <dd class="mt-1 text-lg font-medium text-gray-900">
-            <%= Rails.application.config.active_storage.service.to_s.capitalize %>
-          </dd>
-        </div>
-        <div>
-          <dt class="text-sm font-medium text-gray-500">Queue Adapter</dt>
-          <dd class="mt-1 text-lg font-medium text-gray-900">
-            <%= Rails.application.config.active_job.queue_adapter.to_s.capitalize %>
-          </dd>
-        </div>
-      </dl>
+      </div>
+
+      <!-- Data Analytics Suggestion -->
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <h3 class="text-sm font-medium text-blue-900 mb-2">
+          📊 Want Data Analytics?
+        </h3>
+        <p class="text-sm text-blue-700">
+          View comprehensive charts and aggregated data visualizations.
+        </p>
+        <%= link_to "Analytics Dashboard →", '#', 
+            class: "mt-3 inline-block text-sm text-blue-600 hover:text-blue-800" %>
+      </div>
     </div>
+  </div>
+
+  <!-- System Status Footer -->
+  <div class="bg-gray-50 rounded-lg p-6">
+    <h3 class="text-sm font-medium text-gray-900 mb-3">System Configuration</h3>
+    <dl class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+      <div>
+        <dt class="text-gray-500">Storage</dt>
+        <dd class="font-medium text-gray-900">
+          <%= Rails.application.config.active_storage.service.to_s.capitalize %>
+        </dd>
+      </div>
+      <div>
+        <dt class="text-gray-500">Queue</dt>
+        <dd class="font-medium text-gray-900">
+          <%= Rails.application.config.active_job.queue_adapter.to_s.capitalize %>
+        </dd>
+      </div>
+      <div>
+        <dt class="text-gray-500">Environment</dt>
+        <dd class="font-medium text-gray-900">
+          <%= Rails.env.capitalize %>
+        </dd>
+      </div>
+      <div>
+        <dt class="text-gray-500">Database</dt>
+        <dd class="font-medium text-gray-900">
+          <%= ActiveRecord::Base.connection.adapter_name %>
+        </dd>
+      </div>
+    </dl>
   </div>
 </div>

@@ -107,3 +107,6 @@ gem "local_time"
 # Positioning
 gem "acts_as_list"
 
+# Charting and date grouping...
+gem "chartkick"
+gem "groupdate" # for time-based grouping

@@ -10,10 +10,10 @@ class Admin::AnalyticsController < Admin::BaseController
     @top_movie_years = Movie.group(:year).count.sort_by { |_, v| -v }.first(10)
     
     # Concerts Analytics  
-    @concerts_by_year = Concert.group_by_year(:date).count
-    @concerts_by_venue = Concert.includes(:venue)
-      .group('venues.name')
-      .references(:venues)
+    @concerts_by_year = Concert.group_by_year(:played_on).count
+    @concerts_by_venue = Concert.includes(:concert_venue)
+      .group('concert_venues.name')
+      .references(:concert_venues)
       .count
       .sort_by { |_, v| -v }
       .first(10)
@@ -28,8 +28,8 @@ class Admin::AnalyticsController < Admin::BaseController
     # Books Analytics
     @books_by_status = Book.group(:status).count
     @books_by_year_read = Book
-      .where.not(date_read: nil)
-      .group_by_year(:date_read)
+      .where.not(finished_on: nil)
+      .group_by_year(:finished_on)
       .count
     
     # Bike Analytics
@@ -115,8 +115,8 @@ class Admin::AnalyticsController < Admin::BaseController
       .each { |date, count| data[date] ||= 0; data[date] += count }
     
     # Add concerts  
-    Concert.where(date: start_date..end_date)
-      .group(:date)
+    Concert.where(played_on: start_date..end_date)
+      .group(:played_on)
       .count
       .each { |date, count| data[date] ||= 0; data[date] += count }
     

@@ -59,41 +59,43 @@
             <% if @movie.rating.present? %>
               <div class="flex">
                 <span class="text-gray-500 w-32">Rating:</span>
-                <span class="text-gray-900">
-                  <%= '★' * @movie.rating.floor %><%='½' if @movie.rating % 1 == 0.5 %> 
-                  (<%= @movie.rating %>/5.0)
-                </span>
+                <div class="flex items-center gap-1">
+                  <span class="text-yellow-500">★</span>
+                  <span class="font-semibold"><%= @movie.rating %>/5</span>
+                </div>
               </div>
             <% end %>
             
-            <div id="movie_<%= @movie.id %>_director">
-              <%= render partial: 'admin/movies/director_field', locals: { movie: @movie } %>
-            </div>
+            <% if @movie.director.present? %>
+              <div class="flex">
+                <span class="text-gray-500 w-32">Director:</span>
+                <span class="font-semibold"><%= @movie.director %></span>
+              </div>
+            <% end %>
             
             <% if @movie.score.present? %>
               <div class="flex">
                 <span class="text-gray-500 w-32">Score:</span>
-                <span class="text-gray-900"><%= @movie.score %></span>
+                <span><%= @movie.score %>/100</span>
               </div>
             <% end %>
             
-            <% if @movie.letterboxd_id.present? %>
+            <div class="flex">
+              <span class="text-gray-500 w-32">Total Views:</span>
+              <span><%= pluralize(@movie.viewings.count, 'viewing') %></span>
+            </div>
+            
+            <% if @movie.viewings.rewatches.any? %>
               <div class="flex">
-                <span class="text-gray-500 w-32">Letterboxd:</span>
-                <%= link_to @movie.letterboxd_id, 
-                    "https://letterboxd.com/film/#{@movie.letterboxd_id}",
-                    target: "_blank",
-                    class: "text-indigo-600 hover:text-indigo-800" %>
+                <span class="text-gray-500 w-32">Rewatches:</span>
+                <span class="text-green-600"><%= @movie.viewings.rewatches.count %></span>
               </div>
             <% end %>
             
             <% if @movie.tmdb_id.present? %>
               <div class="flex">
-                <span class="text-gray-500 w-32">TMDB:</span>
-                <%= link_to @movie.tmdb_id, 
-                    "https://www.themoviedb.org/movie/#{@movie.tmdb_id}",
-                    target: "_blank",
-                    class: "text-indigo-600 hover:text-indigo-800" %>
+                <span class="text-gray-500 w-32">TMDB ID:</span>
+                <span><%= @movie.tmdb_id %></span>
               </div>
             <% end %>
             
@@ -140,10 +142,13 @@
                   Date
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Notes
+                  Location
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Rewatch
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Notes
                 </th>
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
@@ -156,23 +161,39 @@
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <%= viewing.viewed_on.strftime('%B %d, %Y') %>
                   </td>
-                  <td class="px-6 py-4 text-sm text-gray-900">
-                    <%= viewing.notes %>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <% if viewing.theater %>
+                      <%= viewing.theater.name %>
+                    <% elsif viewing.location %>
+                      <%= viewing.location.capitalize %>
+                    <% else %>
+                      <span class="text-gray-400">-</span>
+                    <% end %>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <%= viewing.rewatch? ? 'Yes' : 'No' %>
+                    <% if viewing.rewatch? %>
+                      <span class="inline-flex px-2 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        Rewatch
+                      </span>
+                    <% else %>
+                      <span class="inline-flex px-2 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                        First
+                      </span>
+                    <% end %>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                    <%= link_to edit_admin_movie_viewing_path(@movie, viewing),
-                        class: "text-indigo-600 hover:text-indigo-900" do %>
-                      Edit
-                    <% end %>
-                    <%= button_to admin_movie_viewing_path(@movie, viewing),
+                  <td class="px-6 py-4 text-sm text-gray-900">
+                    <%= viewing.notes || "-" %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <%= link_to "Edit", edit_admin_movie_viewing_path(@movie, viewing),
+                        class: "text-indigo-600 hover:text-indigo-900 mr-3" %>
+                    <%= link_to "Delete", admin_movie_viewing_path(@movie, viewing),
                         method: :delete,
-                        data: { confirm: 'Are you sure you want to delete this viewing?' },
-                        class: "text-red-600 hover:text-red-900" do %>
-                      Delete
-                    <% end %>
+                        data: { 
+                          turbo_method: :delete,
+                          turbo_confirm: "Are you sure you want to delete this viewing?"
+                        },
+                        class: "text-red-600 hover:text-red-900" %>
                   </td>
                 </tr>
               <% end %>
@@ -181,13 +202,14 @@
         </div>
       <% else %>
         <div class="bg-white rounded-lg shadow p-8 text-center">
-          <p class="text-gray-500">No viewing history recorded.</p>
-          <p class="text-sm text-gray-400 mt-2">Click "Add Viewing" to record when you watched this movie.</p>
+          <p class="text-gray-500 mb-4">No viewings recorded yet.</p>
+          <%= link_to "Add First Viewing", new_admin_movie_viewing_path(@movie),
+              class: "text-indigo-600 hover:text-indigo-800" %>
         </div>
       <% end %>
     </div>
   </div>
 </div>
 
-<!-- Turbo Frame for TMDB Modal -->
+<!-- TMDB Modal Frame -->
 <turbo-frame id="tmdb_modal"></turbo-frame>

@@ -1,0 +1,2 @@
+class FilmSeries < ApplicationRecord
+end

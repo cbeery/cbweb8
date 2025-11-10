@@ -20,12 +20,16 @@ class Admin::MoviesController < Admin::BaseController
                 @movies.order(year: :desc, title: :asc)
               when 'rating'
                 @movies.order(rating: :desc, title: :asc)
-              else # 'watched'
+              else # 'watched' - default
                 @movies.left_joins(:viewings)
                        .group('movies.id')
                        .order('MAX(viewings.viewed_on) DESC NULLS LAST')
               end
+    
+    # Add pagination (50 per page for admin view)
+    @movies = @movies.page(params[:page]).per(50)
   end
+
   
   def show
     @viewings = @movie.viewings.order(viewed_on: :desc)

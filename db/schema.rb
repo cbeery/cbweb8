@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_20_210339) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_10_195325) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -101,6 +101,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_20_210339) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_concert_artists_on_name", unique: true
+  end
+
+  create_table "concert_performances", force: :cascade do |t|
+    t.bigint "concert_id", null: false
+    t.bigint "concert_artist_id", null: false
+    t.integer "position", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["concert_artist_id"], name: "index_concert_performances_on_concert_artist_id"
+    t.index ["concert_id", "concert_artist_id"], name: "index_concert_performances_uniqueness", unique: true
+    t.index ["concert_id", "position"], name: "index_concert_performances_on_concert_id_and_position"
+    t.index ["concert_id"], name: "index_concert_performances_on_concert_id"
   end
 
   create_table "concert_venues", force: :cascade do |t|
@@ -663,6 +675,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_20_210339) do
     t.string "format"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "theater_id"
+    t.bigint "film_series_event_id"
+    t.decimal "price", precision: 5, scale: 2
+    t.string "time"
+    t.datetime "viewed_at"
     t.index ["movie_id", "viewed_on"], name: "index_viewings_on_movie_id_and_viewed_on"
     t.index ["movie_id"], name: "index_viewings_on_movie_id"
     t.index ["viewed_on"], name: "index_viewings_on_viewed_on"
@@ -670,6 +687,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_20_210339) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "concert_performances", "concert_artists"
+  add_foreign_key "concert_performances", "concerts"
   add_foreign_key "concerts", "concert_venues"
   add_foreign_key "log_entries", "users"
   add_foreign_key "milestones", "bicycles"

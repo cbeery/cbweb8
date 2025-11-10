@@ -1,0 +1,204 @@
+// app/assets/stylesheets/admin/movies.scss
+
+// Variables
+$shadow-color: rgba(0, 0, 0, 0.05);
+$gray-50: rgb(249, 250, 251);
+$transition-speed: 0.15s;
+$mobile-breakpoint: 640px;
+$desktop-breakpoint: 1024px;
+
+// Title column width constraints
+$title-width-mobile: 20rem; // 320px
+$title-width-desktop: 24rem; // 384px
+
+// Scrollable table enhancements
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
+  
+  // Mobile responsiveness
+  @media (max-width: $mobile-breakpoint) {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+// Sticky column styling
+.sticky {
+  position: sticky;
+  position: -webkit-sticky;
+  
+  &.left-0 {
+    // Add subtle shadow to sticky columns when scrolling
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: -8px;
+      bottom: 0;
+      width: 8px;
+      background: linear-gradient(to right, $shadow-color, transparent);
+      pointer-events: none;
+    }
+  }
+}
+
+// Table row hover states
+tr {
+  transition: background-color $transition-speed ease;
+  
+  &:hover {
+    .sticky {
+      background-color: $gray-50;
+    }
+  }
+}
+
+// Title truncation classes
+.max-w-xs {
+  max-width: $title-width-mobile;
+}
+
+@media (min-width: $desktop-breakpoint) {
+  .max-w-sm {
+    max-width: $title-width-desktop;
+  }
+}
+
+// Table layout
+table {
+  min-width: 100%;
+  table-layout: auto;
+  
+  // Column minimum widths
+  th, td {
+    min-width: 80px;
+    
+    // Title/Poster column needs more space
+    &:first-child {
+      min-width: 200px;
+    }
+    
+    // Mobile adjustments
+    @media (max-width: $mobile-breakpoint) {
+      padding: 0.5rem;
+    }
+  }
+}
+
+// Poster dimensions in table_with_poster view
+.poster-cell {
+  .h-20 {
+    height: 5rem;
+  }
+  
+  .w-14 {
+    width: 3.5rem;
+  }
+}
+
+// Admin movies specific pagination styling
+.admin-movies-pagination {
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    
+    // Current page highlight
+    .current {
+      @apply bg-indigo-600 text-white;
+    }
+    
+    // Hover effects for links
+    a {
+      transition: background-color $transition-speed ease;
+      
+      &:hover {
+        @apply bg-gray-50;
+      }
+    }
+  }
+}
+
+// Search bar enhancements
+.movies-search-bar {
+  .search-input {
+    transition: border-color $transition-speed ease;
+    
+    &:focus {
+      @apply border-indigo-500 ring-2 ring-indigo-500;
+    }
+  }
+}
+
+// View mode switcher
+.view-mode-switcher {
+  .btn-group {
+    button, a {
+      transition: all $transition-speed ease;
+      
+      &.active {
+        @apply bg-indigo-600 text-white;
+      }
+    }
+  }
+}
+
+// Rewatch count styling
+.rewatch-count {
+  &.has-rewatches {
+    @apply text-green-600 font-medium;
+  }
+  
+  &.no-rewatches {
+    @apply text-gray-400;
+  }
+}
+
+// Rating display
+.rating-display {
+  .star {
+    @apply text-yellow-500;
+  }
+}
+
+// Responsive table adjustments
+@media (max-width: $mobile-breakpoint) {
+  // Compact view for mobile
+  .movies-table {
+    font-size: 0.875rem; // text-sm
+    
+    // Reduce cell padding
+    th, td {
+      @apply px-3 py-2;
+    }
+  }
+  
+  // Hide less important columns on very small screens
+  @media (max-width: 480px) {
+    .hide-on-mobile {
+      display: none;
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .overflow-x-auto {
+    overflow: visible !important;
+  }
+  
+  table {
+    font-size: 10pt;
+    
+    th, td {
+      padding: 4px !important;
+    }
+  }
+}

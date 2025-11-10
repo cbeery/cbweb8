@@ -110,3 +110,6 @@ gem "acts_as_list"
 # Charting and date grouping...
 gem "chartkick"
 gem "groupdate" # for time-based grouping
+
+# Natural language date/time parsing
+gem "chronic"

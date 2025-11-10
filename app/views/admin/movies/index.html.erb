@@ -7,46 +7,48 @@
       <div>
         <h1 class="text-3xl font-bold text-gray-900">Movies Admin</h1>
         <p class="mt-1 text-sm text-gray-600">
-          Manage your movie collection
+          Manage your movie collection (<%= @movies.total_count %> total)
         </p>
       </div>
       
-      <!-- New Movie Button -->
-      <%= link_to new_admin_movie_path, 
-          class: "px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 font-medium inline-flex items-center" do %>
-        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-        New Movie
-      <% end %>
-              
-      <!-- View Mode Switcher -->
-      <div class="flex items-center space-x-2">
-        <span class="text-sm text-gray-600">View:</span>
-        <div class="inline-flex rounded-md shadow-sm" role="group">
-          <%= link_to admin_movies_path(view: 'grid', search: params[:search], sort: params[:sort]),
-              class: "px-3 py-2 text-sm font-medium #{@view_mode == 'grid' ? 'text-white bg-indigo-600' : 'text-gray-700 bg-white'} border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:ring-2 focus:ring-indigo-500",
-              title: "Grid View" do %>
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM13 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2h-2z" />
-            </svg>
-          <% end %>
-          
-          <%= link_to admin_movies_path(view: 'table', search: params[:search], sort: params[:sort]),
-              class: "px-3 py-2 text-sm font-medium #{@view_mode == 'table' ? 'text-white bg-indigo-600' : 'text-gray-700 bg-white'} border-t border-b border-gray-300 hover:bg-gray-50 focus:z-10 focus:ring-2 focus:ring-indigo-500",
-              title: "Table View" do %>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-            </svg>
-          <% end %>
-          
-          <%= link_to admin_movies_path(view: 'table_with_poster', search: params[:search], sort: params[:sort]),
-              class: "px-3 py-2 text-sm font-medium #{@view_mode == 'table_with_poster' ? 'text-white bg-indigo-600' : 'text-gray-700 bg-white'} border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:ring-2 focus:ring-indigo-500",
-              title: "Table with Posters" do %>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          <% end %>
+      <div class="flex gap-2">
+        <!-- New Movie Button -->
+        <%= link_to new_admin_movie_path, 
+            class: "px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 font-medium inline-flex items-center" do %>
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          New Movie
+        <% end %>
+                
+        <!-- View Mode Switcher -->
+        <div class="flex items-center space-x-2">
+          <span class="text-sm text-gray-600">View:</span>
+          <div class="inline-flex rounded-md shadow-sm" role="group">
+            <%= link_to admin_movies_path(view: 'grid', search: params[:search], sort: params[:sort], page: params[:page]),
+                class: "px-3 py-2 text-sm font-medium #{@view_mode == 'grid' ? 'text-white bg-indigo-600' : 'text-gray-700 bg-white'} border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:ring-2 focus:ring-indigo-500",
+                title: "Grid View" do %>
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM13 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2h-2z" />
+              </svg>
+            <% end %>
+            
+            <%= link_to admin_movies_path(view: 'table', search: params[:search], sort: params[:sort], page: params[:page]),
+                class: "px-3 py-2 text-sm font-medium #{@view_mode == 'table' ? 'text-white bg-indigo-600' : 'text-gray-700 bg-white'} border-t border-b border-gray-300 hover:bg-gray-50 focus:z-10 focus:ring-2 focus:ring-indigo-500",
+                title: "Table View" do %>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+              </svg>
+            <% end %>
+            
+            <%= link_to admin_movies_path(view: 'table_with_poster', search: params[:search], sort: params[:sort], page: params[:page]),
+                class: "px-3 py-2 text-sm font-medium #{@view_mode == 'table_with_poster' ? 'text-white bg-indigo-600' : 'text-gray-700 bg-white'} border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:ring-2 focus:ring-indigo-500",
+                title: "Table with Posters" do %>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            <% end %>
+          </div>
         </div>
       </div>
     </div>
@@ -56,12 +58,17 @@
       <div class="flex flex-col sm:flex-row gap-4">
         <%= form_with url: admin_movies_path, method: :get, class: "flex-1" do |f| %>
           <%= hidden_field_tag :view, @view_mode %>
+          <%= hidden_field_tag :sort, params[:sort] %>
           <div class="flex gap-2">
             <%= f.text_field :search, 
                 placeholder: "Search movies...", 
                 value: params[:search],
                 class: "flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
             <%= f.submit "Search", class: "px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 cursor-pointer" %>
+            <% if params[:search].present? %>
+              <%= link_to "Clear", admin_movies_path(view: @view_mode, sort: params[:sort]), 
+                  class: "px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300" %>
+            <% end %>
           </div>
         <% end %>
       </div>
@@ -69,23 +76,40 @@
       <!-- Sort Options -->
       <div class="mt-4 flex flex-wrap gap-2 text-sm">
         <span class="text-gray-500">Sort by:</span>
-        <%= link_to "Last Watched", admin_movies_path(view: @view_mode, search: params[:search]), 
+        <%= link_to "Last Watched", admin_movies_path(view: @view_mode, search: params[:search], page: params[:page]), 
             class: "text-indigo-600 hover:text-indigo-800 #{params[:sort].blank? ? 'font-semibold' : ''}" %>
-        <%= link_to "Title", admin_movies_path(view: @view_mode, sort: 'title', search: params[:search]), 
+        <%= link_to "Title", admin_movies_path(view: @view_mode, sort: 'title', search: params[:search], page: params[:page]), 
             class: "text-indigo-600 hover:text-indigo-800 #{params[:sort] == 'title' ? 'font-semibold' : ''}" %>
-        <%= link_to "Year", admin_movies_path(view: @view_mode, sort: 'year', search: params[:search]), 
+        <%= link_to "Year", admin_movies_path(view: @view_mode, sort: 'year', search: params[:search], page: params[:page]), 
             class: "text-indigo-600 hover:text-indigo-800 #{params[:sort] == 'year' ? 'font-semibold' : ''}" %>
-        <%= link_to "Rating", admin_movies_path(view: @view_mode, sort: 'rating', search: params[:search]), 
+        <%= link_to "Rating", admin_movies_path(view: @view_mode, sort: 'rating', search: params[:search], page: params[:page]), 
             class: "text-indigo-600 hover:text-indigo-800 #{params[:sort] == 'rating' ? 'font-semibold' : ''}" %>
       </div>
     </div>
     
-    <!-- Render appropriate view based on @view_mode -->
-    <%= render "admin/movies/#{@view_mode}", movies: @movies %>
-    
-    <% if @movies.empty? %>
+    <!-- Movies Table/Grid -->
+    <% if @movies.any? %>
+      <%= render "admin/movies/#{@view_mode}", movies: @movies %>
+      
+      <!-- Pagination -->
+      <div class="mt-6 bg-white rounded-lg shadow px-4 py-3">
+        <%= paginate @movies, 
+            params: { view: @view_mode, sort: params[:sort], search: params[:search] },
+            window: 2,
+            outer_window: 1 %>
+      </div>
+      
+      <!-- Showing info -->
+      <div class="mt-4 text-center text-sm text-gray-600">
+        Showing <%= @movies.offset_value + 1 %> - <%= [@movies.offset_value + @movies.limit_value, @movies.total_count].min %> of <%= @movies.total_count %> movies
+      </div>
+    <% else %>
       <div class="bg-white rounded-lg shadow p-8 text-center">
         <p class="text-gray-500">No movies found.</p>
+        <% if params[:search].present? %>
+          <%= link_to "Clear search", admin_movies_path(view: @view_mode), 
+              class: "mt-2 text-indigo-600 hover:text-indigo-800" %>
+        <% end %>
       </div>
     <% end %>
   </div>

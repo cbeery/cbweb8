@@ -1,8 +1,7 @@
 class Viewing < ApplicationRecord
   belongs_to :movie
-  belongs_to :theater
-  belongs_to :film_series_event
-  
+  belongs_to :theater, optional: true
+  belongs_to :film_series_event, optional: true  
   # Validations
   validates :viewed_on, presence: true
   

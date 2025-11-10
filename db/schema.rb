@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_10_193755) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_10_195325) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -133,6 +133,27 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_10_193755) do
     t.datetime "updated_at", null: false
     t.index ["concert_venue_id"], name: "index_concerts_on_concert_venue_id"
     t.index ["played_on"], name: "index_concerts_on_played_on"
+  end
+
+  create_table "film_series", force: :cascade do |t|
+    t.text "name"
+    t.string "city"
+    t.string "state"
+    t.text "url"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "film_series_events", force: :cascade do |t|
+    t.text "name"
+    t.bigint "film_series_id"
+    t.date "started_on"
+    t.date "ended_on"
+    t.text "notes"
+    t.text "url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "log_entries", force: :cascade do |t|
@@ -654,6 +675,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_10_193755) do
     t.string "format"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "theater_id"
+    t.bigint "film_series_event_id"
+    t.decimal "price", precision: 5, scale: 2
+    t.string "time"
+    t.datetime "viewed_at"
     t.index ["movie_id", "viewed_on"], name: "index_viewings_on_movie_id_and_viewed_on"
     t.index ["movie_id"], name: "index_viewings_on_movie_id"
     t.index ["viewed_on"], name: "index_viewings_on_viewed_on"

@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyText
+  film_series_id: 
+  started_on: 2025-11-10
+  ended_on: 2025-11-10
+  notes: MyText
+  url: MyText
+
+two:
+  name: MyText
+  film_series_id: 
+  started_on: 2025-11-10
+  ended_on: 2025-11-10
+  notes: MyText
+  url: MyText

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_30_204845) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_10_193755) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -596,6 +596,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_30_204845) do
     t.index ["source_type", "created_at"], name: "index_sync_statuses_on_source_type_and_created_at"
     t.index ["source_type"], name: "index_sync_statuses_on_source_type"
     t.index ["user_id"], name: "index_sync_statuses_on_user_id"
+  end
+
+  create_table "theaters", force: :cascade do |t|
+    t.text "name"
+    t.string "city"
+    t.string "state"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "top_scrobbles", force: :cascade do |t|

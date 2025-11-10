@@ -1,0 +1,232 @@
+<%# app/views/admin/analytics/index.html.erb %>
+<% content_for :title, "Analytics Dashboard" %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-8">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
+        <p class="mt-2 text-gray-600">Data visualization and insights</p>
+      </div>
+      <%= link_to "← Back to Dashboard", admin_root_path, 
+          class: "px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700" %>
+    </div>
+  </div>
+
+  <!-- Movies Section -->
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-6">📽️ Movies</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Movies Watched by Year</h3>
+        <%= column_chart @movies_by_year, height: "300px", colors: ["#3B82F6"] %>
+      </div>
+      
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">This Year by Month</h3>
+        <%= line_chart @movies_by_month_current_year, height: "300px", colors: ["#10B981"] %>
+      </div>
+      
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Top Movie Release Years</h3>
+        <%= bar_chart @top_movie_years, height: "300px", colors: ["#8B5CF6"] %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Concerts Section -->
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-6">🎵 Concerts</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Concerts by Year</h3>
+        <%= area_chart @concerts_by_year, height: "300px", colors: ["#EC4899"] %>
+      </div>
+      
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Top Venues</h3>
+        <%= bar_chart @concerts_by_venue, height: "300px", colors: ["#F59E0B"] %>
+      </div>
+      
+      <div class="bg-white shadow rounded-lg p-6 lg:col-span-2">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Most Seen Artists</h3>
+        <%= bar_chart @top_artists, height: "400px", colors: ["#06B6D4"] %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Last.fm Section -->
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-6">🎧 Last.fm Scrobbles</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Monthly Scrobbles (Past Year)</h3>
+        <%= area_chart @scrobbles_by_month, height: "300px", colors: ["#DC2626"] %>
+      </div>
+      
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Top Scrobbled Artists</h3>
+        <%= bar_chart @top_scrobbled_artists, height: "300px", colors: ["#EF4444"] %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spotify Section -->
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-6">🎶 Spotify</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Playlists by Year</h3>
+        <%= column_chart @playlists_by_year, height: "300px", colors: ["#22C55E"] %>
+      </div>
+      
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Mixtapes by Creator</h3>
+        <%= pie_chart @mixtapes_by_maker, height: "300px", donut: true, colors: ["#10B981", "#34D399", "#6EE7B7"] %>
+      </div>
+      
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Unique Tracks per Year</h3>
+        <%= line_chart @spotify_tracks_by_year, height: "300px", colors: ["#16A34A"] %>
+      </div>
+    </div>
+  </div>
+
+  <!-- NBA Section -->
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-6">🏀 NBA Games</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Games by Season</h3>
+        <%= column_chart @nba_games_by_season, height: "300px", colors: ["#F97316"] %>
+      </div>
+      
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Games Watched by Season</h3>
+        <%= column_chart @nba_games_watched, height: "300px", colors: ["#EA580C"] %>
+      </div>
+      
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Quarters Watched by Season</h3>
+        <%= bar_chart @nba_quarters_by_season, height: "300px", colors: ["#DC2626"] %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Books Section -->
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-6">📚 Books</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Reading Status</h3>
+        <%= pie_chart @books_by_status, height: "300px", donut: true %>
+      </div>
+      
+      <div class="bg-white shadow rounded-lg p-6 lg:col-span-2">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Books Read by Year</h3>
+        <%= column_chart @books_by_year_read, height: "300px", colors: ["#059669"] %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bike Section -->
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-6">🚴 Cycling</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Rides per Month</h3>
+        <%= column_chart @rides_by_month, height: "300px", colors: ["#EA580C"] %>
+      </div>
+      
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Miles per Month</h3>
+        <%= area_chart @miles_by_month, height: "300px", colors: ["#DC2626"] %>
+      </div>
+      
+      <div class="bg-white shadow rounded-lg p-6 lg:col-span-2">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Miles by Bicycle</h3>
+        <%= pie_chart @rides_by_bike, height: "300px" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sync Operations Section -->
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-6">🔄 Sync Operations</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Syncs by Source</h3>
+        <%= pie_chart @syncs_by_source, height: "300px", donut: true %>
+      </div>
+      
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Success Rate</h3>
+        <%= pie_chart @sync_success_rate, height: "300px", 
+            colors: ["#10B981", "#F59E0B", "#EF4444", "#6B7280"],
+            suffix: "%" %>
+      </div>
+      
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Daily Sync Activity (30 days)</h3>
+        <%= line_chart @syncs_by_day, height: "300px", colors: ["#6366F1"] %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity Heatmap Section -->
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-6">📅 Activity Heatmap</h2>
+    <div class="bg-white shadow rounded-lg p-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Year in Review</h3>
+      <div id="activity-heatmap" data-activity='<%= @activity_data.to_json %>'></div>
+      <p class="mt-4 text-sm text-gray-500">
+        Combined view of movies watched, concerts attended, NBA games watched, and bike rides
+      </p>
+    </div>
+  </div>
+
+  <!-- Summary Stats -->
+  <div class="bg-gray-50 rounded-lg p-6">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">Quick Stats Summary</h3>
+    <dl class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+      <div>
+        <dt class="text-gray-500">Total Data Points</dt>
+        <dd class="font-medium text-gray-900">
+          <%= number_with_delimiter(Viewing.count + Concert.count + Book.count + Ride.count + NbaGame.count) %>
+        </dd>
+      </div>
+      <div>
+        <dt class="text-gray-500">Years of Data</dt>
+        <dd class="font-medium text-gray-900">
+          <%= Date.current.year - (Viewing.minimum(:viewed_on)&.year || Date.current.year) + 1 %>
+        </dd>
+      </div>
+      <div>
+        <dt class="text-gray-500">Data Sources</dt>
+        <dd class="font-medium text-gray-900">
+          <%= SyncStatus.distinct.count(:source_type) %>
+        </dd>
+      </div>
+      <div>
+        <dt class="text-gray-500">Last Updated</dt>
+        <dd class="font-medium text-gray-900">
+          <%= time_ago_in_words(SyncStatus.maximum(:created_at) || Time.current) %> ago
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  <!-- Add JavaScript for Activity Heatmap -->
+  <script>
+    // Placeholder for calendar heatmap implementation
+    document.addEventListener('DOMContentLoaded', function() {
+      const container = document.getElementById('activity-heatmap');
+      if (container) {
+        const data = JSON.parse(container.dataset.activity);
+        // TODO: Implement calendar heatmap visualization
+        // Options: D3.js, Cal-HeatMap library, or ECharts calendar
+        container.innerHTML = '<div class="text-center text-gray-500 py-8">Calendar heatmap visualization coming soon</div>';
+      }
+    });
+  </script>
+</div>

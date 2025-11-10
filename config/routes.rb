@@ -31,6 +31,8 @@ Rails.application.routes.draw do
     get 'test/job', to: 'tests#active_job'
     post 'test/job', to: 'tests#trigger_job'
 
+    resources :analytics, only: [:index]
+
     # Syncs
     resources :syncs, only: [:index, :show, :create] do
       member do

@@ -34,15 +34,6 @@ class Ride < ApplicationRecord
   scope :longest_first, -> { order(miles: :desc) }
   scope :shortest_first, -> { order(miles: :asc) }
   
-  # Group by year or month for analytics
-  scope :group_by_year, -> { 
-    group("EXTRACT(YEAR FROM rode_on)").order("EXTRACT(YEAR FROM rode_on) DESC") 
-  }
-  scope :group_by_month, -> { 
-    group("EXTRACT(YEAR FROM rode_on)", "EXTRACT(MONTH FROM rode_on)")
-      .order("EXTRACT(YEAR FROM rode_on) DESC", "EXTRACT(MONTH FROM rode_on) DESC") 
-  }
-  
   # Format duration as HH:MM:SS or MM:SS
   def duration_formatted
     return "0:00" if duration.nil? || duration.zero?

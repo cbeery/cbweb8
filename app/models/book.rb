@@ -45,6 +45,17 @@ class Book < ApplicationRecord
   def finished_on
     most_recent_read&.finished_on
   end
+
+  # For display in views
+  def display_status
+    status.humanize
+  end
+
+  # For series display
+  def full_series_name
+    return nil unless series.present?
+    series_position.present? ? "#{series} ##{series_position}" : series
+  end
   
   # Get all reading dates
   def reading_dates

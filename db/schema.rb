@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_10_195325) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_11_211345) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -63,12 +63,27 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_10_195325) do
     t.index ["strava_gear_id"], name: "index_bicycles_on_strava_gear_id"
   end
 
+  create_table "book_reads", force: :cascade do |t|
+    t.bigint "book_id", null: false
+    t.date "started_on"
+    t.date "finished_on"
+    t.decimal "rating", precision: 2, scale: 1
+    t.text "notes"
+    t.integer "read_number", default: 1
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["book_id", "finished_on"], name: "index_book_reads_on_book_id_and_finished_on"
+    t.index ["book_id", "read_number"], name: "index_book_reads_on_book_id_and_read_number", unique: true
+    t.index ["book_id"], name: "index_book_reads_on_book_id"
+    t.index ["finished_on"], name: "index_book_reads_on_finished_on"
+    t.index ["started_on"], name: "index_book_reads_on_started_on"
+  end
+
   create_table "books", force: :cascade do |t|
     t.string "title", null: false
     t.string "author", null: false
     t.integer "status", default: 0, null: false
-    t.date "started_on"
-    t.date "finished_on"
     t.integer "times_read", default: 0, null: false
     t.decimal "rating", precision: 2, scale: 1
     t.integer "progress"
@@ -88,11 +103,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_10_195325) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["author"], name: "index_books_on_author"
-    t.index ["finished_on"], name: "index_books_on_finished_on"
     t.index ["goodreads_id"], name: "index_books_on_goodreads_id"
     t.index ["hardcover_id"], name: "index_books_on_hardcover_id", unique: true
     t.index ["series"], name: "index_books_on_series"
-    t.index ["status", "finished_on"], name: "index_books_on_status_and_finished_on"
     t.index ["status"], name: "index_books_on_status"
   end
 
@@ -687,6 +700,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_10_195325) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "book_reads", "books"
   add_foreign_key "concert_performances", "concert_artists"
   add_foreign_key "concert_performances", "concerts"
   add_foreign_key "concerts", "concert_venues"

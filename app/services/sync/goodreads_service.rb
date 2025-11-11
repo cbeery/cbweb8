@@ -264,51 +264,66 @@ module Sync
     end
     
     def find_or_create_book(book_data)
-      # Try to find by Goodreads ID first
-      book = if book_data[:goodreads_id].present?
-        Book.find_by(goodreads_id: book_data[:goodreads_id])
+      # Strategy 1: Find by Goodreads ID (most specific)
+      if book_data[:goodreads_id].present?
+        book = Book.find_by(goodreads_id: book_data[:goodreads_id])
+        if book
+          log(:debug, "Found book by goodreads_id: #{book_data[:goodreads_id]}")
+          return update_book_attributes(book, book_data)
+        end
       end
       
-      # If not found, try by ISBN
-      book ||= if book_data[:isbn13].present?
-        Book.find_by(isbn13: book_data[:isbn13])
-      elsif book_data[:isbn].present?
-        Book.find_by(isbn: book_data[:isbn])
+      # Strategy 2: Find by ISBN13 (very reliable)
+      if book_data[:isbn13].present?
+        book = Book.find_by(isbn13: book_data[:isbn13])
+        if book
+          log(:info, "Found book by ISBN13: #{book_data[:isbn13]} - will add goodreads_id")
+          return update_book_attributes(book, book_data)
+        end
       end
       
-      # If still not found, try by title and author
-      book ||= Book.find_by(
-        title: book_data[:title],
-        author: book_data[:author]
-      )
+      # Strategy 3: Find by ISBN (also reliable)
+      if book_data[:isbn].present?
+        book = Book.find_by(isbn: book_data[:isbn])
+        if book
+          log(:info, "Found book by ISBN: #{book_data[:isbn]} - will add goodreads_id")
+          return update_book_attributes(book, book_data)
+        end
+      end
       
-      # Create new book if not found
-      book ||= Book.new
+      # Strategy 4: Find by title and author
+      # Clean the title - Goodreads often includes series in parentheses
+      clean_title = book_data[:title].gsub(/\s*\([^)]*\)\s*$/, '').strip
       
-      # Update book attributes
-      book.assign_attributes(
-        title: book_data[:title],
-        author: book_data[:author],
-        goodreads_id: book_data[:goodreads_id],
-        isbn: book_data[:isbn] || book.isbn,
-        isbn13: book_data[:isbn13] || book.isbn13,
-        page_count: book_data[:page_count] || book.page_count,
-        published_year: book_data[:published_year] || book.published_year,
-        publisher: book_data[:publisher] || book.publisher,
-        description: book_data[:description] || book.description,
-        series: book_data[:series_name] || book.series,
-        series_position: book_data[:series_position] || book.series_position,
-        status: 'read', # Assuming we're importing read books
-        metadata: (book.metadata || {}).merge(
-          goodreads_import: {
-            imported_at: Time.current,
-            review_id: book_data[:review_id]
-          }
-        )
-      )
+      # Try exact match first
+      book = Book.where('LOWER(title) = LOWER(?) OR LOWER(title) = LOWER(?) OR LOWER(title) LIKE LOWER(?)', 
+                         book_data[:title],  # Full title with series
+                         clean_title,         # Title without series
+                         "#{clean_title}%")   # Title that starts with
+                 .where('LOWER(author) = LOWER(?)', book_data[:author].downcase)
+                 .first
       
-      book.save!
-      book
+      if book
+        log(:info, "Found book by title/author match: #{book.title} - will add goodreads_id")
+        return update_book_attributes(book, book_data)
+      end
+      
+      # Strategy 5: Try fuzzy matching if no ISBNs (be careful here)
+      if book_data[:isbn13].blank? && book_data[:isbn].blank?
+        similar_books = Book.where('LOWER(author) = LOWER(?)', book_data[:author].downcase)
+        
+        similar_books.each do |existing_book|
+          if titles_match?(existing_book.title, book_data[:title])
+            log(:info, "Found book by fuzzy match: #{existing_book.title} - will add goodreads_id")
+            return update_book_attributes(existing_book, book_data)
+          end
+        end
+      end
+      
+      # No match found, create new
+      log(:info, "Creating new book: #{book_data[:title]}")
+      book = Book.new
+      update_book_attributes(book, book_data)
     end
     
     def create_or_update_book_read(book, book_data)
@@ -348,5 +363,95 @@ module Sync
       # Use the existing job
       DownloadBookCoverJob.perform_later(book, image_url)
     end
+
+    def update_book_attributes(book, book_data)
+      # Always preserve hardcover_id if it exists
+      existing_hardcover_id = book.hardcover_id
+      
+      book.assign_attributes(
+        title: book_data[:title],
+        author: book_data[:author],
+        goodreads_id: book_data[:goodreads_id],  # Always update this
+        isbn: book_data[:isbn] || book.isbn,
+        isbn13: book_data[:isbn13] || book.isbn13,
+        page_count: book_data[:page_count] || book.page_count,
+        published_year: book_data[:published_year] || book.published_year,
+        publisher: book_data[:publisher] || book.publisher,
+        description: book_data[:description] || book.description,
+        series: book_data[:series_name] || book.series,
+        series_position: book_data[:series_position] || book.series_position,
+        hardcover_id: existing_hardcover_id,  # Preserve if exists
+        status: 'read',
+        metadata: (book.metadata || {}).merge(
+          goodreads_import: {
+            imported_at: Time.current,
+            review_id: book_data[:review_id]
+          }
+        )
+      )
+      
+      book.save!
+      book
+    end
+
+    def titles_match?(title1, title2)
+      # Clean both titles
+      clean1 = clean_title_for_matching(title1)
+      clean2 = clean_title_for_matching(title2)
+      
+      # Exact match after cleaning
+      return true if clean1 == clean2
+      
+      # One contains the other (for subtitles)
+      return true if clean1.include?(clean2) || clean2.include?(clean1)
+      
+      # Very similar (90%+ match)
+      similarity = calculate_similarity(clean1, clean2)
+      similarity >= 0.90
+    end
+
+    def clean_title_for_matching(title)
+      title.downcase
+           .gsub(/\s*\([^)]*\)\s*$/, '')  # Remove series in parentheses
+           .gsub(/[^a-z0-9\s]/, '')       # Remove punctuation
+           .gsub(/\b(the|a|an)\b/, '')    # Remove articles
+           .strip
+           .gsub(/\s+/, ' ')               # Normalize spaces
+    end
+
+    def calculate_similarity(str1, str2)
+      longer = [str1.length, str2.length].max
+      return 1.0 if longer == 0
+      
+      distance = levenshtein_distance(str1, str2)
+      1.0 - (distance.to_f / longer)
+    end
+
+    def levenshtein_distance(s1, s2)
+      m = s1.length
+      n = s2.length
+      return m if n == 0
+      return n if m == 0
+      
+      d = Array.new(m+1) { Array.new(n+1) }
+      
+      (0..m).each { |i| d[i][0] = i }
+      (0..n).each { |j| d[0][j] = j }
+      
+      (1..n).each do |j|
+        (1..m).each do |i|
+          cost = s1[i-1] == s2[j-1] ? 0 : 1
+          d[i][j] = [
+            d[i-1][j] + 1,     # deletion
+            d[i][j-1] + 1,     # insertion
+            d[i-1][j-1] + cost # substitution
+          ].min
+        end
+      end
+      
+      d[m][n]
+    end
+
+    
   end
 end

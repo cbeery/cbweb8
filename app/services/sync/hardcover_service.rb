@@ -84,14 +84,12 @@ module Sync
         
         is_new = book.new_record?
         
-        # Update book attributes
+        # Update book attributes (without dates)
         book.assign_attributes(
           title: book_data[:title],
           author: book_data[:author],
           status: map_status(book_data[:status_id]),
-          started_on: book_data[:started_on],
-          finished_on: book_data[:finished_on],
-          rating: book_data[:rating],
+          rating: book_data[:rating], # Will be overridden by BookRead if needed
           progress: calculate_progress(book_data),
           isbn: book_data[:isbn],
           isbn13: book_data[:isbn13],
@@ -101,12 +99,15 @@ module Sync
           published_year: book_data[:published_year],
           publisher: book_data[:publisher],
           description: book_data[:description],
-          times_read: book_data[:times_read] || 1,
+          times_read: book_data[:times_read] || 0, # Will be updated by counter_cache
           metadata: book_data[:metadata],
           last_synced_at: Time.current
         )
         
         book.save!
+        
+        # Handle BookRead records based on status
+        handle_book_reads(book, book_data)
         
         # Handle cover image if needed
         if book.should_sync_cover? && book_data[:cover_url].present?
@@ -128,7 +129,7 @@ module Sync
         :failed
       end
     end
-    
+
     def describe_item(book_data)
       "#{book_data[:title]} by #{book_data[:author]}"
     end
@@ -395,5 +396,85 @@ module Sync
     def download_cover_image(book, cover_url)
       DownloadBookCoverJob.perform_later(book, cover_url)
     end
+
+    def handle_book_reads(book, book_data)
+      case book_data[:status_id]
+      when STATUS_WANT_TO_READ
+        # Don't create BookRead for want-to-read books
+        log(:debug, "Book on want-to-read shelf, no BookRead created")
+        
+      when STATUS_CURRENTLY_READING
+        # Find or create a current read
+        book_read = book.book_reads
+                        .in_progress
+                        .first_or_initialize
+        
+        book_read.started_on ||= book_data[:started_on] || Date.current
+        book_read.metadata = (book_read.metadata || {}).merge(
+          hardcover_status: 'currently_reading',
+          last_synced: Time.current
+        )
+        
+        if book_read.save
+          log(:debug, "Updated/created currently reading BookRead")
+        end
+        
+      when STATUS_READ
+        # Handle completed reads
+        handle_completed_read(book, book_data)
+        
+      when STATUS_PAUSED, STATUS_DID_NOT_FINISH
+        # These could be handled as incomplete reads if desired
+        log(:debug, "Book paused/DNF, treating as want-to-read")
+      end
+    end
+    
+    def handle_completed_read(book, book_data)
+      # If we have a finished date, use it to find/create the read
+      if book_data[:finished_on].present?
+        book_read = book.book_reads.find_or_initialize_by(
+          finished_on: book_data[:finished_on]
+        )
+        
+        # Update the read details
+        book_read.assign_attributes(
+          started_on: book_data[:started_on],
+          rating: book_data[:rating],
+          metadata: (book_read.metadata || {}).merge(
+            hardcover_status: 'read',
+            last_synced: Time.current,
+            review: book_data[:review]
+          )
+        )
+        
+        if book_read.save
+          log(:debug, "Updated/created completed BookRead for #{book_data[:finished_on]}")
+        end
+      else
+        # No finish date but marked as read - create a basic read entry
+        # Check if we already have any completed reads
+        unless book.book_reads.completed.exists?
+          book_read = book.book_reads.create!(
+            finished_on: nil, # Will need to be updated later
+            started_on: book_data[:started_on],
+            rating: book_data[:rating],
+            metadata: {
+              hardcover_status: 'read',
+              missing_finish_date: true,
+              last_synced: Time.current
+            }
+          )
+          log(:debug, "Created BookRead without finish date")
+        end
+      end
+      
+      # Handle multiple reads if times_read > current read count
+      current_read_count = book.book_reads.completed.count
+      if book_data[:times_read] && book_data[:times_read] > current_read_count
+        log(:info, "Book has been read #{book_data[:times_read]} times but we only have #{current_read_count} reads recorded")
+        # The Goodreads import will fill in the historical reads
+      end
+    end
+    
   end
 end

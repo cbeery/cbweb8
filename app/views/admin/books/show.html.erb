@@ -1,154 +1,203 @@
 <%# app/views/admin/books/show.html.erb %>
-<% content_for :title, "#{@book.title} - Books" %>
+<% content_for :title, @book.title %>
 
 <div class="min-h-screen bg-gray-50">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Back Navigation -->
-    <div class="mb-6">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <%# Back link and edit button %>
+    <div class="flex justify-between items-center mb-6">
       <%= link_to admin_books_path, class: "inline-flex items-center text-indigo-600 hover:text-indigo-800" do %>
         <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
         </svg>
         Back to Books
       <% end %>
+      
+      <%= link_to "Edit", edit_admin_book_path(@book), 
+          class: "bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700" %>
     </div>
     
-    <!-- Book Details Card -->
     <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-      <div class="lg:flex">
-        <!-- Cover Section -->
-        <div class="lg:w-1/3 xl:w-1/4 bg-gray-100">
-          <div class="aspect-[2/3] relative p-8">
+      <div class="p-6">
+        <div class="flex flex-col md:flex-row gap-6">
+          <%# Cover Image %>
+          <div class="flex-shrink-0">
             <% if @book.cover_image.attached? %>
-              <%= image_tag @book.cover_image,
-                  alt: @book.title,
-                  class: "w-full h-full object-contain" %>
+              <%= image_tag @book.cover_image, class: "w-48 h-auto rounded-md shadow-md" %>
             <% else %>
-              <div class="w-full h-full flex items-center justify-center bg-gray-200">
-                <span class="text-gray-400">No Cover</span>
+              <div class="w-48 h-64 bg-gray-200 rounded-md flex items-center justify-center">
+                <span class="text-gray-400">No cover</span>
+              </div>
+            <% end %>
+          </div>
+          
+          <%# Book Details %>
+          <div class="flex-1 space-y-4">
+            <div>
+              <h1 class="text-3xl font-bold text-gray-900"><%= @book.title %></h1>
+              <p class="text-xl text-gray-600">by <%= @book.author %></p>
+            </div>
+            
+            <%# Status and Rating %>
+            <div class="flex items-center gap-4">
+              <span class="px-3 py-1 rounded-full text-sm font-medium
+                <%= case @book.status
+                    when 'currently_reading' then 'bg-blue-100 text-blue-800'
+                    when 'read' then 'bg-green-100 text-green-800'
+                    else 'bg-gray-100 text-gray-800'
+                    end %>">
+                <%= @book.status.humanize %>
+              </span>
+              
+              <% if @book.rating.present? %>
+                <div class="flex items-center">
+                  <% (1..5).each do |i| %>
+                    <svg class="w-5 h-5 <%= i <= @book.rating ? 'text-yellow-400' : 'text-gray-300' %>" 
+                         fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                  <% end %>
+                  <span class="ml-2 text-gray-600"><%= @book.rating %></span>
+                </div>
+              <% end %>
+            </div>
+            
+            <%# Book Metadata %>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <% if @book.series.present? %>
+                <div>
+                  <span class="font-medium text-gray-500">Series:</span>
+                  <span class="text-gray-900"><%= @book.series %> 
+                    <%= "##{@book.series_position}" if @book.series_position %></span>
+                </div>
+              <% end %>
+              
+              <% if @book.page_count.present? %>
+                <div>
+                  <span class="font-medium text-gray-500">Pages:</span>
+                  <span class="text-gray-900"><%= @book.page_count %></span>
+                </div>
+              <% end %>
+              
+              <% if @book.published_year.present? %>
+                <div>
+                  <span class="font-medium text-gray-500">Published:</span>
+                  <span class="text-gray-900"><%= @book.published_year %></span>
+                </div>
+              <% end %>
+              
+              <% if @book.publisher.present? %>
+                <div>
+                  <span class="font-medium text-gray-500">Publisher:</span>
+                  <span class="text-gray-900"><%= @book.publisher %></span>
+                </div>
+              <% end %>
+            </div>
+            
+            <%# Description %>
+            <% if @book.description.present? %>
+              <div>
+                <h3 class="font-medium text-gray-900 mb-2">Description</h3>
+                <p class="text-gray-600 text-sm leading-relaxed">
+                  <%= truncate(@book.description, length: 500) %>
+                </p>
               </div>
             <% end %>
           </div>
         </div>
+      </div>
+      
+      <%# Reading History Section %>
+      <div class="border-t border-gray-200 px-6 py-4">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Reading History</h2>
         
-        <!-- Details Section -->
-        <div class="lg:w-2/3 xl:w-3/4 p-8">
-          <div class="mb-4">
-            <h1 class="text-3xl font-bold text-gray-900"><%= @book.title %></h1>
-            <p class="text-xl text-gray-600 mt-2">by <%= @book.author %></p>
-            
-            <% if @book.full_series_name %>
-              <p class="text-sm text-gray-500 mt-1"><%= @book.full_series_name %></p>
-            <% end %>
-          </div>
-          
-          <!-- Status and Rating -->
-          <div class="flex items-center gap-4 mb-6">
-            <span class="px-3 py-1 text-sm rounded-full
-              <%= @book.read? ? 'bg-green-100 text-green-800' : '' %>
-              <%= @book.currently_reading? ? 'bg-blue-100 text-blue-800' : '' %>
-              <%= @book.want_to_read? ? 'bg-gray-100 text-gray-800' : '' %>">
-              <%= @book.display_status %>
-            </span>
-            
-            <% if @book.rating %>
-              <div class="flex items-center">
-                <% (1..5).each do |i| %>
-                  <% if i <= @book.rating %>
-                    <span class="text-yellow-500">★</span>
-                  <% elsif i - 0.5 <= @book.rating %>
-                    <span class="text-yellow-500">⯨</span>
-                  <% else %>
-                    <span class="text-gray-300">★</span>
-                  <% end %>
-                <% end %>
-                <span class="ml-2 text-gray-600"><%= @book.rating %></span>
-              </div>
-            <% end %>
-          </div>
-          
-          <!-- Book Info Grid -->
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-            <% if @book.started_on %>
-              <div>
-                <dt class="text-sm font-medium text-gray-500">Started</dt>
-                <dd class="mt-1 text-sm text-gray-900"><%= @book.started_on.strftime("%B %d, %Y") %></dd>
-              </div>
-            <% end %>
-            
-            <% if @book.finished_on %>
-              <div>
-                <dt class="text-sm font-medium text-gray-500">Finished</dt>
-                <dd class="mt-1 text-sm text-gray-900"><%= @book.finished_on.strftime("%B %d, %Y") %></dd>
-              </div>
-            <% end %>
-            
-            <% if @book.page_count %>
-              <div>
-                <dt class="text-sm font-medium text-gray-500">Pages</dt>
-                <dd class="mt-1 text-sm text-gray-900"><%= @book.page_count %></dd>
-              </div>
-            <% end %>
-            
-            <% if @book.published_year %>
-              <div>
-                <dt class="text-sm font-medium text-gray-500">Published</dt>
-                <dd class="mt-1 text-sm text-gray-900"><%= @book.published_year %></dd>
-              </div>
-            <% end %>
-            
-            <% if @book.publisher %>
-              <div>
-                <dt class="text-sm font-medium text-gray-500">Publisher</dt>
-                <dd class="mt-1 text-sm text-gray-900"><%= @book.publisher %></dd>
-              </div>
-            <% end %>
-            
-            <% if @book.times_read > 0 %>
-              <div>
-                <dt class="text-sm font-medium text-gray-500">Times Read</dt>
-                <dd class="mt-1 text-sm text-gray-900"><%= @book.times_read %></dd>
-              </div>
-            <% end %>
-            
-            <% if @book.currently_reading? && @book.progress %>
-              <div>
-                <dt class="text-sm font-medium text-gray-500">Progress</dt>
-                <dd class="mt-1">
-                  <div class="flex items-center">
-                    <div class="flex-1 bg-gray-200 rounded-full h-2">
-                      <div class="bg-blue-600 h-2 rounded-full" style="width: <%= @book.progress %>%"></div>
+        <% if @book.book_reads.any? %>
+          <div class="space-y-3">
+            <% @book.book_reads.recent.each_with_index do |book_read, index| %>
+              <div class="bg-gray-50 rounded-lg p-4">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="text-sm font-medium text-gray-900">
+                      Read #<%= book_read.read_number %>
+                    </span>
+                    <% if book_read.currently_reading? %>
+                      <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">
+                        Currently Reading
+                      </span>
+                    <% end %>
+                    
+                    <div class="text-sm text-gray-600 mt-1">
+                      <%= book_read.display_dates %>
                     </div>
-                    <span class="ml-2 text-sm text-gray-900"><%= @book.progress %>%</span>
+                    
+                    <% if book_read.duration_days %>
+                      <div class="text-xs text-gray-500 mt-1">
+                        Read in <%= pluralize(book_read.duration_days, 'day') %>
+                      </div>
+                    <% end %>
                   </div>
-                </dd>
+                  
+                  <% if book_read.rating.present? %>
+                    <div class="flex items-center">
+                      <% (1..5).each do |i| %>
+                        <svg class="w-4 h-4 <%= i <= book_read.rating ? 'text-yellow-400' : 'text-gray-300' %>" 
+                             fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                      <% end %>
+                      <span class="ml-1 text-sm text-gray-600"><%= book_read.rating %></span>
+                    </div>
+                  <% end %>
+                </div>
+                
+                <% if book_read.notes.present? %>
+                  <div class="mt-2 text-sm text-gray-600">
+                    <%= book_read.notes %>
+                  </div>
+                <% end %>
               </div>
             <% end %>
           </div>
           
-          <!-- Description -->
-          <% if @book.description.present? %>
-            <div class="mb-6">
-              <h3 class="text-sm font-medium text-gray-500 mb-2">Description</h3>
-              <p class="text-gray-700 whitespace-pre-wrap"><%= @book.description %></p>
-            </div>
+          <div class="mt-4 text-sm text-gray-500">
+            <%= @book.reading_summary %>
+          </div>
+        <% else %>
+          <p class="text-gray-500">No reading history recorded</p>
+        <% end %>
+      </div>
+      
+      <%# External IDs and Sync Info %>
+      <div class="border-t border-gray-200 px-6 py-4">
+        <h3 class="text-sm font-medium text-gray-900 mb-2">External IDs & Sync Info</h3>
+        <dl class="grid grid-cols-2 gap-2 text-xs">
+          <% if @book.hardcover_id.present? %>
+            <dt class="text-gray-500">Hardcover ID:</dt>
+            <dd class="text-gray-900 font-mono"><%= @book.hardcover_id %></dd>
           <% end %>
           
-          <!-- Actions -->
-          <div class="flex gap-2">
-            <%= link_to "Edit", edit_admin_book_path(@book),
-                class: "px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700" %>
-          </div>
-        </div>
+          <% if @book.goodreads_id.present? %>
+            <dt class="text-gray-500">Goodreads ID:</dt>
+            <dd class="text-gray-900 font-mono"><%= @book.goodreads_id %></dd>
+          <% end %>
+          
+          <% if @book.isbn.present? %>
+            <dt class="text-gray-500">ISBN:</dt>
+            <dd class="text-gray-900 font-mono"><%= @book.isbn %></dd>
+          <% end %>
+          
+          <% if @book.isbn13.present? %>
+            <dt class="text-gray-500">ISBN-13:</dt>
+            <dd class="text-gray-900 font-mono"><%= @book.isbn13 %></dd>
+          <% end %>
+          
+          <% if @book.last_synced_at.present? %>
+            <dt class="text-gray-500">Last Synced:</dt>
+            <dd class="text-gray-900">
+              <%= local_time(@book.last_synced_at, '%b %d, %Y at %l:%M %p') %>
+            </dd>
+          <% end %>
+        </dl>
       </div>
     </div>
-    
-    <!-- Metadata (if needed for debugging) -->
-    <% if @metadata.present? && Rails.env.development? %>
-      <div class="mt-6 bg-white rounded-lg shadow p-6">
-        <h3 class="text-lg font-semibold mb-4">API Metadata</h3>
-        <pre class="text-xs bg-gray-100 p-4 rounded overflow-x-auto"><%= JSON.pretty_generate(@metadata) %></pre>
-      </div>
-    <% end %>
   </div>
 </div>

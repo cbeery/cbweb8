@@ -75,38 +75,42 @@ module Sync
       end
     end
     
+
     def process_item(book_data)
       log(:info, "Processing book: #{book_data[:title]}")
       
       begin
-        # Find or create book by hardcover_id
-        book = Book.find_or_initialize_by(hardcover_id: book_data[:hardcover_id])
+        # Find book using multiple strategies
+        book = find_or_create_book_smart(book_data)
         
         is_new = book.new_record?
+        was_missing_hardcover_id = book.hardcover_id.blank?
         
-        # Update book attributes
+        # Update book attributes (without dates)
         book.assign_attributes(
           title: book_data[:title],
           author: book_data[:author],
           status: map_status(book_data[:status_id]),
-          started_on: book_data[:started_on],
-          finished_on: book_data[:finished_on],
           rating: book_data[:rating],
           progress: calculate_progress(book_data),
-          isbn: book_data[:isbn],
-          isbn13: book_data[:isbn13],
-          series: book_data[:series],
-          series_position: book_data[:series_position],
-          page_count: book_data[:page_count],
-          published_year: book_data[:published_year],
-          publisher: book_data[:publisher],
-          description: book_data[:description],
-          times_read: book_data[:times_read] || 1,
-          metadata: book_data[:metadata],
+          isbn: book_data[:isbn] || book.isbn,           # Keep existing if not provided
+          isbn13: book_data[:isbn13] || book.isbn13,     # Keep existing if not provided
+          hardcover_id: book_data[:hardcover_id],         # Always update this
+          series: book_data[:series] || book.series,
+          series_position: book_data[:series_position] || book.series_position,
+          page_count: book_data[:page_count] || book.page_count,
+          published_year: book_data[:published_year] || book.published_year,
+          publisher: book_data[:publisher] || book.publisher,
+          description: book_data[:description] || book.description,
+          times_read: [book_data[:times_read] || 1, book.times_read || 0].max,  # Take the higher value
+          metadata: (book.metadata || {}).merge(book_data[:metadata] || {}),
           last_synced_at: Time.current
         )
         
         book.save!
+        
+        # Handle BookRead records based on status
+        handle_book_reads(book, book_data) if defined?(BookRead)
         
         # Handle cover image if needed
         if book.should_sync_cover? && book_data[:cover_url].present?
@@ -116,6 +120,9 @@ module Sync
         if is_new
           log(:success, "Created book: #{book.title}")
           :created
+        elsif was_missing_hardcover_id
+          log(:success, "Linked existing book to Hardcover: #{book.title}")
+          :updated
         else
           log(:info, "Updated book: #{book.title}")
           :updated
@@ -128,7 +135,7 @@ module Sync
         :failed
       end
     end
-    
+
     def describe_item(book_data)
       "#{book_data[:title]} by #{book_data[:author]}"
     end
@@ -395,5 +402,194 @@ module Sync
     def download_cover_image(book, cover_url)
       DownloadBookCoverJob.perform_later(book, cover_url)
     end
+
+    def handle_book_reads(book, book_data)
+      case book_data[:status_id]
+      when STATUS_WANT_TO_READ
+        # Don't create BookRead for want-to-read books
+        log(:debug, "Book on want-to-read shelf, no BookRead created")
+        
+      when STATUS_CURRENTLY_READING
+        # Find or create a current read
+        book_read = book.book_reads
+                        .in_progress
+                        .first_or_initialize
+        
+        book_read.started_on ||= book_data[:started_on] || Date.current
+        book_read.metadata = (book_read.metadata || {}).merge(
+          hardcover_status: 'currently_reading',
+          last_synced: Time.current
+        )
+        
+        if book_read.save
+          log(:debug, "Updated/created currently reading BookRead")
+        end
+        
+      when STATUS_READ
+        # Handle completed reads
+        handle_completed_read(book, book_data)
+        
+      when STATUS_PAUSED, STATUS_DID_NOT_FINISH
+        # These could be handled as incomplete reads if desired
+        log(:debug, "Book paused/DNF, treating as want-to-read")
+      end
+    end
+    
+    def handle_completed_read(book, book_data)
+      # If we have a finished date, use it to find/create the read
+      if book_data[:finished_on].present?
+        book_read = book.book_reads.find_or_initialize_by(
+          finished_on: book_data[:finished_on]
+        )
+        
+        # Update the read details
+        book_read.assign_attributes(
+          started_on: book_data[:started_on],
+          rating: book_data[:rating],
+          metadata: (book_read.metadata || {}).merge(
+            hardcover_status: 'read',
+            last_synced: Time.current,
+            review: book_data[:review]
+          )
+        )
+        
+        if book_read.save
+          log(:debug, "Updated/created completed BookRead for #{book_data[:finished_on]}")
+        end
+      else
+        # No finish date but marked as read - create a basic read entry
+        # Check if we already have any completed reads
+        unless book.book_reads.completed.exists?
+          book_read = book.book_reads.create!(
+            finished_on: nil, # Will need to be updated later
+            started_on: book_data[:started_on],
+            rating: book_data[:rating],
+            metadata: {
+              hardcover_status: 'read',
+              missing_finish_date: true,
+              last_synced: Time.current
+            }
+          )
+          log(:debug, "Created BookRead without finish date")
+        end
+      end
+      
+      # Handle multiple reads if times_read > current read count
+      current_read_count = book.book_reads.completed.count
+      if book_data[:times_read] && book_data[:times_read] > current_read_count
+        log(:info, "Book has been read #{book_data[:times_read]} times but we only have #{current_read_count} reads recorded")
+        # The Goodreads import will fill in the historical reads
+      end
+    end
+
+    def find_or_create_book_smart(book_data)
+      # Strategy 1: Find by hardcover_id (most specific)
+      if book_data[:hardcover_id].present?
+        book = Book.find_by(hardcover_id: book_data[:hardcover_id])
+        if book
+          log(:debug, "Found book by hardcover_id: #{book_data[:hardcover_id]}")
+          return book
+        end
+      end
+      
+      # Strategy 2: Find by ISBN13 (very reliable)
+      if book_data[:isbn13].present?
+        book = Book.find_by(isbn13: book_data[:isbn13])
+        if book
+          log(:info, "Found book by ISBN13: #{book_data[:isbn13]} - will add hardcover_id")
+          return book
+        end
+      end
+      
+      # Strategy 3: Find by ISBN (also reliable)
+      if book_data[:isbn].present?
+        book = Book.find_by(isbn: book_data[:isbn])
+        if book
+          log(:info, "Found book by ISBN: #{book_data[:isbn]} - will add hardcover_id")
+          return book
+        end
+      end
+      
+      # Strategy 4: Find by exact title and author match
+      # Clean up the title for matching (remove series info that might differ)
+      clean_title = book_data[:title].gsub(/\s*\([^)]*\)\s*$/, '').strip
+      
+      book = Book.where('LOWER(title) = LOWER(?) OR LOWER(title) LIKE LOWER(?)', 
+                         clean_title, 
+                         "#{clean_title} (%")
+                 .where('LOWER(author) = LOWER(?)', book_data[:author].downcase)
+                 .first
+      
+      if book
+        log(:info, "Found book by title/author match: #{book.title} - will add hardcover_id")
+        return book
+      end
+      
+      # Strategy 5: Fuzzy match on title (for slight variations)
+      if book_data[:isbn13].blank? && book_data[:isbn].blank?
+        # Only do fuzzy matching if we don't have ISBNs (to avoid false matches)
+        similar_books = Book.where('LOWER(author) = LOWER(?)', book_data[:author].downcase)
+        
+        similar_books.each do |existing_book|
+          # Calculate similarity (simple approach - you could use a gem like fuzzy_match)
+          existing_title_clean = existing_book.title.gsub(/\s*\([^)]*\)\s*$/, '').strip.downcase
+          new_title_clean = clean_title.downcase
+          
+          if similar_enough?(existing_title_clean, new_title_clean)
+            log(:info, "Found book by fuzzy title match: #{existing_book.title} - will add hardcover_id")
+            return existing_book
+          end
+        end
+      end
+      
+      # No match found, create new book
+      log(:info, "No existing book found, creating new record")
+      Book.new
+    end
+
+    def similar_enough?(title1, title2)
+      # Remove common words that might differ
+      clean1 = title1.gsub(/\b(the|a|an)\b/i, '').gsub(/[^a-z0-9]+/, '').downcase
+      clean2 = title2.gsub(/\b(the|a|an)\b/i, '').gsub(/[^a-z0-9]+/, '').downcase
+      
+      # Check if one contains the other (for subtitles)
+      return true if clean1.include?(clean2) || clean2.include?(clean1)
+      
+      # Calculate Levenshtein distance (simple implementation)
+      distance = levenshtein_distance(clean1, clean2)
+      max_length = [clean1.length, clean2.length].max
+      
+      # Allow up to 10% difference
+      similarity = 1.0 - (distance.to_f / max_length)
+      similarity >= 0.90
+    end
+
+    def levenshtein_distance(s1, s2)
+      # Simple Levenshtein distance calculation
+      m = s1.length
+      n = s2.length
+      return m if n == 0
+      return n if m == 0
+      
+      d = Array.new(m+1) { Array.new(n+1) }
+      
+      (0..m).each { |i| d[i][0] = i }
+      (0..n).each { |j| d[0][j] = j }
+      
+      (1..n).each do |j|
+        (1..m).each do |i|
+          cost = s1[i-1] == s2[j-1] ? 0 : 1
+          d[i][j] = [
+            d[i-1][j] + 1,     # deletion
+            d[i][j-1] + 1,     # insertion
+            d[i-1][j-1] + cost # substitution
+          ].min
+        end
+      end
+      
+      d[m][n]
+    end
+
+        
   end
 end

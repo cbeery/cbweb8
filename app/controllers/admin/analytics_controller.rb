@@ -27,11 +27,11 @@ class Admin::AnalyticsController < Admin::BaseController
     
     # Books Analytics
     @books_by_status = Book.group(:status).count
-    @books_by_year_read = Book
-      .where.not(finished_on: nil)
-      .group_by_year(:finished_on)
+    @books_by_year_read = Book.left_joins(:book_reads)
+      .where.not('book_reads.finished_on' =>  nil)
+      .group_by_year('book_reads.finished_on')
       .count
-    
+
     # Bike Analytics
     @rides_by_month = Ride
       .where(rode_on: 1.year.ago..)

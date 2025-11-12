@@ -7,46 +7,28 @@
     <p class="mt-2 text-gray-600">System overview and quick access</p>
   </div>
 
+
   <!-- Stats Grid - Updated without Users, added music/NBA stats -->
-  <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-8">
-    <div class="bg-white rounded-lg shadow p-3">
-      <dt class="text-xs font-medium text-gray-500 truncate">Movies</dt>
-      <dd class="mt-1 text-xl font-semibold text-blue-600"><%= number_with_delimiter(@total_movies) %></dd>
-    </div>
-    
-    <div class="bg-white rounded-lg shadow p-3">
-      <dt class="text-xs font-medium text-gray-500 truncate">Concerts</dt>
-      <dd class="mt-1 text-xl font-semibold text-purple-600"><%= number_with_delimiter(@total_concerts) %></dd>
-    </div>
-    
-    <div class="bg-white rounded-lg shadow p-3">
-      <dt class="text-xs font-medium text-gray-500 truncate">Scrobbles</dt>
-      <dd class="mt-1 text-xl font-semibold text-red-600">
-        <%= number_to_human(@total_scrobbles, precision: 1) %>
-      </dd>
-    </div>
-    
-    <div class="bg-white rounded-lg shadow p-3">
-      <dt class="text-xs font-medium text-gray-500 truncate">Playlists</dt>
-      <dd class="mt-1 text-xl font-semibold text-green-600"><%= @total_playlists %></dd>
-    </div>
-    
-    <div class="bg-white rounded-lg shadow p-3">
-      <dt class="text-xs font-medium text-gray-500 truncate">NBA Games</dt>
-      <dd class="mt-1 text-xl font-semibold text-orange-600"><%= number_with_delimiter(@total_nba_games) %></dd>
-    </div>
-    
-    <div class="bg-white rounded-lg shadow p-3">
-      <dt class="text-xs font-medium text-gray-500 truncate">Rides</dt>
-      <dd class="mt-1 text-xl font-semibold text-indigo-600"><%= number_with_delimiter(@total_rides) %></dd>
-    </div>
-    
-    <div class="bg-white rounded-lg shadow p-3">
-      <dt class="text-xs font-medium text-gray-500 truncate">Active Jobs</dt>
-      <dd class="mt-1 text-xl font-semibold <%= @active_jobs > 0 ? 'text-yellow-600' : 'text-gray-600' %>">
-        <%= @active_jobs %>
-      </dd>
-    </div>
+  <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mb-8">
+
+    <% [
+      ['Movies', admin_movies_path, number_with_delimiter(@total_movies), 'text-blue-700'],
+      ['Concerts', admin_concerts_path, number_with_delimiter(@total_concerts), 'text-blue-400'],
+      ['Scrobbles', top_admin_lastfm_path, number_to_human(@total_scrobbles, precision: 1), 'text-indigo-600'],
+      ['Playlists', admin_spotify_playlists_path, @total_playlists, 'text-purple-600'],
+      ['NBA Games', admin_nba_games_path, number_with_delimiter(@total_nba_games), 'text-red-700'],
+      ['Rides', admin_bike_rides_path, number_with_delimiter(@total_rides), 'text-red-400'],
+      ['Books', admin_books_path, @total_books, 'text-orange-600'],
+      ['Active Jobs', admin_bike_root_path, @active_jobs, 'text-yellow-600']
+    ].each do |label, path, count, text_class| %>
+
+      <%= link_to path, class: 'bg-white rounded-lg shadow p-3' do %>
+        <dt class="text-xs font-medium text-gray-500 truncate"><%= label %></dt>
+        <dd class="mt-1 text-xl font-semibold <%= text_class || 'text-gray-600' %>"><%= count %></dd>
+      <% end %>
+
+    <% end %>
+
   </div>
 
   <!-- Main content grid -->

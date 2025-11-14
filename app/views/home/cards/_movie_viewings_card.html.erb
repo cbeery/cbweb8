@@ -1,21 +1,17 @@
 <%# app/views/home/cards/_movie_viewings_card.html.erb %>
 <div class="bg-white rounded-lg shadow-lg overflow-hidden h-full flex flex-col">
   
-  <!-- Mobile (xs): Image at top, full width, cropped height -->
-  <!-- Desktop (sm+): Image on left, narrower width to not dominate -->
-  
   <div class="flex flex-col sm:flex-row h-full">
     
-    <!-- Poster Image Container - MUCH NARROWER -->
-    <!-- xs: full width top, sm: narrow left side -->
+    <!-- Poster Container - Flexible width, image scales to fill height -->
     <div class="order-first sm:order-first xl:order-first 
-                w-full sm:w-24 md:w-28 lg:w-32 
+                w-full sm:w-auto
                 flex-shrink-0 bg-gray-100">
       
       <% if viewings&.first&.movie&.movie_posters&.first %>
         <% poster = viewings.first.movie.movie_posters.first %>
         
-        <!-- Mobile: Fixed height crop showing middle portion -->
+        <!-- Mobile: Fixed height crop -->
         <div class="block sm:hidden h-32 relative overflow-hidden">
           <% if poster.image.attached? %>
             <%= image_tag poster.image, 
@@ -30,26 +26,29 @@
           <% end %>
         </div>
         
-        <!-- Desktop: Full aspect ratio but narrow width -->
-        <div class="hidden sm:block relative h-full">
+        <!-- Desktop: Full height, width auto to maintain aspect ratio -->
+        <div class="hidden sm:block h-full">
           <% if poster.image.attached? %>
             <%= image_tag poster.image, 
-                          class: "w-full h-auto object-cover object-center",
+                          class: "h-full w-auto max-w-[8rem] md:max-w-[10rem] lg:max-w-[12rem] object-contain",
                           alt: viewings.first.movie.title %>
           <% elsif poster.url? %>
             <img src="<%= poster.url %>" 
-                 class="w-full h-auto object-cover object-center"
+                 class="h-full w-auto max-w-[8rem] md:max-w-[10rem] lg:max-w-[12rem] object-contain"
                  alt="<%= viewings.first.movie.title %>">
           <% else %>
-            <div class="w-full bg-gradient-to-br from-gray-200 to-gray-300" 
-                 style="aspect-ratio: 2/3;"></div>
+            <!-- Fallback maintains 2:3 aspect ratio -->
+            <div class="h-full w-auto bg-gradient-to-br from-gray-200 to-gray-300"
+                 style="aspect-ratio: 2/3;">
+            </div>
           <% end %>
         </div>
         
       <% else %>
         <!-- No poster fallback -->
-        <div class="h-32 sm:h-full bg-gradient-to-br from-indigo-100 to-blue-200 
-                    flex items-center justify-center">
+        <div class="h-32 sm:h-full sm:w-auto bg-gradient-to-br from-indigo-100 to-blue-200 
+                    flex items-center justify-center"
+             style="aspect-ratio: 2/3;">
           <svg class="w-12 h-12 sm:w-8 sm:h-8 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                   d="M7 4v16M17 4v16M3 8h4m10 0h4M3 16h4m10 0h4" />
@@ -58,14 +57,14 @@
       <% end %>
     </div>
     
-    <!-- Content Container - Now has more space -->
-    <div class="flex-grow flex flex-col p-4 sm:p-4 lg:p-5">
+    <!-- Content Container - Takes remaining space -->
+    <div class="flex-grow flex flex-col p-4 sm:p-4 lg:p-5 min-w-0">
       
-      <!-- Header with title and link -->
-      <div class="mb-3">
-        <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-1">Recent Movie Viewings</h2>
+      <!-- Header -->
+      <div class="flex items-start justify-between mb-3 gap-3">
+        <h2 class="text-lg sm:text-xl font-bold text-gray-900">Recent Movie Viewings</h2>
         <%= link_to "View all →", admin_movies_path, 
-                    class: "text-sm text-indigo-600 hover:text-indigo-800 transition-colors" %>
+                    class: "text-sm text-indigo-600 hover:text-indigo-800 transition-colors whitespace-nowrap" %>
       </div>
       
       <!-- Viewings List -->
@@ -87,16 +86,13 @@
                       <% if viewing.movie.year.present? %>
                         <span class="font-normal text-gray-500">(<%= viewing.movie.year %>)</span>
                       <% end %>
+                      <% if viewing.movie.director.present? %>
+                        <span class="font-normal text-gray-500 text-xs">· <%= viewing.movie.director %></span>
+                      <% end %>
                     </p>
-                    
-                    <% if viewing.movie.director.present? %>
-                      <p class="text-gray-600 text-xs mt-0.5">
-                        dir. <%= viewing.movie.director %>
-                      </p>
-                    <% end %>
                   </div>
                   
-                  <!-- Rating - moved inline with title for better space usage -->
+                  <!-- Rating -->
                   <div class="flex-shrink-0">
                     <% if viewing.movie.rating.present? && viewing.movie.rating > 0 %>
                       <div class="flex items-center gap-0.5" title="<%= viewing.movie.rating %> stars">
@@ -104,14 +100,12 @@
                         <% has_half_star = (viewing.movie.rating % 1) >= 0.5 %>
                         <% empty_stars = 5 - full_stars - (has_half_star ? 1 : 0) %>
                         
-                        <%# Full stars %>
                         <% full_stars.times do %>
                           <svg class="w-3 h-3 text-yellow-400 fill-current" viewBox="0 0 20 20">
                             <path d="M10 1l2.928 5.856 6.549.954-4.738 4.573 1.118 6.523L10 15.833l-5.857 3.073 1.118-6.523L.523 7.81l6.549-.954z"/>
                           </svg>
                         <% end %>
                         
-                        <%# Half star %>
                         <% if has_half_star %>
                           <svg class="w-3 h-3 text-yellow-400" viewBox="0 0 20 20">
                             <defs>
@@ -125,7 +119,6 @@
                           </svg>
                         <% end %>
                         
-                        <%# Empty stars %>
                         <% empty_stars.times do %>
                           <svg class="w-3 h-3 text-gray-300 fill-current" viewBox="0 0 20 20">
                             <path d="M10 1l2.928 5.856 6.549.954-4.738 4.573 1.118 6.523L10 15.833l-5.857 3.073 1.118-6.523L.523 7.81l6.549-.954z"/>

@@ -1,0 +1,585 @@
+<!-- app/views/home/test11.html.erb -->
+<!-- TAILWIND GRID & FLEX GUIDE -->
+
+<div class="mb-8">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Tailwind Grid & Flex Guide</h1>
+      <p class="text-sm text-gray-600 mt-1">Interactive examples of layout systems</p>
+    </div>
+    <div class="mt-4 sm:mt-0">
+      <%= link_to "← Back to Home", root_path, class: "text-indigo-600 hover:text-indigo-800 text-sm font-medium" %>
+    </div>
+  </div>
+
+  <!-- Table of Contents -->
+  <nav class="bg-gray-50 rounded-lg p-4 mb-8">
+    <h2 class="text-sm font-semibold text-gray-900 mb-2">Quick Navigation</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+      <a href="#grid-basics" class="text-indigo-600 hover:text-indigo-800">Grid Basics</a>
+      <a href="#column-spanning" class="text-indigo-600 hover:text-indigo-800">Column Spanning</a>
+      <a href="#flex-layouts" class="text-indigo-600 hover:text-indigo-800">Flex Layouts</a>
+      <a href="#responsive-grids" class="text-indigo-600 hover:text-indigo-800">Responsive Grids</a>
+      <a href="#auto-flow" class="text-indigo-600 hover:text-indigo-800">Auto Flow</a>
+      <a href="#gap-spacing" class="text-indigo-600 hover:text-indigo-800">Gap & Spacing</a>
+      <a href="#complex-layouts" class="text-indigo-600 hover:text-indigo-800">Complex Layouts</a>
+      <a href="#practical-examples" class="text-indigo-600 hover:text-indigo-800">Practical Examples</a>
+    </div>
+  </nav>
+</div>
+
+<!-- SECTION 1: GRID BASICS -->
+<section id="grid-basics" class="mb-12">
+  <h2 class="text-2xl font-bold text-gray-900 mb-4">1. Grid Basics</h2>
+  
+  <!-- Basic Grid Example -->
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">Basic Grid Columns</h3>
+    <p class="text-sm text-gray-600 mb-4">
+      <code class="bg-gray-100 px-2 py-1 rounded">grid grid-cols-[number]</code> creates a grid with specified columns
+    </p>
+    
+    <!-- 3 Column Grid -->
+    <div class="mb-6">
+      <p class="text-sm font-medium text-gray-700 mb-2">3 Column Grid (grid-cols-3)</p>
+      <div class="grid grid-cols-3 gap-4">
+        <div class="bg-blue-100 p-4 rounded text-center">Col 1</div>
+        <div class="bg-blue-200 p-4 rounded text-center">Col 2</div>
+        <div class="bg-blue-300 p-4 rounded text-center">Col 3</div>
+        <div class="bg-blue-100 p-4 rounded text-center">Col 4</div>
+        <div class="bg-blue-200 p-4 rounded text-center">Col 5</div>
+        <div class="bg-blue-300 p-4 rounded text-center">Col 6</div>
+      </div>
+    </div>
+
+    <!-- 4 Column Grid -->
+    <div class="mb-6">
+      <p class="text-sm font-medium text-gray-700 mb-2">4 Column Grid (grid-cols-4)</p>
+      <div class="grid grid-cols-4 gap-4">
+        <div class="bg-green-100 p-4 rounded text-center">1</div>
+        <div class="bg-green-200 p-4 rounded text-center">2</div>
+        <div class="bg-green-300 p-4 rounded text-center">3</div>
+        <div class="bg-green-400 p-4 rounded text-center">4</div>
+      </div>
+    </div>
+
+    <!-- Variable Column Grid -->
+    <div class="mb-6">
+      <p class="text-sm font-medium text-gray-700 mb-2">Variable Columns (1 to 6)</p>
+      <div class="space-y-2">
+        <div class="grid grid-cols-1 gap-2">
+          <div class="bg-purple-200 p-2 rounded text-center text-sm">grid-cols-1</div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="bg-purple-200 p-2 rounded text-center text-sm">grid</div>
+          <div class="bg-purple-300 p-2 rounded text-center text-sm">cols-2</div>
+        </div>
+        <div class="grid grid-cols-6 gap-2">
+          <div class="bg-purple-200 p-2 rounded text-center text-xs">1</div>
+          <div class="bg-purple-300 p-2 rounded text-center text-xs">2</div>
+          <div class="bg-purple-400 p-2 rounded text-center text-xs">3</div>
+          <div class="bg-purple-500 p-2 rounded text-center text-xs text-white">4</div>
+          <div class="bg-purple-600 p-2 rounded text-center text-xs text-white">5</div>
+          <div class="bg-purple-700 p-2 rounded text-center text-xs text-white">6</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: COLUMN SPANNING -->
+<section id="column-spanning" class="mb-12">
+  <h2 class="text-2xl font-bold text-gray-900 mb-4">2. Column Spanning</h2>
+  
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">Spanning Multiple Columns</h3>
+    <p class="text-sm text-gray-600 mb-4">
+      Use <code class="bg-gray-100 px-2 py-1 rounded">col-span-[number]</code> to make an element span multiple columns
+    </p>
+    
+    <!-- Col Span Examples -->
+    <div class="space-y-6">
+      
+      <!-- Example 1: Mixed spans -->
+      <div>
+        <p class="text-sm font-medium text-gray-700 mb-2">Mixed Column Spans (grid-cols-4)</p>
+        <div class="grid grid-cols-4 gap-4">
+          <div class="col-span-2 bg-indigo-200 p-4 rounded text-center">col-span-2</div>
+          <div class="bg-indigo-300 p-4 rounded text-center">span-1</div>
+          <div class="bg-indigo-400 p-4 rounded text-center text-white">span-1</div>
+          <div class="bg-indigo-500 p-4 rounded text-center text-white">span-1</div>
+          <div class="col-span-3 bg-indigo-600 p-4 rounded text-center text-white">col-span-3</div>
+          <div class="col-span-4 bg-indigo-700 p-4 rounded text-center text-white">col-span-4 (full width)</div>
+        </div>
+      </div>
+
+      <!-- Example 2: Dashboard layout -->
+      <div>
+        <p class="text-sm font-medium text-gray-700 mb-2">Dashboard Layout (grid-cols-6)</p>
+        <div class="grid grid-cols-6 gap-4">
+          <div class="col-span-4 bg-blue-500 p-8 rounded text-center text-white">
+            Main Content<br>(col-span-4)
+          </div>
+          <div class="col-span-2 bg-blue-600 p-8 rounded text-center text-white">
+            Sidebar<br>(col-span-2)
+          </div>
+          <div class="col-span-2 bg-blue-700 p-4 rounded text-center text-white">Widget 1</div>
+          <div class="col-span-2 bg-blue-800 p-4 rounded text-center text-white">Widget 2</div>
+          <div class="col-span-2 bg-blue-900 p-4 rounded text-center text-white">Widget 3</div>
+        </div>
+      </div>
+
+      <!-- Example 3: Blog layout -->
+      <div>
+        <p class="text-sm font-medium text-gray-700 mb-2">Blog Layout (grid-cols-12)</p>
+        <div class="grid grid-cols-12 gap-4">
+          <div class="col-span-12 bg-gray-800 p-4 rounded text-center text-white">
+            Header (col-span-12)
+          </div>
+          <div class="col-span-8 bg-gray-600 p-8 rounded text-white">
+            <p class="font-semibold mb-2">Article (col-span-8)</p>
+            <p class="text-sm">Main content area with more space</p>
+          </div>
+          <div class="col-span-4 bg-gray-700 p-8 rounded text-white">
+            <p class="font-semibold mb-2">Sidebar (col-span-4)</p>
+            <p class="text-sm">Related content</p>
+          </div>
+          <div class="col-span-12 bg-gray-800 p-4 rounded text-center text-white">
+            Footer (col-span-12)
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: FLEX LAYOUTS -->
+<section id="flex-layouts" class="mb-12">
+  <h2 class="text-2xl font-bold text-gray-900 mb-4">3. Flexbox Layouts</h2>
+  
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">Flex Direction & Alignment</h3>
+    
+    <!-- Flex Row -->
+    <div class="mb-6">
+      <p class="text-sm font-medium text-gray-700 mb-2">Flex Row (default)</p>
+      <div class="flex gap-4 p-4 bg-gray-50 rounded">
+        <div class="bg-red-200 p-4 rounded">Item 1</div>
+        <div class="bg-red-300 p-4 rounded">Item 2</div>
+        <div class="bg-red-400 p-4 rounded">Item 3</div>
+      </div>
+    </div>
+
+    <!-- Flex Column -->
+    <div class="mb-6">
+      <p class="text-sm font-medium text-gray-700 mb-2">Flex Column</p>
+      <div class="flex flex-col gap-4 p-4 bg-gray-50 rounded">
+        <div class="bg-green-200 p-4 rounded">Item 1</div>
+        <div class="bg-green-300 p-4 rounded">Item 2</div>
+        <div class="bg-green-400 p-4 rounded">Item 3</div>
+      </div>
+    </div>
+
+    <!-- Justify Content Examples -->
+    <div class="mb-6">
+      <p class="text-sm font-medium text-gray-700 mb-2">Justify Content (Horizontal Alignment)</p>
+      <div class="space-y-4">
+        <div class="flex justify-start gap-4 p-4 bg-gray-50 rounded">
+          <div class="bg-blue-200 p-2 rounded text-sm">justify-start</div>
+          <div class="bg-blue-300 p-2 rounded text-sm">→</div>
+        </div>
+        <div class="flex justify-center gap-4 p-4 bg-gray-50 rounded">
+          <div class="bg-blue-200 p-2 rounded text-sm">justify-center</div>
+          <div class="bg-blue-300 p-2 rounded text-sm">centered</div>
+        </div>
+        <div class="flex justify-end gap-4 p-4 bg-gray-50 rounded">
+          <div class="bg-blue-200 p-2 rounded text-sm">←</div>
+          <div class="bg-blue-300 p-2 rounded text-sm">justify-end</div>
+        </div>
+        <div class="flex justify-between p-4 bg-gray-50 rounded">
+          <div class="bg-blue-200 p-2 rounded text-sm">justify</div>
+          <div class="bg-blue-300 p-2 rounded text-sm">between</div>
+        </div>
+        <div class="flex justify-around p-4 bg-gray-50 rounded">
+          <div class="bg-blue-200 p-2 rounded text-sm">justify</div>
+          <div class="bg-blue-300 p-2 rounded text-sm">around</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Align Items Examples -->
+    <div class="mb-6">
+      <p class="text-sm font-medium text-gray-700 mb-2">Align Items (Vertical Alignment)</p>
+      <div class="space-y-4">
+        <div class="flex items-start gap-4 p-4 bg-gray-50 rounded h-24">
+          <div class="bg-purple-200 p-2 rounded text-sm">items-start</div>
+          <div class="bg-purple-300 p-4 rounded text-sm">↑</div>
+        </div>
+        <div class="flex items-center gap-4 p-4 bg-gray-50 rounded h-24">
+          <div class="bg-purple-200 p-2 rounded text-sm">items-center</div>
+          <div class="bg-purple-300 p-4 rounded text-sm">middle</div>
+        </div>
+        <div class="flex items-end gap-4 p-4 bg-gray-50 rounded h-24">
+          <div class="bg-purple-200 p-2 rounded text-sm">items-end</div>
+          <div class="bg-purple-300 p-4 rounded text-sm">↓</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flex Grow/Shrink -->
+    <div class="mb-6">
+      <p class="text-sm font-medium text-gray-700 mb-2">Flex Grow & Shrink</p>
+      <div class="flex gap-4 p-4 bg-gray-50 rounded">
+        <div class="bg-yellow-200 p-4 rounded">Normal</div>
+        <div class="flex-1 bg-yellow-300 p-4 rounded">flex-1 (grows)</div>
+        <div class="bg-yellow-200 p-4 rounded">Normal</div>
+      </div>
+      <div class="flex gap-4 p-4 bg-gray-50 rounded mt-2">
+        <div class="flex-1 bg-orange-200 p-4 rounded">flex-1</div>
+        <div class="flex-2 bg-orange-300 p-4 rounded">flex-[2] (2x)</div>
+        <div class="flex-1 bg-orange-200 p-4 rounded">flex-1</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: RESPONSIVE GRIDS -->
+<section id="responsive-grids" class="mb-12">
+  <h2 class="text-2xl font-bold text-gray-900 mb-4">4. Responsive Grids</h2>
+  
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">Breakpoint-based Grid Changes</h3>
+    <p class="text-sm text-gray-600 mb-4">
+      Tailwind breakpoints: <code class="bg-gray-100 px-1 rounded">sm:</code> (640px), 
+      <code class="bg-gray-100 px-1 rounded">md:</code> (768px), 
+      <code class="bg-gray-100 px-1 rounded">lg:</code> (1024px), 
+      <code class="bg-gray-100 px-1 rounded">xl:</code> (1280px), 
+      <code class="bg-gray-100 px-1 rounded">2xl:</code> (1536px)
+    </p>
+    
+    <!-- Responsive Grid Example -->
+    <div>
+      <p class="text-sm font-medium text-gray-700 mb-2">
+        Responsive: 1 col → 2 cols (sm) → 3 cols (md) → 4 cols (lg)
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div class="bg-gradient-to-br from-pink-200 to-pink-300 p-4 rounded text-center">Box 1</div>
+        <div class="bg-gradient-to-br from-pink-300 to-pink-400 p-4 rounded text-center">Box 2</div>
+        <div class="bg-gradient-to-br from-pink-400 to-pink-500 p-4 rounded text-center text-white">Box 3</div>
+        <div class="bg-gradient-to-br from-pink-500 to-pink-600 p-4 rounded text-center text-white">Box 4</div>
+        <div class="bg-gradient-to-br from-pink-600 to-pink-700 p-4 rounded text-center text-white">Box 5</div>
+        <div class="bg-gradient-to-br from-pink-700 to-pink-800 p-4 rounded text-center text-white">Box 6</div>
+        <div class="bg-gradient-to-br from-pink-800 to-pink-900 p-4 rounded text-center text-white">Box 7</div>
+        <div class="bg-gradient-to-br from-pink-900 to-pink-950 p-4 rounded text-center text-white">Box 8</div>
+      </div>
+    </div>
+
+    <!-- Responsive Column Spans -->
+    <div class="mt-8">
+      <p class="text-sm font-medium text-gray-700 mb-2">
+        Responsive Column Spans
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div class="col-span-1 md:col-span-2 lg:col-span-3 bg-teal-500 p-4 rounded text-white text-center">
+          <span class="block text-xs">Mobile: span-1</span>
+          <span class="block text-xs">Tablet: span-2</span>
+          <span class="block text-xs">Desktop: span-3</span>
+        </div>
+        <div class="col-span-1 md:col-span-2 lg:col-span-3 bg-teal-600 p-4 rounded text-white text-center">
+          Responsive spans
+        </div>
+        <div class="col-span-1 md:col-span-4 lg:col-span-6 bg-teal-700 p-4 rounded text-white text-center">
+          Full width on tablet+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: AUTO FLOW & PLACEMENT -->
+<section id="auto-flow" class="mb-12">
+  <h2 class="text-2xl font-bold text-gray-900 mb-4">5. Auto Flow & Grid Placement</h2>
+  
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">Grid Auto Flow</h3>
+    
+    <!-- Auto Flow Row (default) -->
+    <div class="mb-6">
+      <p class="text-sm font-medium text-gray-700 mb-2">Auto Flow Row (default)</p>
+      <div class="grid grid-cols-3 gap-2 auto-flow-row">
+        <% (1..7).each do |i| %>
+          <div class="bg-cyan-<%= 200 + (i * 100) %> p-4 rounded text-center"><%= i %></div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Auto Flow Column -->
+    <div class="mb-6">
+      <p class="text-sm font-medium text-gray-700 mb-2">Auto Flow Column</p>
+      <div class="grid grid-rows-3 grid-flow-col gap-2 overflow-x-auto">
+        <% (1..7).each do |i| %>
+          <div class="bg-emerald-<%= 200 + (i * 100) %> p-4 rounded text-center w-20"><%= i %></div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Auto Rows -->
+    <div class="mb-6">
+      <p class="text-sm font-medium text-gray-700 mb-2">Auto Rows with Min Height</p>
+      <div class="grid grid-cols-3 gap-4 auto-rows-min">
+        <div class="bg-violet-200 p-4 rounded">Short</div>
+        <div class="bg-violet-300 p-4 rounded">
+          Taller<br>content<br>here
+        </div>
+        <div class="bg-violet-400 p-4 rounded text-white">Short</div>
+        <div class="bg-violet-500 p-4 rounded text-white">
+          Even<br>more<br>tall<br>content
+        </div>
+        <div class="bg-violet-600 p-4 rounded text-white">Short</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6: GAP & SPACING -->
+<section id="gap-spacing" class="mb-12">
+  <h2 class="text-2xl font-bold text-gray-900 mb-4">6. Gap & Spacing</h2>
+  
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">Controlling Gaps Between Items</h3>
+    
+    <!-- Different Gap Sizes -->
+    <div class="space-y-6">
+      <div>
+        <p class="text-sm font-medium text-gray-700 mb-2">gap-0 (No gap)</p>
+        <div class="grid grid-cols-4 gap-0">
+          <div class="bg-rose-300 p-4 text-center text-white">1</div>
+          <div class="bg-rose-400 p-4 text-center text-white">2</div>
+          <div class="bg-rose-500 p-4 text-center text-white">3</div>
+          <div class="bg-rose-600 p-4 text-center text-white">4</div>
+        </div>
+      </div>
+
+      <div>
+        <p class="text-sm font-medium text-gray-700 mb-2">gap-2 (0.5rem)</p>
+        <div class="grid grid-cols-4 gap-2">
+          <div class="bg-rose-300 p-4 rounded text-center text-white">1</div>
+          <div class="bg-rose-400 p-4 rounded text-center text-white">2</div>
+          <div class="bg-rose-500 p-4 rounded text-center text-white">3</div>
+          <div class="bg-rose-600 p-4 rounded text-center text-white">4</div>
+        </div>
+      </div>
+
+      <div>
+        <p class="text-sm font-medium text-gray-700 mb-2">gap-4 (1rem)</p>
+        <div class="grid grid-cols-4 gap-4">
+          <div class="bg-rose-300 p-4 rounded text-center text-white">1</div>
+          <div class="bg-rose-400 p-4 rounded text-center text-white">2</div>
+          <div class="bg-rose-500 p-4 rounded text-center text-white">3</div>
+          <div class="bg-rose-600 p-4 rounded text-center text-white">4</div>
+        </div>
+      </div>
+
+      <div>
+        <p class="text-sm font-medium text-gray-700 mb-2">gap-x-2 gap-y-8 (Different X/Y gaps)</p>
+        <div class="grid grid-cols-3 gap-x-2 gap-y-8">
+          <div class="bg-amber-300 p-4 rounded text-center">1</div>
+          <div class="bg-amber-400 p-4 rounded text-center">2</div>
+          <div class="bg-amber-500 p-4 rounded text-center text-white">3</div>
+          <div class="bg-amber-600 p-4 rounded text-center text-white">4</div>
+          <div class="bg-amber-700 p-4 rounded text-center text-white">5</div>
+          <div class="bg-amber-800 p-4 rounded text-center text-white">6</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 7: COMPLEX LAYOUTS -->
+<section id="complex-layouts" class="mb-12">
+  <h2 class="text-2xl font-bold text-gray-900 mb-4">7. Complex Layout Examples</h2>
+  
+  <!-- Bento Box Layout -->
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">Bento Box / Asymmetric Grid</h3>
+    <div class="grid grid-cols-4 grid-rows-4 gap-4 h-96">
+      <div class="col-span-2 row-span-2 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg p-4 text-white">
+        Large Feature<br>col-span-2 row-span-2
+      </div>
+      <div class="col-span-1 row-span-1 bg-gradient-to-br from-green-400 to-green-600 rounded-lg p-4 text-white">
+        Small 1
+      </div>
+      <div class="col-span-1 row-span-2 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg p-4 text-white">
+        Tall<br>row-span-2
+      </div>
+      <div class="col-span-1 row-span-1 bg-gradient-to-br from-red-400 to-red-600 rounded-lg p-4 text-white">
+        Small 2
+      </div>
+      <div class="col-span-3 row-span-1 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg p-4 text-white">
+        Wide Banner - col-span-3
+      </div>
+      <div class="col-span-1 row-span-1 bg-gradient-to-br from-pink-400 to-pink-600 rounded-lg p-4 text-white">
+        Small 3
+      </div>
+      <div class="col-span-2 row-span-1 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-lg p-4 text-white">
+        Medium Wide - col-span-2
+      </div>
+      <div class="col-span-1 row-span-1 bg-gradient-to-br from-teal-400 to-teal-600 rounded-lg p-4 text-white">
+        Small 4
+      </div>
+      <div class="col-span-1 row-span-1 bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg p-4 text-white">
+        Small 5
+      </div>
+    </div>
+  </div>
+
+  <!-- Masonry-like Layout with auto-rows -->
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">Masonry-style with Auto Rows</h3>
+    <div class="grid grid-cols-3 gap-4 auto-rows-[minmax(100px,auto)]">
+      <div class="row-span-2 bg-gradient-to-b from-slate-200 to-slate-400 rounded-lg p-4">
+        Spans 2 rows
+      </div>
+      <div class="row-span-3 bg-gradient-to-b from-slate-300 to-slate-500 rounded-lg p-4">
+        Spans 3 rows
+      </div>
+      <div class="row-span-1 bg-gradient-to-b from-slate-400 to-slate-600 rounded-lg p-4 text-white">
+        1 row
+      </div>
+      <div class="row-span-2 bg-gradient-to-b from-slate-500 to-slate-700 rounded-lg p-4 text-white">
+        2 rows
+      </div>
+      <div class="row-span-1 bg-gradient-to-b from-slate-600 to-slate-800 rounded-lg p-4 text-white">
+        1 row
+      </div>
+      <div class="row-span-3 bg-gradient-to-b from-slate-700 to-slate-900 rounded-lg p-4 text-white">
+        3 rows
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 8: PRACTICAL EXAMPLES -->
+<section id="practical-examples" class="mb-12">
+  <h2 class="text-2xl font-bold text-gray-900 mb-4">8. Practical Dashboard Examples</h2>
+  
+  <!-- Dashboard Example -->
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">Analytics Dashboard</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Stats Cards -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <p class="text-sm text-gray-600 mb-1">Total Users</p>
+        <p class="text-2xl font-bold">12,543</p>
+        <p class="text-xs text-green-600">↑ 12% from last month</p>
+      </div>
+      <div class="bg-white rounded-lg shadow p-6">
+        <p class="text-sm text-gray-600 mb-1">Revenue</p>
+        <p class="text-2xl font-bold">$48,291</p>
+        <p class="text-xs text-green-600">↑ 8% from last month</p>
+      </div>
+      <div class="bg-white rounded-lg shadow p-6">
+        <p class="text-sm text-gray-600 mb-1">Orders</p>
+        <p class="text-2xl font-bold">892</p>
+        <p class="text-xs text-red-600">↓ 3% from last month</p>
+      </div>
+      <div class="bg-white rounded-lg shadow p-6">
+        <p class="text-sm text-gray-600 mb-1">Conversion</p>
+        <p class="text-2xl font-bold">3.2%</p>
+        <p class="text-xs text-green-600">↑ 0.5% from last month</p>
+      </div>
+
+      <!-- Chart Area - spans 2 columns -->
+      <div class="col-span-1 md:col-span-2 lg:col-span-2 bg-white rounded-lg shadow p-6">
+        <h4 class="font-semibold mb-4">Revenue Chart</h4>
+        <div class="h-48 bg-gray-100 rounded flex items-center justify-center text-gray-400">
+          Chart Placeholder
+        </div>
+      </div>
+
+      <!-- Activity Feed -->
+      <div class="col-span-1 lg:col-span-2 bg-white rounded-lg shadow p-6">
+        <h4 class="font-semibold mb-4">Recent Activity</h4>
+        <div class="space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+            <p class="text-sm">New user registered</p>
+            <span class="text-xs text-gray-500 ml-auto">2m ago</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+            <p class="text-sm">Order #1234 completed</p>
+            <span class="text-xs text-gray-500 ml-auto">5m ago</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+            <p class="text-sm">Payment received</p>
+            <span class="text-xs text-gray-500 ml-auto">12m ago</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card Gallery -->
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">Content Gallery</h3>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      <% 10.times do |i| %>
+        <div class="group relative aspect-square bg-gray-200 rounded-lg overflow-hidden">
+          <div class="absolute inset-0 bg-gradient-to-br from-gray-300 to-gray-400"></div>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <span class="text-white text-4xl font-bold"><%= i + 1 %></span>
+          </div>
+          <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity flex items-center justify-center">
+            <button class="opacity-0 group-hover:opacity-100 bg-white text-black px-4 py-2 rounded transition-opacity">
+              View
+            </button>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<!-- Quick Reference Card -->
+<div class="mt-12 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200">
+  <h3 class="text-xl font-bold text-gray-900 mb-4">🎯 Quick Reference</h3>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+    <div>
+      <h4 class="font-semibold text-gray-800 mb-2">Grid Classes</h4>
+      <ul class="space-y-1">
+        <li><code class="bg-white px-2 py-1 rounded">grid</code> - Enable grid</li>
+        <li><code class="bg-white px-2 py-1 rounded">grid-cols-{n}</code> - Number of columns (1-12)</li>
+        <li><code class="bg-white px-2 py-1 rounded">col-span-{n}</code> - Span n columns</li>
+        <li><code class="bg-white px-2 py-1 rounded">grid-rows-{n}</code> - Number of rows</li>
+        <li><code class="bg-white px-2 py-1 rounded">row-span-{n}</code> - Span n rows</li>
+        <li><code class="bg-white px-2 py-1 rounded">gap-{size}</code> - Gap between items</li>
+        <li><code class="bg-white px-2 py-1 rounded">gap-x-{size}</code> - Horizontal gap</li>
+        <li><code class="bg-white px-2 py-1 rounded">gap-y-{size}</code> - Vertical gap</li>
+      </ul>
+    </div>
+    
+    <div>
+      <h4 class="font-semibold text-gray-800 mb-2">Flex Classes</h4>
+      <ul class="space-y-1">
+        <li><code class="bg-white px-2 py-1 rounded">flex</code> - Enable flexbox</li>
+        <li><code class="bg-white px-2 py-1 rounded">flex-row</code> - Horizontal (default)</li>
+        <li><code class="bg-white px-2 py-1 rounded">flex-col</code> - Vertical</li>
+        <li><code class="bg-white px-2 py-1 rounded">justify-{alignment}</code> - Main axis</li>
+        <li><code class="bg-white px-2 py-1 rounded">items-{alignment}</code> - Cross axis</li>
+        <li><code class="bg-white px-2 py-1 rounded">flex-1</code> - Grow to fill space</li>
+        <li><code class="bg-white px-2 py-1 rounded">flex-wrap</code> - Allow wrapping</li>
+        <li><code class="bg-white px-2 py-1 rounded">space-x-{size}</code> - Horizontal spacing</li>
+      </ul>
+    </div>
+  </div>
+  
+  <div class="mt-6 p-4 bg-white rounded-lg">
+    <p class="text-sm text-gray-600 mb-2">💡 <strong>Pro Tip:</strong> Always think mobile-first with Tailwind!</p>
+    <p class="text-xs text-gray-500">
+      Start with mobile layout (no prefix), then add <code>sm:</code>, <code>md:</code>, <code>lg:</code>, <code>xl:</code> for larger screens.
+    </p>
+  </div>
+</div>

@@ -105,4 +105,21 @@ class HomeController < ApplicationController
                           .limit(5)
     @last_movie_poster = @recent_movies.first&.movie_posters&.first
   end
+
+  def test11
+    # Grid and flex demo page
+    # You can add any test data here if needed
+    
+    # Example data for the dashboard section
+    @stats = [
+      { label: 'Total Users', value: '12,543', trend: '↑ 12%', trend_positive: true },
+      { label: 'Revenue', value: '$48,291', trend: '↑ 8%', trend_positive: true },
+      { label: 'Orders', value: '892', trend: '↓ 3%', trend_positive: false },
+      { label: 'Conversion', value: '3.2%', trend: '↑ 0.5%', trend_positive: true }
+    ]
+    
+    # Example items for grid demos (optional)
+    @items = (1..10).to_a
+  end
+  
 end

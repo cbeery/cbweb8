@@ -1,11 +1,11 @@
 <%# app/views/home/cards/_movie_viewings_card.html.erb %>
 <div class="bg-white rounded-lg shadow-lg overflow-hidden h-full flex flex-col">
   
-  <div class="flex flex-col sm:flex-row h-full">
+  <div class="flex flex-col sm:flex-row h-full items-stretch">
     
-    <!-- Poster Container - Flexible width, image scales to fill height -->
+    <!-- Poster Container - Flexible width based on height -->
     <div class="order-first sm:order-first xl:order-first 
-                w-full sm:w-auto
+                w-full sm:w-auto sm:h-full
                 flex-shrink-0 bg-gray-100">
       
       <% if viewings&.first&.movie&.movie_posters&.first %>
@@ -26,29 +26,30 @@
           <% end %>
         </div>
         
-        <!-- Desktop: Full height, width auto to maintain aspect ratio -->
-        <div class="hidden sm:block h-full">
+        <!-- Desktop: Scale proportionally based on card height -->
+        <div class="hidden sm:flex h-full items-center">
           <% if poster.image.attached? %>
             <%= image_tag poster.image, 
-                          class: "h-full w-auto max-w-[8rem] md:max-w-[10rem] lg:max-w-[12rem] object-contain",
+                          class: "block h-full w-auto",
+                          style: "max-width: min(12rem, 30vw);",
                           alt: viewings.first.movie.title %>
           <% elsif poster.url? %>
             <img src="<%= poster.url %>" 
-                 class="h-full w-auto max-w-[8rem] md:max-w-[10rem] lg:max-w-[12rem] object-contain"
+                 class="block h-full w-auto"
+                 style="max-width: min(12rem, 30vw);"
                  alt="<%= viewings.first.movie.title %>">
           <% else %>
-            <!-- Fallback maintains 2:3 aspect ratio -->
-            <div class="h-full w-auto bg-gradient-to-br from-gray-200 to-gray-300"
-                 style="aspect-ratio: 2/3;">
+            <div class="h-full bg-gradient-to-br from-gray-200 to-gray-300"
+                 style="aspect-ratio: 2/3; max-width: min(12rem, 30vw);">
             </div>
           <% end %>
         </div>
         
       <% else %>
         <!-- No poster fallback -->
-        <div class="h-32 sm:h-full sm:w-auto bg-gradient-to-br from-indigo-100 to-blue-200 
+        <div class="h-32 sm:h-full bg-gradient-to-br from-indigo-100 to-blue-200 
                     flex items-center justify-center"
-             style="aspect-ratio: 2/3;">
+             style="aspect-ratio: 2/3; max-width: min(12rem, 30vw);">
           <svg class="w-12 h-12 sm:w-8 sm:h-8 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                   d="M7 4v16M17 4v16M3 8h4m10 0h4M3 16h4m10 0h4" />

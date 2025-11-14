@@ -1,11 +1,11 @@
 <%# app/views/home/cards/_books_read_card.html.erb %>
 <div class="bg-white rounded-lg shadow-lg overflow-hidden h-full flex flex-col">
   
-  <div class="flex flex-col sm:flex-row-reverse xl:flex-row h-full">
+  <div class="flex flex-col sm:flex-row-reverse xl:flex-row h-full items-stretch">
     
-    <!-- Cover Container - Flexible width, image scales to fill height -->
+    <!-- Cover Container - Flexible width based on height -->
     <div class="order-first 
-                w-full sm:w-auto
+                w-full sm:w-auto sm:h-full
                 flex-shrink-0 bg-gray-100">
       
       <% if readings&.first&.book %>
@@ -28,17 +28,17 @@
           <% end %>
         </div>
         
-        <!-- Desktop: Full height, width auto to maintain aspect ratio -->
-        <div class="hidden sm:block h-full">
+        <!-- Desktop: Scale proportionally based on card height -->
+        <div class="hidden sm:flex h-full items-center">
           <% if book.cover_image.attached? %>
             <%= image_tag book.cover_image, 
-                          class: "h-full w-auto max-w-[8rem] md:max-w-[10rem] lg:max-w-[12rem] object-contain",
+                          class: "block h-full w-auto",
+                          style: "max-width: min(12rem, 30vw);",
                           alt: book.title %>
           <% else %>
-            <!-- Fallback maintains 2:3 aspect ratio -->
-            <div class="h-full w-auto bg-gradient-to-br from-emerald-100 to-teal-200 
+            <div class="h-full bg-gradient-to-br from-emerald-100 to-teal-200 
                         flex items-center justify-center"
-                 style="aspect-ratio: 2/3;">
+                 style="aspect-ratio: 2/3; max-width: min(12rem, 30vw);">
               <svg class="w-8 h-8 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                       d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -49,9 +49,9 @@
         
       <% else %>
         <!-- No cover fallback -->
-        <div class="h-32 sm:h-full sm:w-auto bg-gradient-to-br from-emerald-100 to-teal-200 
+        <div class="h-32 sm:h-full bg-gradient-to-br from-emerald-100 to-teal-200 
                     flex items-center justify-center"
-             style="aspect-ratio: 2/3;">
+             style="aspect-ratio: 2/3; max-width: min(12rem, 30vw);">
           <svg class="w-12 h-12 sm:w-8 sm:h-8 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                   d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />

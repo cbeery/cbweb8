@@ -121,5 +121,26 @@ class HomeController < ApplicationController
     # Example items for grid demos (optional)
     @items = (1..10).to_a
   end
+
+  def test12
+    # Fetch last 5 movie viewings (not unique movies - can include same movie multiple times)
+    @recent_viewings = Viewing.includes(movie: :movie_posters)
+                              .order(viewed_on: :desc)
+                              .limit(5)
+    
+    # Fetch last 5 books read (completed reads)
+    @recent_readings = BookRead.includes(book: :cover_image_attachment)
+                               .where.not(finished_on: nil)
+                               .order(finished_on: :desc)
+                               .limit(5)
+    
+    # Movie stats for footer
+    @movies_this_year = Viewing.where(
+      viewed_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count
+    
+    # Next book to read
+    @next_book = Book.want_to_read.order(created_at: :desc).first
+  end
   
 end

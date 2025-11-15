@@ -1,18 +1,18 @@
 <%# app/views/home/cards/_books_read_card.html.erb %>
 <div class="bg-white rounded-lg shadow-lg overflow-hidden h-full flex flex-col">
   
-  <div class="flex flex-col sm:flex-row-reverse xl:flex-row h-full items-stretch">
+  <div class="flex flex-col md:flex-row-reverse xl:flex-row h-full">
     
-    <!-- Cover Container - Flexible width based on height -->
+    <!-- Cover Container - Natural aspect ratio, no forcing -->
     <div class="order-first 
-                w-full sm:w-auto sm:h-full
+                w-full md:w-auto md:h-full
                 flex-shrink-0 bg-gray-100">
       
       <% if readings&.first&.book %>
         <% book = readings.first.book %>
         
-        <!-- Mobile: Fixed height crop -->
-        <div class="block sm:hidden h-32 relative overflow-hidden">
+        <!-- Mobile and sm: Fixed height crop at top -->
+        <div class="block md:hidden h-32 relative overflow-hidden">
           <% if book.cover_image.attached? %>
             <%= image_tag book.cover_image, 
                           class: "absolute inset-0 w-full h-full object-cover object-center",
@@ -28,17 +28,19 @@
           <% end %>
         </div>
         
-        <!-- Desktop: Scale proportionally based on card height -->
-        <div class="hidden sm:flex h-full items-center">
+        <!-- md and larger: Natural aspect ratio preservation -->
+        <!-- Image fills height, width adjusts to maintain original aspect ratio -->
+        <div class="hidden md:block h-full">
           <% if book.cover_image.attached? %>
             <%= image_tag book.cover_image, 
                           class: "block h-full w-auto",
-                          style: "max-width: min(12rem, 30vw);",
+                          style: "max-width: 200px; min-width: 60px;",
                           alt: book.title %>
           <% else %>
+            <!-- Fallback with default 2:3 ratio -->
             <div class="h-full bg-gradient-to-br from-emerald-100 to-teal-200 
                         flex items-center justify-center"
-                 style="aspect-ratio: 2/3; max-width: min(12rem, 30vw);">
+                 style="aspect-ratio: 2/3; max-width: 200px;">
               <svg class="w-8 h-8 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                       d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -48,11 +50,11 @@
         </div>
         
       <% else %>
-        <!-- No cover fallback -->
-        <div class="h-32 sm:h-full bg-gradient-to-br from-emerald-100 to-teal-200 
+        <!-- No cover fallback with default 2:3 -->
+        <div class="h-32 md:h-full bg-gradient-to-br from-emerald-100 to-teal-200 
                     flex items-center justify-center"
-             style="aspect-ratio: 2/3; max-width: min(12rem, 30vw);">
-          <svg class="w-12 h-12 sm:w-8 sm:h-8 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+             style="md:aspect-ratio: 2/3; md:max-width: 200px;">
+          <svg class="w-12 h-12 md:w-8 md:h-8 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                   d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
           </svg>
@@ -60,12 +62,12 @@
       <% end %>
     </div>
     
-    <!-- Content Container - Takes remaining space -->
-    <div class="flex-grow flex flex-col p-4 sm:p-4 lg:p-5 min-w-0">
+    <!-- Content Container - Adjusts to remaining space -->
+    <div class="flex-grow flex flex-col p-4 lg:p-5 min-w-0">
       
       <!-- Header -->
       <div class="flex items-start justify-between mb-3 gap-3">
-        <h2 class="text-lg sm:text-xl font-bold text-gray-900">Recent Books Read</h2>
+        <h2 class="text-lg md:text-xl font-bold text-gray-900">Recent Books Read</h2>
         <%= link_to "View all →", admin_books_path, 
                     class: "text-sm text-indigo-600 hover:text-indigo-800 transition-colors whitespace-nowrap" %>
       </div>
@@ -74,9 +76,9 @@
       <div class="flex-grow space-y-2">
         <% if readings&.any? %>
           <% readings.each do |reading| %>
-            <div class="flex items-start gap-2 sm:gap-3 text-sm">
+            <div class="flex items-start gap-2 md:gap-3 text-sm">
               <!-- Date -->
-              <span class="text-gray-500 whitespace-nowrap flex-shrink-0 w-14 sm:w-16">
+              <span class="text-gray-500 whitespace-nowrap flex-shrink-0 w-14 md:w-16">
                 <%= reading.finished_on.strftime("%b %d") %>
               </span>
               
@@ -85,12 +87,12 @@
                 <div class="flex items-start gap-2">
                   <div class="flex-grow min-w-0">
                     <p class="font-medium text-gray-900">
-                      <%= reading.book.title %>
+                      <span class="break-words"><%= reading.book.title %></span>
                       <% if reading.book.published_year.present? %>
-                        <span class="font-normal text-gray-500">(<%= reading.book.published_year %>)</span>
+                        <span class="font-normal text-gray-500 whitespace-nowrap">(<%= reading.book.published_year %>)</span>
                       <% end %>
                       <% if reading.book.author.present? %>
-                        <span class="font-normal text-gray-500 text-xs">· <%= reading.book.author %></span>
+                        <span class="font-normal text-gray-500 text-xs block md:inline">· <%= reading.book.author %></span>
                       <% end %>
                     </p>
                   </div>

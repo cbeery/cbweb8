@@ -1,0 +1,170 @@
+<!-- app/views/home/test20.html.erb -->
+<!-- Alternative 8: Compact Table with Medium Thumbnails (Optimized Padding) -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  
+  <!-- Page Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Dashboard - Optimized Medium Thumbnails</h1>
+    <div class="flex gap-3 text-sm">
+      <%= link_to "← Test 19", home_test19_path, class: "text-indigo-600 hover:text-indigo-800" %>
+      <%= link_to "Test 12", home_test12_path, class: "text-gray-600 hover:text-gray-800" %>
+    </div>
+  </div>
+
+  <!-- Main Grid Container -->
+  <div class="grid grid-cols-12 gap-6 xl:gap-8">
+    
+    <!-- Recent Movies - Table with Medium Thumbnails -->
+    <div class="col-span-12 xl:col-span-6">
+      <div class="bg-white rounded-lg shadow-lg">
+        <div class="p-4 border-b">
+          <h2 class="text-xl font-bold">Recent Movies</h2>
+        </div>
+        
+        <div class="divide-y">
+          <% @recent_viewings.each do |viewing| %>
+            <div class="px-3 py-2 hover:bg-gray-50 transition-colors">
+              <div class="flex items-center">
+                <!-- Medium thumbnail with tighter spacing -->
+                <div class="flex-shrink-0 mr-2">
+                  <% if viewing.movie.movie_posters.first %>
+                    <% poster = viewing.movie.movie_posters.first %>
+                    <% if poster.image.attached? %>
+                      <%= image_tag poster.image, 
+                                    class: "w-8 h-11 object-cover rounded shadow-sm",
+                                    alt: "",
+                                    title: viewing.movie.title %>
+                    <% elsif poster.url? %>
+                      <img src="<%= poster.url %>" 
+                           class="w-8 h-11 object-cover rounded shadow-sm"
+                           alt=""
+                           title="<%= viewing.movie.title %>">
+                    <% else %>
+                      <div class="w-8 h-11 bg-gradient-to-b from-purple-200 to-pink-300 rounded shadow-sm"></div>
+                    <% end %>
+                  <% else %>
+                    <div class="w-8 h-11 bg-gradient-to-b from-gray-200 to-gray-300 rounded shadow-sm"></div>
+                  <% end %>
+                </div>
+                
+                <!-- Date info with reduced padding -->
+                <div class="flex-shrink-0 w-10 text-center mr-3">
+                  <div class="text-xs text-gray-500 leading-tight"><%= viewing.viewed_on.strftime("%b") %></div>
+                  <div class="text-sm font-semibold leading-tight"><%= viewing.viewed_on.day %></div>
+                </div>
+                
+                <!-- Movie info with normal spacing -->
+                <div class="flex-grow min-w-0 mr-3">
+                  <p class="font-medium truncate leading-tight">
+                    <%= viewing.movie.title %>
+                    <% if viewing.movie.year %>
+                      <span class="font-normal text-gray-500">(<%= viewing.movie.year %>)</span>
+                    <% end %>
+                  </p>
+                  <% if viewing.movie.director.present? %>
+                    <p class="text-xs text-gray-500 leading-tight mt-0.5"><%= viewing.movie.director %></p>
+                  <% end %>
+                </div>
+                
+                <!-- Rating -->
+                <div class="flex-shrink-0 hidden sm:block">
+                  <% if viewing.movie.rating %>
+                    <%= render 'shared/star_rating', rating: viewing.movie.rating %>
+                  <% end %>
+                </div>
+                
+                <!-- Mobile rating -->
+                <div class="flex-shrink-0 sm:hidden">
+                  <% if viewing.movie.rating %>
+                    <span class="text-sm font-medium text-yellow-600">
+                      <%= viewing.movie.rating %>★
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        
+        <div class="p-4 border-t bg-gray-50 text-sm text-gray-600">
+          <span class="font-semibold text-gray-900"><%= @movies_this_year %></span> movies watched this year
+        </div>
+      </div>
+    </div>
+    
+    <!-- Recent Books - Table with Medium Thumbnails -->
+    <div class="col-span-12 xl:col-span-6">
+      <div class="bg-white rounded-lg shadow-lg">
+        <div class="p-4 border-b">
+          <h2 class="text-xl font-bold">Recent Books</h2>
+        </div>
+        
+        <div class="divide-y">
+          <% @recent_readings.each do |reading| %>
+            <div class="px-3 py-2 hover:bg-gray-50 transition-colors">
+              <div class="flex items-center">
+                <!-- Medium thumbnail with tighter spacing -->
+                <div class="flex-shrink-0 mr-2">
+                  <% if reading.book.cover_image.attached? %>
+                    <%= image_tag reading.book.cover_image, 
+                                  class: "w-8 h-11 object-cover rounded shadow-sm",
+                                  alt: "",
+                                  title: reading.book.title %>
+                  <% else %>
+                    <div class="w-8 h-11 bg-gradient-to-b from-emerald-200 to-teal-300 rounded shadow-sm flex items-center justify-center">
+                      <svg class="w-4 h-4 text-white/70" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+                      </svg>
+                    </div>
+                  <% end %>
+                </div>
+                
+                <!-- Date info with reduced padding -->
+                <div class="flex-shrink-0 w-10 text-center mr-3">
+                  <div class="text-xs text-gray-500 leading-tight"><%= reading.finished_on.strftime("%b") %></div>
+                  <div class="text-sm font-semibold leading-tight"><%= reading.finished_on.day %></div>
+                </div>
+                
+                <!-- Book info with normal spacing -->
+                <div class="flex-grow min-w-0 mr-3">
+                  <p class="font-medium truncate leading-tight">
+                    <%= reading.book.title %>
+                    <% if reading.book.published_year %>
+                      <span class="font-normal text-gray-500">(<%= reading.book.published_year %>)</span>
+                    <% end %>
+                  </p>
+                  <% if reading.book.author.present? %>
+                    <p class="text-xs text-gray-500 leading-tight mt-0.5"><%= reading.book.author %></p>
+                  <% end %>
+                </div>
+                
+                <!-- Rating -->
+                <div class="flex-shrink-0 hidden sm:block">
+                  <% rating = reading.rating || reading.book.rating %>
+                  <% if rating %>
+                    <%= render 'shared/star_rating', rating: rating %>
+                  <% end %>
+                </div>
+                
+                <!-- Mobile rating -->
+                <div class="flex-shrink-0 sm:hidden">
+                  <% rating = reading.rating || reading.book.rating %>
+                  <% if rating %>
+                    <span class="text-sm font-medium text-yellow-600">
+                      <%= rating %>★
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        
+        <div class="p-4 border-t bg-gray-50 text-sm text-gray-600">
+          <span class="font-semibold text-gray-900"><%= @books_this_year %></span> books read this year
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>

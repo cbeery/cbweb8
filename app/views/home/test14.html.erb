@@ -1,0 +1,107 @@
+<!-- app/views/home/test14.html.erb -->
+<!-- Alternative 2: Hero + List Pattern -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  
+  <!-- Page Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Dashboard - Hero + List</h1>
+    <div class="flex gap-3 text-sm">
+      <%= link_to "← Test 13", home_test13_path, class: "text-indigo-600 hover:text-indigo-800" %>
+      <%= link_to "Test 15 →", home_test15_path, class: "text-gray-600 hover:text-gray-800" %>
+    </div>
+  </div>
+
+  <!-- Main Grid Container -->
+  <div class="grid grid-cols-12 gap-6 xl:gap-8">
+    
+    <!-- Recent Movies - Hero + List -->
+    <div class="col-span-12 xl:col-span-6">
+      <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <% if @recent_viewings.first %>
+          <% first_viewing = @recent_viewings.first %>
+          <% poster = first_viewing.movie.movie_posters.first %>
+          
+          <!-- Hero poster for most recent -->
+          <div class="h-48 bg-gray-100 relative">
+            <% if poster&.image&.attached? %>
+              <%= image_tag poster.image, 
+                            class: "w-full h-full object-cover",
+                            alt: first_viewing.movie.title %>
+            <% elsif poster&.url? %>
+              <img src="<%= poster.url %>" 
+                   class="w-full h-full object-cover"
+                   alt="<%= first_viewing.movie.title %>">
+            <% else %>
+              <div class="w-full h-full bg-gradient-to-br from-purple-100 to-pink-200"></div>
+            <% end %>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+              <h3 class="font-bold"><%= first_viewing.movie.title %></h3>
+              <p class="text-sm opacity-90">Latest watch</p>
+            </div>
+          </div>
+        <% end %>
+        
+        <!-- List for rest -->
+        <div class="p-4">
+          <h3 class="font-semibold mb-3">Previous viewings</h3>
+          <div class="space-y-2 text-sm">
+            <% @recent_viewings[1..4].each do |viewing| %>
+              <div class="flex justify-between">
+                <span><%= viewing.movie.title %></span>
+                <span class="text-gray-500"><%= viewing.viewed_on.strftime("%m/%d") %></span>
+              </div>
+            <% end %>
+          </div>
+          
+          <div class="mt-4 pt-3 border-t text-sm text-gray-600">
+            <%= @movies_this_year %> movies this year
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Recent Books - Hero + List -->
+    <div class="col-span-12 xl:col-span-6">
+      <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <% if @recent_readings.first %>
+          <% first_reading = @recent_readings.first %>
+          
+          <!-- Hero cover for most recent -->
+          <div class="h-48 bg-gray-100 relative">
+            <% if first_reading.book.cover_image.attached? %>
+              <%= image_tag first_reading.book.cover_image, 
+                            class: "w-full h-full object-cover",
+                            alt: first_reading.book.title %>
+            <% else %>
+              <div class="w-full h-full bg-gradient-to-br from-emerald-100 to-teal-200"></div>
+            <% end %>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+              <h3 class="font-bold"><%= first_reading.book.title %></h3>
+              <p class="text-sm opacity-90">Latest read</p>
+            </div>
+          </div>
+        <% end %>
+        
+        <!-- List for rest -->
+        <div class="p-4">
+          <h3 class="font-semibold mb-3">Previous reads</h3>
+          <div class="space-y-2 text-sm">
+            <% @recent_readings[1..4].each do |reading| %>
+              <div class="flex justify-between">
+                <span><%= reading.book.title %></span>
+                <span class="text-gray-500"><%= reading.finished_on.strftime("%m/%d") %></span>
+              </div>
+            <% end %>
+          </div>
+          
+          <div class="mt-4 pt-3 border-t text-sm text-gray-600">
+            <%= @books_this_year %> books read this year
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>

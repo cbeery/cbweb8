@@ -123,24 +123,77 @@ class HomeController < ApplicationController
   end
 
   def test12
-    # Fetch last 5 movie viewings (not unique movies - can include same movie multiple times)
+    load_dashboard_data
+  end
+
+  def test13
+    # Alternative 1: Minimalist List with Thumbnail
+    load_dashboard_data
+  end
+
+  def test14
+    # Alternative 2: Hero + List Pattern
+    load_dashboard_data
+  end
+
+  def test15
+    # Alternative 3: Horizontal Scroll Gallery
+    load_dashboard_data
+  end
+
+  def test16
+    # Alternative 4: Compact Table/List Hybrid
+    load_dashboard_data
+  end
+
+  def test17
+    # Alternative 5: Split Layout (Image + Content Separate)
+    load_dashboard_data
+  end
+
+  def test18
+    # Alternative 6: Table/List with Tiny Thumbnails (16x24px)
+    load_dashboard_data
+  end
+
+  def test19
+    # Alternative 7: Table/List with Small Thumbnails (24x32px)
+    load_dashboard_data
+  end
+
+  def test20
+    # Alternative 8: Table with Medium Thumbnails (32x44px, optimized padding)
+    load_dashboard_data
+  end
+
+  def test21
+    # Alternative 9: Table with Larger Thumbnails (36x48px, minimal padding)
+    load_dashboard_data
+end
+
+  private
+
+  def load_dashboard_data
+    # Shared data loading for test13-17
     @recent_viewings = Viewing.includes(movie: :movie_posters)
                               .order(viewed_on: :desc)
                               .limit(5)
     
-    # Fetch last 5 books read (completed reads)
     @recent_readings = BookRead.includes(book: :cover_image_attachment)
                                .where.not(finished_on: nil)
                                .order(finished_on: :desc)
                                .limit(5)
     
-    # Movie stats for footer
     @movies_this_year = Viewing.where(
       viewed_on: Date.current.beginning_of_year..Date.current.end_of_year
     ).count
     
-    # Next book to read
+    @books_this_year = BookRead.where(
+      finished_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count
+    
     @next_book = Book.want_to_read.order(created_at: :desc).first
   end
+
 
 end

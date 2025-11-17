@@ -1,0 +1,107 @@
+<!-- app/views/home/test15.html.erb -->
+<!-- Alternative 3: Horizontal Scroll Gallery -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  
+  <!-- Page Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Dashboard - Horizontal Gallery</h1>
+    <div class="flex gap-3 text-sm">
+      <%= link_to "← Test 14", home_test14_path, class: "text-indigo-600 hover:text-indigo-800" %>
+      <%= link_to "Test 16 →", home_test16_path, class: "text-gray-600 hover:text-gray-800" %>
+    </div>
+  </div>
+
+  <!-- Main Grid Container -->
+  <div class="grid grid-cols-12 gap-6 xl:gap-8">
+    
+    <!-- Recent Movies - Horizontal Scroll -->
+    <div class="col-span-12 xl:col-span-6">
+      <div class="bg-white rounded-lg shadow-lg p-4">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold">Recent Movies</h2>
+          <%= link_to "View all →", admin_movies_path, class: "text-sm text-indigo-600" %>
+        </div>
+        
+        <!-- Horizontal scroll container -->
+        <div class="flex gap-3 overflow-x-auto pb-2">
+          <% @recent_viewings.each do |viewing| %>
+            <div class="flex-shrink-0 w-24">
+              <div class="aspect-[2/3] bg-gray-100 rounded overflow-hidden mb-2">
+                <% if viewing.movie.movie_posters.first %>
+                  <% poster = viewing.movie.movie_posters.first %>
+                  <% if poster.image.attached? %>
+                    <%= image_tag poster.image, 
+                                  class: "w-full h-full object-cover",
+                                  alt: viewing.movie.title %>
+                  <% elsif poster.url? %>
+                    <img src="<%= poster.url %>" 
+                         class="w-full h-full object-cover"
+                         alt="<%= viewing.movie.title %>">
+                  <% end %>
+                <% else %>
+                  <div class="w-full h-full bg-gradient-to-br from-purple-100 to-pink-200"></div>
+                <% end %>
+              </div>
+              <p class="text-xs font-medium line-clamp-2"><%= viewing.movie.title %></p>
+              <% if viewing.movie.rating %>
+                <div class="mt-1 flex items-center">
+                  <span class="text-yellow-400 text-xs">★</span>
+                  <span class="text-xs text-gray-700 ml-0.5"><%= viewing.movie.rating %></span>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+        
+        <div class="mt-4 pt-3 border-t text-sm text-gray-600">
+          <%= @movies_this_year %> movies this year
+        </div>
+      </div>
+    </div>
+    
+    <!-- Recent Books - Horizontal Scroll -->
+    <div class="col-span-12 xl:col-span-6">
+      <div class="bg-white rounded-lg shadow-lg p-4">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold">Recent Books</h2>
+          <%= link_to "View all →", admin_books_path, class: "text-sm text-indigo-600" %>
+        </div>
+        
+        <!-- Horizontal scroll container -->
+        <div class="flex gap-3 overflow-x-auto pb-2">
+          <% @recent_readings.each do |reading| %>
+            <div class="flex-shrink-0 w-24">
+              <div class="aspect-[2/3] bg-gray-100 rounded overflow-hidden mb-2">
+                <% if reading.book.cover_image.attached? %>
+                  <%= image_tag reading.book.cover_image, 
+                                class: "w-full h-full object-cover",
+                                alt: reading.book.title %>
+                <% else %>
+                  <div class="w-full h-full bg-gradient-to-br from-emerald-100 to-teal-200 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </div>
+                <% end %>
+              </div>
+              <p class="text-xs font-medium line-clamp-2"><%= reading.book.title %></p>
+              <% rating = reading.rating || reading.book.rating %>
+              <% if rating %>
+                <div class="mt-1 flex items-center">
+                  <span class="text-yellow-400 text-xs">★</span>
+                  <span class="text-xs text-gray-700 ml-0.5"><%= rating %></span>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+        
+        <div class="mt-4 pt-3 border-t text-sm text-gray-600">
+          <%= @books_this_year %> books read this year
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>

@@ -1,0 +1,131 @@
+<!-- app/views/home/test17.html.erb -->
+<!-- Alternative 5: Split Layout (Image + Content Separate) -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  
+  <!-- Page Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Dashboard - Split Layout</h1>
+    <div class="flex gap-3 text-sm">
+      <%= link_to "← Test 16", home_test16_path, class: "text-indigo-600 hover:text-indigo-800" %>
+      <%= link_to "Test 12", home_test12_path, class: "text-gray-600 hover:text-gray-800" %>
+    </div>
+  </div>
+
+  <!-- Main Grid Container -->
+  <div class="grid grid-cols-12 gap-6 xl:gap-8">
+    
+    <!-- Recent Movies - Split Layout -->
+    <div class="col-span-12 xl:col-span-6">
+      <div class="bg-white rounded-lg shadow-lg p-4 md:p-6">
+        <h2 class="text-xl font-bold mb-4">Recent Movies</h2>
+        
+        <div class="flex flex-col md:flex-row gap-4">
+          <!-- Poster showcase -->
+          <div class="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible">
+            <% @recent_viewings.take(3).each do |viewing| %>
+              <div class="w-20 h-28 flex-shrink-0 bg-gray-100 rounded overflow-hidden">
+                <% if viewing.movie.movie_posters.first %>
+                  <% poster = viewing.movie.movie_posters.first %>
+                  <% if poster.image.attached? %>
+                    <%= image_tag poster.image, 
+                                  class: "w-full h-full object-cover",
+                                  alt: viewing.movie.title %>
+                  <% elsif poster.url? %>
+                    <img src="<%= poster.url %>" 
+                         class="w-full h-full object-cover"
+                         alt="<%= viewing.movie.title %>">
+                  <% end %>
+                <% else %>
+                  <div class="w-full h-full bg-gradient-to-br from-purple-100 to-pink-200"></div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+          
+          <!-- List content -->
+          <div class="flex-grow">
+            <div class="space-y-2">
+              <% @recent_viewings.each do |viewing| %>
+                <div class="flex items-center justify-between py-1">
+                  <div class="flex-grow">
+                    <span class="font-medium text-sm"><%= viewing.movie.title %></span>
+                    <span class="text-xs text-gray-500 ml-2"><%= viewing.viewed_on.strftime("%b %d") %></span>
+                  </div>
+                  <div class="flex-shrink-0">
+                    <% if viewing.movie.rating %>
+                      <div class="flex items-center">
+                        <span class="text-yellow-400 text-xs">★</span>
+                        <span class="text-xs text-gray-700"><%= viewing.movie.rating %></span>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+            
+            <div class="mt-3 pt-3 border-t text-sm text-gray-600">
+              <%= @movies_this_year %> movies this year
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Recent Books - Split Layout -->
+    <div class="col-span-12 xl:col-span-6">
+      <div class="bg-white rounded-lg shadow-lg p-4 md:p-6">
+        <h2 class="text-xl font-bold mb-4">Recent Books</h2>
+        
+        <div class="flex flex-col md:flex-row gap-4">
+          <!-- Cover showcase -->
+          <div class="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible">
+            <% @recent_readings.take(3).each do |reading| %>
+              <div class="w-20 h-28 flex-shrink-0 bg-gray-100 rounded overflow-hidden">
+                <% if reading.book.cover_image.attached? %>
+                  <%= image_tag reading.book.cover_image, 
+                                class: "w-full h-full object-cover",
+                                alt: reading.book.title %>
+                <% else %>
+                  <div class="w-full h-full bg-gradient-to-br from-emerald-100 to-teal-200 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+          
+          <!-- List content -->
+          <div class="flex-grow">
+            <div class="space-y-2">
+              <% @recent_readings.each do |reading| %>
+                <div class="flex items-center justify-between py-1">
+                  <div class="flex-grow">
+                    <span class="font-medium text-sm"><%= reading.book.title %></span>
+                    <span class="text-xs text-gray-500 ml-2"><%= reading.finished_on.strftime("%b %d") %></span>
+                  </div>
+                  <div class="flex-shrink-0">
+                    <% rating = reading.rating || reading.book.rating %>
+                    <% if rating %>
+                      <div class="flex items-center">
+                        <span class="text-yellow-400 text-xs">★</span>
+                        <span class="text-xs text-gray-700"><%= rating %></span>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+            
+            <div class="mt-3 pt-3 border-t text-sm text-gray-600">
+              <%= @books_this_year %> books read this year
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>

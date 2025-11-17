@@ -1,0 +1,113 @@
+<!-- app/views/home/legacy/homepage_minimal.html.erb -->
+<!-- A WORKING minimal version that only assumes Movies and Viewings exist -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  
+  <!-- Header -->
+  <div class="mb-8 pb-6 border-b-4 border-gray-800">
+    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Things we (used to) do</h1>
+    <p class="text-lg text-gray-600 mt-1">Various habitual activities</p>
+    <p class="text-sm text-gray-500 mt-2">
+      (Legacy homepage recreation - simplified version that actually works)
+    </p>
+  </div>
+
+  <!-- Movies Section - This should work since you have Movies -->
+  <% if defined?(Movie) && @recent_movies %>
+    <section id="movies" class="mb-8">
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+          <h2 class="text-xl font-bold mb-2">Recent Movies</h2>
+          <p class="text-sm text-gray-600">
+            <%= @movies_this_year || 0 %> movies this year
+          </p>
+        </div>
+        
+        <!-- Content -->
+        <div class="lg:col-span-3">
+          <div class="bg-white rounded-lg shadow overflow-hidden">
+            <table class="min-w-full">
+              <tbody class="divide-y divide-gray-200">
+                <% @recent_movies.each do |movie| %>
+                  <% viewing = movie.viewings.order(viewed_on: :desc).first %>
+                  <% if viewing %>
+                    <tr class="hover:bg-gray-50">
+                      <td class="pl-2 pr-3 py-1.5 text-sm">
+                        <%= viewing.viewed_on.strftime('%b %e, %Y') %>
+                      </td>
+                      <td class="px-3 py-1.5">
+                        <span class="text-sm font-medium text-gray-900">
+                          <%= movie.title %>
+                        </span>
+                      </td>
+                      <td class="px-3 py-1.5">
+                        <% if movie.rating %>
+                          <%= render 'shared/star_rating', rating: movie.rating, size: 'small' %>
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  <% end %>
+
+  <!-- Separator -->
+  <div class="h-px bg-gray-300 mb-8"></div>
+
+  <!-- Music Stats Section (Mock Data) -->
+  <section id="tunes" class="mb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div class="lg:col-span-1">
+        <h2 class="text-xl font-bold mb-2">Tunes</h2>
+        <p class="text-sm text-gray-600">Music stats (sample data)</p>
+      </div>
+      
+      <div class="lg:col-span-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-white rounded-lg shadow p-4">
+            <h3 class="font-semibold text-gray-900 mb-3">Last month</h3>
+            <div class="space-y-2">
+              <% (@lastfm_last_month || []).first(5).each_with_index do |artist, index| %>
+                <div class="flex items-center">
+                  <span class="text-xs text-gray-500 w-6"><%= index + 1 %></span>
+                  <div class="flex-1 flex items-center">
+                    <span class="text-sm text-gray-900 mr-2"><%= artist[:name] %></span>
+                    <span class="text-xs text-gray-500"><%= artist[:playcount] %></span>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-lg shadow p-4">
+            <h3 class="font-semibold text-gray-900 mb-3">Last year</h3>
+            <div class="space-y-2">
+              <% (@lastfm_last_year || []).first(5).each_with_index do |artist, index| %>
+                <div class="flex items-center">
+                  <span class="text-xs text-gray-500 w-6"><%= index + 1 %></span>
+                  <div class="flex-1 flex items-center">
+                    <span class="text-sm text-gray-900 mr-2"><%= artist[:name] %></span>
+                    <span class="text-xs text-gray-500"><%= artist[:playcount] %></span>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Notice about missing sections -->
+  <div class="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+    <p class="text-sm text-yellow-800">
+      <strong>Note:</strong> Some sections from the legacy homepage (Books, Shows, etc.) will appear here once those models are set up in your Rails 8 app.
+    </p>
+  </div>
+  
+</div>

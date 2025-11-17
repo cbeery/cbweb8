@@ -18,6 +18,19 @@ Rails.application.routes.draw do
   get 'home/test10', to: 'home#test10'
   get 'home/test11', to: 'home#test11'
   get 'home/test12', to: 'home#test12'
+  get 'home/test13', to: 'home#test13'
+  get 'home/test14', to: 'home#test14'
+  get 'home/test15', to: 'home#test15'
+  get 'home/test16', to: 'home#test16'
+  get 'home/test17', to: 'home#test17'
+  get 'home/test18', to: 'home#test18'
+  get 'home/test19', to: 'home#test19'
+  get 'home/test20', to: 'home#test20'
+  get 'home/test21', to: 'home#test21'
+
+  # Legacy page recreations (for reference/comparison with Bootstrap version)
+  get 'home/legacy/homepage', to: 'home#legacy_homepage'
+  get 'home/legacy/homepage_modern', to: 'home#legacy_homepage_modern'
 
   # Admin namespace
   namespace :admin do

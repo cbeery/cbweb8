@@ -1,0 +1,110 @@
+<!-- app/views/home/test13.html.erb -->
+<!-- Alternative 1: Minimalist List with Thumbnail -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  
+  <!-- Page Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Dashboard - Minimalist List</h1>
+    <div class="flex gap-3 text-sm">
+      <%= link_to "← Test 12", home_test12_path, class: "text-indigo-600 hover:text-indigo-800" %>
+      <%= link_to "Test 14 →", home_test14_path, class: "text-gray-600 hover:text-gray-800" %>
+    </div>
+  </div>
+
+  <!-- Main Grid Container -->
+  <div class="grid grid-cols-12 gap-6 xl:gap-8">
+    
+    <!-- Recent Movies - Minimalist List -->
+    <div class="col-span-12 xl:col-span-6">
+      <div class="bg-white rounded-lg shadow-lg p-4">
+        <h2 class="text-xl font-bold mb-4">Recent Movies</h2>
+        
+        <div class="space-y-3">
+          <% @recent_viewings.each do |viewing| %>
+            <div class="flex gap-3 items-start">
+              <!-- Small thumbnail -->
+              <% if viewing.movie.movie_posters.first %>
+                <% poster = viewing.movie.movie_posters.first %>
+                <% if poster.image.attached? %>
+                  <%= image_tag poster.image, 
+                                class: "w-12 h-16 object-cover rounded flex-shrink-0",
+                                alt: viewing.movie.title %>
+                <% elsif poster.url? %>
+                  <img src="<%= poster.url %>" 
+                       class="w-12 h-16 object-cover rounded flex-shrink-0"
+                       alt="<%= viewing.movie.title %>">
+                <% end %>
+              <% else %>
+                <div class="w-12 h-16 bg-gray-200 rounded flex-shrink-0"></div>
+              <% end %>
+              
+              <!-- Content -->
+              <div class="flex-grow">
+                <p class="font-medium"><%= viewing.movie.title %></p>
+                <p class="text-xs text-gray-500"><%= viewing.viewed_on.strftime("%b %d") %></p>
+              </div>
+              
+              <!-- Rating -->
+              <div class="flex-shrink-0">
+                <% if viewing.movie.rating %>
+                  <div class="flex items-center">
+                    <span class="text-yellow-400 text-sm">★</span>
+                    <span class="text-sm text-gray-700"><%= viewing.movie.rating %></span>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        
+        <div class="mt-4 pt-3 border-t text-sm text-gray-600">
+          <%= @movies_this_year %> movies watched this year
+        </div>
+      </div>
+    </div>
+    
+    <!-- Recent Books - Minimalist List -->
+    <div class="col-span-12 xl:col-span-6">
+      <div class="bg-white rounded-lg shadow-lg p-4">
+        <h2 class="text-xl font-bold mb-4">Recent Books</h2>
+        
+        <div class="space-y-3">
+          <% @recent_readings.each do |reading| %>
+            <div class="flex gap-3 items-start">
+              <!-- Small thumbnail -->
+              <% if reading.book.cover_image.attached? %>
+                <%= image_tag reading.book.cover_image, 
+                              class: "w-12 h-16 object-cover rounded flex-shrink-0",
+                              alt: reading.book.title %>
+              <% else %>
+                <div class="w-12 h-16 bg-emerald-200 rounded flex-shrink-0"></div>
+              <% end %>
+              
+              <!-- Content -->
+              <div class="flex-grow">
+                <p class="font-medium"><%= reading.book.title %></p>
+                <p class="text-xs text-gray-500"><%= reading.finished_on.strftime("%b %d") %></p>
+              </div>
+              
+              <!-- Rating -->
+              <div class="flex-shrink-0">
+                <% rating = reading.rating || reading.book.rating %>
+                <% if rating %>
+                  <div class="flex items-center">
+                    <span class="text-yellow-400 text-sm">★</span>
+                    <span class="text-sm text-gray-700"><%= rating %></span>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        
+        <div class="mt-4 pt-3 border-t text-sm text-gray-600">
+          <%= @books_this_year %> books read this year
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>

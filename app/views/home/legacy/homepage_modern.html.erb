@@ -1,0 +1,295 @@
+<!-- app/views/home/test14.html.erb -->
+<!-- Modern Card-Based Recreation of Legacy Homepage -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+      Things we (used to) do
+    </h1>
+    <p class="text-gray-600 mt-2">Various habitual activities — modernized</p>
+    
+    <!-- Quick Navigation Pills -->
+    <div class="flex flex-wrap gap-2 mt-4">
+      <a href="#movies" class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm hover:bg-indigo-200">Movies</a>
+      <a href="#books" class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm hover:bg-purple-200">Books</a>
+      <a href="#tunes" class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm hover:bg-green-200">Tunes</a>
+      <a href="#shows" class="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-sm hover:bg-pink-200">Shows</a>
+      <a href="#projects" class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm hover:bg-yellow-200">Projects</a>
+    </div>
+  </div>
+
+  <!-- Main Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    
+    <!-- Movies Section (Spans 2 columns on large screens) -->
+    <div id="movies" class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      <!-- Theater Movies Card -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-gradient-to-r from-purple-500 to-pink-500 p-4">
+          <h3 class="text-white font-semibold flex items-center justify-between">
+            <span class="flex items-center">
+              <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+              </svg>
+              At the Movies
+            </span>
+            <span class="text-white/90 text-sm"><%= @movies_this_year || 7 %> this year</span>
+          </h3>
+        </div>
+        
+        <div class="p-4">
+          <% if @last_movie&.movie_posters&.any? %>
+            <div class="flex gap-3 mb-3">
+              <div class="w-16 flex-shrink-0">
+                <%= image_tag @last_movie.movie_posters.first.image, 
+                    class: "w-full rounded shadow",
+                    alt: @last_movie.title %>
+              </div>
+              <div class="flex-1">
+                <p class="font-semibold text-gray-900 text-sm"><%= @last_movie.title %></p>
+                <div class="mt-1">
+                  <%= render 'shared/star_rating', rating: @last_movie&.rating, size: 'small' %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+          
+          <div class="space-y-1">
+            <% (@recent_movies || []).each do |movie| %>
+              <% viewing = movie.viewings.order(viewed_on: :desc).first %>
+              <% if viewing %>
+                <div class="flex items-center justify-between py-1 hover:bg-gray-50 rounded px-1">
+                  <div class="flex-1">
+                    <%= link_to movie.title, admin_movie_path(movie), 
+                        class: "text-sm text-gray-900 hover:text-indigo-600 truncate block" %>
+                  </div>
+                  <span class="text-xs text-gray-500 ml-2">
+                    <%= viewing.viewed_on.strftime('%m/%d') %>
+                  </span>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Home Viewing Card -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-500 to-cyan-500 p-4">
+          <h3 class="text-white font-semibold flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+            </svg>
+            Home Viewing
+          </h3>
+        </div>
+        
+        <div class="p-4">
+          <% if @last_home_movie&.movie_posters&.any? %>
+            <div class="flex gap-3 mb-3">
+              <div class="w-16 flex-shrink-0">
+                <%= image_tag @last_home_movie.movie_posters.first.image, 
+                    class: "w-full rounded shadow",
+                    alt: @last_home_movie.title %>
+              </div>
+              <div class="flex-1">
+                <p class="font-semibold text-gray-900 text-sm"><%= @last_home_movie.title %></p>
+                <div class="mt-1">
+                  <%= render 'shared/star_rating', rating: @last_home_movie&.rating, size: 'small' %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+          
+          <div class="space-y-1">
+            <% (@home_movies || []).each do |movie| %>
+              <% viewing = movie.viewings.order(viewed_on: :desc).first %>
+              <% if viewing %>
+                <div class="flex items-center justify-between py-1 hover:bg-gray-50 rounded px-1">
+                  <div class="flex-1">
+                    <%= link_to movie.title, admin_movie_path(movie), 
+                        class: "text-sm text-gray-900 hover:text-indigo-600 truncate block" %>
+                  </div>
+                  <span class="text-xs text-gray-500 ml-2">
+                    <%= viewing.viewed_on.strftime('%m/%d') %>
+                  </span>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column -->
+    <div class="space-y-6">
+      
+      <!-- Books Card -->
+      <div id="books" class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-gradient-to-r from-amber-500 to-orange-500 p-4">
+          <h3 class="text-white font-semibold flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+            </svg>
+            Books
+          </h3>
+        </div>
+        
+        <div class="p-4">
+          <% if @last_book %>
+            <div class="flex gap-3 mb-3">
+              <% if @last_book.cover_image&.attached? %>
+                <div class="w-12 flex-shrink-0">
+                  <%= image_tag @last_book.cover_image, 
+                      class: "w-full rounded shadow",
+                      alt: @last_book.title %>
+                </div>
+              <% end %>
+              <div class="flex-1">
+                <p class="font-semibold text-gray-900 text-sm"><%= @last_book.title %></p>
+                <p class="text-xs text-gray-600"><%= @last_book.author %></p>
+              </div>
+            </div>
+          <% end %>
+          
+          <div class="space-y-1">
+            <% (@recent_books || []).each do |book| %>
+              <div class="py-1 hover:bg-gray-50 rounded px-1">
+                <%= link_to book.title, admin_book_path(book), 
+                    class: "text-sm text-gray-900 hover:text-indigo-600 block truncate" %>
+                <span class="text-xs text-gray-500"><%= book.author %></span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projects Card -->
+      <div id="projects" class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-gradient-to-r from-teal-500 to-green-500 p-4">
+          <h3 class="text-white font-semibold flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+            </svg>
+            Projects
+          </h3>
+        </div>
+        
+        <div class="p-4 space-y-2">
+          <div>
+            <%= link_to "Records 2019", "https://records2019.beery.co", 
+                target: "_blank",
+                class: "text-sm font-medium text-indigo-600 hover:text-indigo-800" %>
+            <p class="text-xs text-gray-600">Music exchange project</p>
+          </div>
+          <div>
+            <%= link_to "No More Chief", "https://nomorechief.com", 
+                target: "_blank",
+                class: "text-sm font-medium text-indigo-600 hover:text-indigo-800" %>
+            <p class="text-xs text-gray-600">Language experiment</p>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- Music Stats Section -->
+  <div id="tunes" class="mt-6">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div class="bg-gradient-to-r from-green-500 to-emerald-500 p-4">
+        <h3 class="text-white font-semibold flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+          </svg>
+          Music Stats
+        </h3>
+      </div>
+      
+      <div class="p-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Last Month Chart -->
+          <div>
+            <h4 class="text-sm font-semibold text-gray-700 mb-3">Last Month</h4>
+            <div class="space-y-2">
+              <% (@lastfm_last_month || []).first(5).each_with_index do |artist, index| %>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs text-gray-500 w-4"><%= index + 1 %></span>
+                  <div class="flex-1">
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="text-xs font-medium text-gray-900"><%= artist[:name] %></span>
+                      <span class="text-xs text-gray-500"><%= artist[:playcount] %></span>
+                    </div>
+                    <div class="bg-gray-200 rounded-full h-1.5">
+                      <div class="bg-green-500 h-1.5 rounded-full" style="width: <%= artist[:percentage] %>%"></div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+          
+          <!-- Last Year Chart -->
+          <div>
+            <h4 class="text-sm font-semibold text-gray-700 mb-3">Last Year</h4>
+            <div class="space-y-2">
+              <% (@lastfm_last_year || []).first(5).each_with_index do |artist, index| %>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs text-gray-500 w-4"><%= index + 1 %></span>
+                  <div class="flex-1">
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="text-xs font-medium text-gray-900"><%= artist[:name] %></span>
+                      <span class="text-xs text-gray-500"><%= artist[:playcount] %></span>
+                    </div>
+                    <div class="bg-gray-200 rounded-full h-1.5">
+                      <div class="bg-emerald-500 h-1.5 rounded-full" style="width: <%= artist[:percentage] %>%"></div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Concerts Section -->
+  <div id="shows" class="mt-6">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div class="bg-gradient-to-r from-pink-500 to-rose-500 p-4">
+        <h3 class="text-white font-semibold flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+          </svg>
+          Recent Shows
+        </h3>
+      </div>
+      
+      <div class="p-4">
+        <div class="space-y-2">
+          <% (@recent_concerts || []).first(5).each do |concert| %>
+            <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-900">
+                  <%= concert[:artists].join(', ') %>
+                </p>
+                <p class="text-xs text-gray-500">
+                  <%= concert[:location] %>
+                </p>
+              </div>
+              <span class="text-xs text-gray-500 ml-2">
+                <%= concert[:date].strftime('%b %d') %>
+              </span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</div>

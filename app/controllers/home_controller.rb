@@ -123,24 +123,197 @@ class HomeController < ApplicationController
   end
 
   def test12
-    # Fetch last 5 movie viewings (not unique movies - can include same movie multiple times)
+    load_dashboard_data
+  end
+
+  def test13
+    # Alternative 1: Minimalist List with Thumbnail
+    load_dashboard_data
+  end
+
+  def test14
+    # Alternative 2: Hero + List Pattern
+    load_dashboard_data
+  end
+
+  def test15
+    # Alternative 3: Horizontal Scroll Gallery
+    load_dashboard_data
+  end
+
+  def test16
+    # Alternative 4: Compact Table/List Hybrid
+    load_dashboard_data
+  end
+
+  def test17
+    # Alternative 5: Split Layout (Image + Content Separate)
+    load_dashboard_data
+  end
+
+  def test18
+    # Alternative 6: Table/List with Tiny Thumbnails (16x24px)
+    load_dashboard_data
+  end
+
+  def test19
+    # Alternative 7: Table/List with Small Thumbnails (24x32px)
+    load_dashboard_data
+  end
+
+  def test20
+    # Alternative 8: Table with Medium Thumbnails (32x44px, optimized padding)
+    load_dashboard_data
+  end
+
+  def test21
+    # Alternative 9: Table with Larger Thumbnails (36x48px, minimal padding)
+    load_dashboard_data
+  end
+
+  # Legacy homepage recreations (for reference/comparison with Bootstrap version)
+  def legacy_homepage
+    # Only use what we KNOW exists - Movies and Viewings
+    @recent_movies = Movie.includes(:movie_posters, :viewings)
+                          .joins(:viewings)
+                          .order('viewings.viewed_on DESC')
+                          .distinct
+                          .limit(10)
+    
+    @movies_this_year = Viewing.where(
+      viewed_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count rescue 0
+    
+    # Mock data for music (since Last.fm isn't set up)
+    @lastfm_last_month = [
+      { name: 'Shiner', playcount: 38 },
+      { name: 'Curling', playcount: 35 },
+      { name: 'The Beths', playcount: 26 },
+      { name: 'The Lemonheads', playcount: 21 },
+      { name: 'The Lemon Twigs', playcount: 20 }
+    ]
+    
+    @lastfm_last_year = [
+      { name: 'The Lemon Twigs', playcount: 406 },
+      { name: 'R.E.M.', playcount: 159 },
+      { name: 'Shiner', playcount: 138 },
+      { name: 'Curling', playcount: 132 },
+      { name: 'Castor', playcount: 118 }
+    ]
+    
+    # Use the minimal view that doesn't assume anything else exists
+    render 'home/legacy/homepage_minimal'
+  end
+
+  def legacy_homepage_modern
+    setup_legacy_data
+    render 'home/legacy/homepage_modern'
+  end
+
+  private
+
+  def load_dashboard_data
+    # Shared data loading for test13-17
     @recent_viewings = Viewing.includes(movie: :movie_posters)
                               .order(viewed_on: :desc)
                               .limit(5)
     
-    # Fetch last 5 books read (completed reads)
     @recent_readings = BookRead.includes(book: :cover_image_attachment)
                                .where.not(finished_on: nil)
                                .order(finished_on: :desc)
                                .limit(5)
     
-    # Movie stats for footer
     @movies_this_year = Viewing.where(
       viewed_on: Date.current.beginning_of_year..Date.current.end_of_year
     ).count
     
-    # Next book to read
+    @books_this_year = BookRead.where(
+      finished_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count
+    
     @next_book = Book.want_to_read.order(created_at: :desc).first
+  end
+
+  def setup_legacy_data
+    # Movies (theater) - Get recent viewings, then get unique movies
+    recent_theater_viewings = Viewing.includes(movie: :movie_posters)
+                                     .where(location: 'theater')
+                                     .order(viewed_on: :desc)
+                                     .limit(20)
+    
+    # Get unique movies while preserving order
+    seen_movie_ids = Set.new
+    @recent_movies = recent_theater_viewings.map(&:movie).select do |movie|
+      seen_movie_ids.add?(movie.id)
+    end.first(5)
+    
+    @last_movie = @recent_movies.first
+    @movies_this_year = Viewing.where(
+      location: 'theater',
+      viewed_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count
+    
+    # Movies (home/Netflix) - Same approach
+    recent_home_viewings = Viewing.includes(movie: :movie_posters)
+                                  .where(location: 'home')
+                                  .order(viewed_on: :desc)
+                                  .limit(20)
+    
+    seen_home_ids = Set.new
+    @home_movies = recent_home_viewings.map(&:movie).select do |movie|
+      seen_home_ids.add?(movie.id)
+    end.first(5)
+    
+    @last_home_movie = @home_movies.first
+    
+    # Books - Same fix for books
+    recent_reads = BookRead.includes(book: :cover_image_attachment)
+                           .where.not(finished_on: nil)
+                           .order(finished_on: :desc)
+                           .limit(20)
+    
+    seen_book_ids = Set.new
+    @recent_books = recent_reads.map(&:book).select do |book|
+      seen_book_ids.add?(book.id)
+    end.first(5)
+    
+    @last_book = @recent_books.first
+    
+    # Last.fm data (mock for now - replace with actual API data)
+    @lastfm_last_month = [
+      { name: 'Shiner', playcount: 38, percentage: 100, url: 'https://www.last.fm/music/Shiner' },
+      { name: 'Curling', playcount: 35, percentage: 92, url: 'https://www.last.fm/music/Curling' },
+      { name: 'The Beths', playcount: 26, percentage: 68, url: 'https://www.last.fm/music/The+Beths' },
+      { name: 'The Lemonheads', playcount: 21, percentage: 55, url: 'https://www.last.fm/music/The+Lemonheads' },
+      { name: 'The Lemon Twigs', playcount: 20, percentage: 52, url: 'https://www.last.fm/music/The+Lemon+Twigs' },
+      { name: 'John Davis', playcount: 19, percentage: 50, url: 'https://www.last.fm/music/John+Davis' },
+      { name: 'Little Truck', playcount: 19, percentage: 50, url: 'https://www.last.fm/music/Little+Truck' },
+      { name: 'The Life and Times', playcount: 19, percentage: 50, url: 'https://www.last.fm/music/The+Life+and+Times' },
+      { name: 'Art Garfunkel', playcount: 18, percentage: 47, url: 'https://www.last.fm/music/Art+Garfunkel' },
+      { name: 'Big Star', playcount: 18, percentage: 47, url: 'https://www.last.fm/music/Big+Star' }
+    ]
+    
+    @lastfm_last_year = [
+      { name: 'The Lemon Twigs', playcount: 406, percentage: 100, url: 'https://www.last.fm/music/The+Lemon+Twigs' },
+      { name: 'R.E.M.', playcount: 159, percentage: 39, url: 'https://www.last.fm/music/R.E.M.' },
+      { name: 'Shiner', playcount: 138, percentage: 33, url: 'https://www.last.fm/music/Shiner' },
+      { name: 'Curling', playcount: 132, percentage: 32, url: 'https://www.last.fm/music/Curling' },
+      { name: 'Castor', playcount: 118, percentage: 29, url: 'https://www.last.fm/music/Castor' },
+      { name: 'American Darlings', playcount: 104, percentage: 25, url: 'https://www.last.fm/music/American+Darlings' },
+      { name: 'Van Halen', playcount: 99, percentage: 24, url: 'https://www.last.fm/music/Van+Halen' },
+      { name: 'MJ Lenderman', playcount: 80, percentage: 19, url: 'https://www.last.fm/music/MJ+Lenderman' },
+      { name: 'The Life and Times', playcount: 77, percentage: 18, url: 'https://www.last.fm/music/The+Life+and+Times' },
+      { name: 'Tame Impala', playcount: 74, percentage: 18, url: 'https://www.last.fm/music/Tame+Impala' }
+    ]
+    
+    # Concerts (mock data - replace with actual model data)
+    @recent_concerts = [
+      { date: Date.parse('2025-10-16'), artists: ['Parcels', 'The Lemon Twigs'], location: 'Morrison, CO' },
+      { date: Date.parse('2025-10-15'), artists: ['Shiner', 'No Fauna', 'Brass Tags'], location: 'Denver, CO' },
+      { date: Date.parse('2025-09-29'), artists: ['Alkaline Trio', 'Public Opinion'], location: 'Boulder, CO' },
+      { date: Date.parse('2025-09-19'), artists: ['Sunny Day Real Estate', 'Cursive'], location: 'Boulder, CO' },
+      { date: Date.parse('2025-09-02'), artists: ['Pixies', 'Spoon'], location: 'Morrison, CO' }
+    ]
   end
 
 end

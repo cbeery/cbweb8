@@ -142,5 +142,5 @@ class HomeController < ApplicationController
     # Next book to read
     @next_book = Book.want_to_read.order(created_at: :desc).first
   end
-  
+
 end

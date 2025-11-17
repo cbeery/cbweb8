@@ -17,6 +17,7 @@ Rails.application.routes.draw do
   get 'home/test9', to: 'home#test9'
   get 'home/test10', to: 'home#test10'
   get 'home/test11', to: 'home#test11'
+  get 'home/test12', to: 'home#test12'
 
   # Admin namespace
   namespace :admin do

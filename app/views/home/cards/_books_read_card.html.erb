@@ -1,0 +1,121 @@
+<%# app/views/home/cards/_books_read_card.html.erb %>
+<div class="bg-white rounded-lg shadow-lg overflow-hidden">
+  
+  <div class="flex flex-col md:flex-row-reverse xl:flex-row">
+    
+    <!-- Cover Container - Fixed aspect ratio, crops image to fit -->
+    <div class="relative bg-gray-100 flex-shrink-0">
+      
+      <% if readings&.first&.book %>
+        <% book = readings.first.book %>
+        
+        <!-- Mobile (xs, sm): Top image, cropped -->
+        <div class="block md:hidden h-32 w-full relative overflow-hidden">
+          <% if book.cover_image.attached? %>
+            <%= image_tag book.cover_image, 
+                          class: "absolute inset-0 w-full h-full object-cover object-center",
+                          alt: book.title %>
+          <% else %>
+            <div class="w-full h-full bg-gradient-to-br from-emerald-100 to-teal-200 
+                        flex items-center justify-center">
+              <svg class="w-12 h-12 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
+          <% end %>
+        </div>
+        
+        <!-- md+: Side image with fixed 2:3 container -->
+        <div class="hidden md:block w-32 lg:w-36" style="aspect-ratio: 2/3;">
+          <div class="relative w-full h-full overflow-hidden">
+            <% if book.cover_image.attached? %>
+              <%= image_tag book.cover_image, 
+                            class: "absolute inset-0 w-full h-full object-cover object-center",
+                            alt: book.title %>
+            <% else %>
+              <div class="w-full h-full bg-gradient-to-br from-emerald-100 to-teal-200 
+                          flex items-center justify-center">
+                <svg class="w-8 h-8 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        
+      <% else %>
+        <!-- No cover fallback -->
+        <div class="h-32 md:h-auto md:w-32 lg:w-36 bg-gradient-to-br from-emerald-100 to-teal-200 
+                    flex items-center justify-center"
+             style="md:aspect-ratio: 2/3;">
+          <svg class="w-12 h-12 md:w-8 md:h-8 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        </div>
+      <% end %>
+    </div>
+    
+    <!-- Content Container -->
+    <div class="flex-grow flex flex-col p-4 lg:p-5 min-w-0">
+      
+      <!-- Header -->
+      <div class="flex items-start justify-between mb-3 gap-3">
+        <h2 class="text-lg md:text-xl font-bold text-gray-900">Recent Books Read</h2>
+        <%= link_to "View all →", admin_books_path, 
+                    class: "text-sm text-indigo-600 hover:text-indigo-800 transition-colors whitespace-nowrap" %>
+      </div>
+      
+      <!-- Books List -->
+      <div class="space-y-2">
+        <% if readings&.any? %>
+          <% readings.each do |reading| %>
+            <div class="flex items-start gap-2 md:gap-3 text-sm">
+              <span class="text-gray-500 whitespace-nowrap flex-shrink-0 w-14 md:w-16">
+                <%= reading.finished_on.strftime("%b %d") %>
+              </span>
+              
+              <div class="flex-grow min-w-0">
+                <div class="flex items-start gap-2">
+                  <div class="flex-grow min-w-0">
+                    <p class="font-medium text-gray-900">
+                      <span class="break-words"><%= reading.book.title %></span>
+                      <% if reading.book.published_year.present? %>
+                        <span class="font-normal text-gray-500">(<%= reading.book.published_year %>)</span>
+                      <% end %>
+                      <% if reading.book.author.present? %>
+                        <span class="font-normal text-gray-500 text-xs block md:inline">· <%= reading.book.author %></span>
+                      <% end %>
+                    </p>
+                  </div>
+                  
+                  <div class="flex-shrink-0">
+                    <%= render 'shared/star_rating', rating: reading.rating || reading.book.rating %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-gray-500 text-sm">No recent books read</p>
+        <% end %>
+      </div>
+      
+      <!-- Footer -->
+      <div class="mt-auto pt-3 border-t border-gray-200">
+        <% if next_book %>
+          <p class="text-sm text-gray-600">
+            Next up: <span class="font-medium text-gray-900"><%= next_book.title %></span>
+          </p>
+        <% else %>
+          <p class="text-sm text-gray-600">
+            No books in want-to-read list
+          </p>
+        <% end %>
+      </div>
+      
+    </div>
+  </div>
+</div>

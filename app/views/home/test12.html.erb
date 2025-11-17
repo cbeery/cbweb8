@@ -1,0 +1,32 @@
+<!-- app/views/home/test12.html.erb -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  
+  <!-- Page Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+    <div class="flex gap-3 text-sm">
+      <%= link_to "← Home", root_path, class: "text-indigo-600 hover:text-indigo-800" %>
+      <%= link_to "Test 11", home_test11_path, class: "text-gray-600 hover:text-gray-800" %>
+    </div>
+  </div>
+
+  <!-- Main Grid Container -->
+  <!-- xs: stacked full width, sm: stacked full width, xl: side-by-side 6-col each -->
+  <div class="grid grid-cols-12 gap-6 xl:gap-8">
+    
+    <!-- Movie Viewings Card -->
+    <div class="col-span-12 xl:col-span-6">
+      <%= render 'home/cards/movie_viewings_card', 
+                 viewings: @recent_viewings,
+                 movies_this_year: @movies_this_year %>
+    </div>
+    
+    <!-- Books Read Card -->
+    <div class="col-span-12 xl:col-span-6">
+      <%= render 'home/cards/books_read_card',
+                 readings: @recent_readings,
+                 next_book: @next_book %>
+    </div>
+    
+  </div>
+</div>

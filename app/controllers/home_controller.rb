@@ -206,9 +206,8 @@ class HomeController < ApplicationController
   end
 
   def legacy_homepage_modern
-    # Reuse the same simple data
-    legacy_homepage
-    render 'home/legacy/homepage_modern_minimal'
+    setup_legacy_data
+    render 'home/legacy/homepage_modern'
   end
 
   private

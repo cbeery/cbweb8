@@ -1,18 +1,16 @@
 <%# app/views/home/cards/_movie_viewings_card.html.erb %>
-<div class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
+<div class="bg-white rounded-lg shadow-lg overflow-hidden">
   
   <div class="flex flex-col md:flex-row">
     
-    <!-- Poster Container - Natural aspect ratio with max-height constraint -->
-    <div class="order-first md:order-first xl:order-first 
-                w-full md:w-auto
-                flex-shrink-0 bg-gray-100">
+    <!-- Poster Container - Fixed aspect ratio, crops image to fit -->
+    <div class="relative bg-gray-100 flex-shrink-0">
       
       <% if viewings&.first&.movie&.movie_posters&.first %>
         <% poster = viewings.first.movie.movie_posters.first %>
         
-        <!-- Mobile and sm: Fixed height crop at top -->
-        <div class="block md:hidden h-32 relative overflow-hidden">
+        <!-- Mobile (xs, sm): Top image, cropped -->
+        <div class="block md:hidden h-32 w-full relative overflow-hidden">
           <% if poster.image.attached? %>
             <%= image_tag poster.image, 
                           class: "absolute inset-0 w-full h-full object-cover object-center",
@@ -26,31 +24,28 @@
           <% end %>
         </div>
         
-        <!-- md and larger: Natural aspect ratio with max-height -->
-        <div class="hidden md:block">
-          <% if poster.image.attached? %>
-            <%= image_tag poster.image, 
-                          class: "block w-auto",
-                          style: "height: 100%; max-height: 300px; max-width: 200px; min-width: 60px;",
-                          alt: viewings.first.movie.title %>
-          <% elsif poster.url? %>
-            <img src="<%= poster.url %>" 
-                 class="block w-auto"
-                 style="height: 100%; max-height: 300px; max-width: 200px; min-width: 60px;"
-                 alt="<%= viewings.first.movie.title %>">
-          <% else %>
-            <!-- Fallback with default 2:3 ratio -->
-            <div class="bg-gradient-to-br from-gray-200 to-gray-300"
-                 style="aspect-ratio: 2/3; max-height: 300px; max-width: 200px;">
-            </div>
-          <% end %>
+        <!-- md+: Side image with fixed 2:3 container -->
+        <div class="hidden md:block w-32 lg:w-36" style="aspect-ratio: 2/3;">
+          <div class="relative w-full h-full overflow-hidden">
+            <% if poster.image.attached? %>
+              <%= image_tag poster.image, 
+                            class: "absolute inset-0 w-full h-full object-cover object-center",
+                            alt: viewings.first.movie.title %>
+            <% elsif poster.url? %>
+              <img src="<%= poster.url %>" 
+                   class="absolute inset-0 w-full h-full object-cover object-center"
+                   alt="<%= viewings.first.movie.title %>">
+            <% else %>
+              <div class="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300"></div>
+            <% end %>
+          </div>
         </div>
         
       <% else %>
         <!-- No poster fallback -->
-        <div class="h-32 md:block bg-gradient-to-br from-indigo-100 to-blue-200 
+        <div class="h-32 md:h-auto md:w-32 lg:w-36 bg-gradient-to-br from-indigo-100 to-blue-200 
                     flex items-center justify-center"
-             style="md:aspect-ratio: 2/3; md:max-height: 300px; md:max-width: 200px;">
+             style="md:aspect-ratio: 2/3;">
           <svg class="w-12 h-12 md:w-8 md:h-8 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                   d="M7 4v16M17 4v16M3 8h4m10 0h4M3 16h4m10 0h4" />
@@ -70,23 +65,21 @@
       </div>
       
       <!-- Viewings List -->
-      <div class="flex-grow space-y-2">
+      <div class="space-y-2">
         <% if viewings&.any? %>
           <% viewings.each do |viewing| %>
             <div class="flex items-start gap-2 md:gap-3 text-sm">
-              <!-- Date -->
               <span class="text-gray-500 whitespace-nowrap flex-shrink-0 w-14 md:w-16">
                 <%= viewing.viewed_on.strftime("%b %d") %>
               </span>
               
-              <!-- Movie Details -->
               <div class="flex-grow min-w-0">
                 <div class="flex items-start gap-2">
                   <div class="flex-grow min-w-0">
                     <p class="font-medium text-gray-900">
                       <span class="break-words"><%= viewing.movie.title %></span>
                       <% if viewing.movie.year.present? %>
-                        <span class="font-normal text-gray-500 whitespace-nowrap">(<%= viewing.movie.year %>)</span>
+                        <span class="font-normal text-gray-500">(<%= viewing.movie.year %>)</span>
                       <% end %>
                       <% if viewing.movie.director.present? %>
                         <span class="font-normal text-gray-500 text-xs block md:inline">· <%= viewing.movie.director %></span>
@@ -94,42 +87,8 @@
                     </p>
                   </div>
                   
-                  <!-- Rating -->
                   <div class="flex-shrink-0">
-                    <% if viewing.movie.rating.present? && viewing.movie.rating > 0 %>
-                      <div class="flex items-center gap-0.5" title="<%= viewing.movie.rating %> stars">
-                        <% full_stars = viewing.movie.rating.floor %>
-                        <% has_half_star = (viewing.movie.rating % 1) >= 0.5 %>
-                        <% empty_stars = 5 - full_stars - (has_half_star ? 1 : 0) %>
-                        
-                        <% full_stars.times do %>
-                          <svg class="w-3 h-3 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                            <path d="M10 1l2.928 5.856 6.549.954-4.738 4.573 1.118 6.523L10 15.833l-5.857 3.073 1.118-6.523L.523 7.81l6.549-.954z"/>
-                          </svg>
-                        <% end %>
-                        
-                        <% if has_half_star %>
-                          <svg class="w-3 h-3 text-yellow-400" viewBox="0 0 20 20">
-                            <defs>
-                              <linearGradient id="half-<%= viewing.id %>">
-                                <stop offset="50%" stop-color="currentColor"/>
-                                <stop offset="50%" stop-color="#e5e7eb"/>
-                              </linearGradient>
-                            </defs>
-                            <path d="M10 1l2.928 5.856 6.549.954-4.738 4.573 1.118 6.523L10 15.833l-5.857 3.073 1.118-6.523L.523 7.81l6.549-.954z" 
-                                  fill="url(#half-<%= viewing.id %>)" stroke="currentColor" stroke-width="0.5"/>
-                          </svg>
-                        <% end %>
-                        
-                        <% empty_stars.times do %>
-                          <svg class="w-3 h-3 text-gray-300 fill-current" viewBox="0 0 20 20">
-                            <path d="M10 1l2.928 5.856 6.549.954-4.738 4.573 1.118 6.523L10 15.833l-5.857 3.073 1.118-6.523L.523 7.81l6.549-.954z"/>
-                          </svg>
-                        <% end %>
-                      </div>
-                    <% else %>
-                      <span class="text-xs text-gray-400">—</span>
-                    <% end %>
+                    <%= render 'shared/star_rating', rating: viewing.movie.rating %>
                   </div>
                 </div>
               </div>
@@ -141,7 +100,7 @@
       </div>
       
       <!-- Footer -->
-      <div class="mt-3 pt-3 border-t border-gray-200">
+      <div class="mt-auto pt-3 border-t border-gray-200">
         <p class="text-sm text-gray-600">
           <span class="font-medium text-gray-900"><%= movies_this_year %></span> 
           movies watched this year

@@ -28,6 +28,10 @@ Rails.application.routes.draw do
   get 'home/test20', to: 'home#test20'
   get 'home/test21', to: 'home#test21'
 
+  # Legacy page recreations (for reference/comparison with Bootstrap version)
+  get 'home/legacy/homepage', to: 'home#legacy_homepage'
+  get 'home/legacy/homepage_modern', to: 'home#legacy_homepage_modern'
+
   # Admin namespace
   namespace :admin do
     get "pages/index"

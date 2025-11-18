@@ -1,0 +1,42 @@
+<%# 
+  Blue star rating display component with larger stars and outline empty stars
+  Expects: rating (0-5, can be decimal like 4.5) 
+%>
+<% if rating.present? && rating > 0 %>
+  <div class="flex items-center gap-0.5" title="<%= rating %> stars">
+    <% full_stars = rating.floor %>
+    <% has_half_star = (rating % 1) >= 0.5 %>
+    <% empty_stars = 5 - full_stars - (has_half_star ? 1 : 0) %>
+    
+    <%# Full stars - dark blue %>
+    <% full_stars.times do %>
+      <svg class="w-4 h-4 text-blue-700 fill-current" viewBox="0 0 20 20">
+        <path d="M10 1l2.928 5.856 6.549.954-4.738 4.573 1.118 6.523L10 15.833l-5.857 3.073 1.118-6.523L.523 7.81l6.549-.954z"/>
+      </svg>
+    <% end %>
+    
+    <%# Half star - dark blue filled, outline other half %>
+    <% if has_half_star %>
+      <svg class="w-4 h-4 text-blue-700" viewBox="0 0 20 20">
+        <defs>
+          <linearGradient id="half-blue">
+            <stop offset="50%" stop-color="currentColor"/>
+            <stop offset="50%" stop-color="transparent"/>
+          </linearGradient>
+        </defs>
+        <path d="M10 1l2.928 5.856 6.549.954-4.738 4.573 1.118 6.523L10 15.833l-5.857 3.073 1.118-6.523L.523 7.81l6.549-.954z" 
+              fill="url(#half-blue)" stroke="currentColor" stroke-width="1"/>
+      </svg>
+    <% end %>
+    
+    <%# Empty stars - outline only %>
+    <% empty_stars.times do %>
+      <svg class="w-4 h-4 text-blue-700" viewBox="0 0 20 20">
+        <path d="M10 1l2.928 5.856 6.549.954-4.738 4.573 1.118 6.523L10 15.833l-5.857 3.073 1.118-6.523L.523 7.81l6.549-.954z" 
+              fill="none" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+    <% end %>
+  </div>
+<% else %>
+  <span class="text-xs text-gray-400">—</span>
+<% end %>

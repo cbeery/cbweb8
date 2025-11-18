@@ -28,6 +28,15 @@ Rails.application.routes.draw do
   get 'home/test20', to: 'home#test20'
   get 'home/test21', to: 'home#test21'
 
+  get 'home/test22', to: 'home#test22'
+  get 'home/test23', to: 'home#test23'
+  get 'home/test24', to: 'home#test24'
+  get 'home/test25', to: 'home#test25'
+  get 'home/test26', to: 'home#test26'
+  get 'home/test27', to: 'home#test27'
+  get 'home/test28', to: 'home#test28'
+  get 'home/test29', to: 'home#test29'
+
   # Legacy page recreations (for reference/comparison with Bootstrap version)
   get 'home/legacy/homepage', to: 'home#legacy_homepage'
   get 'home/legacy/homepage_modern', to: 'home#legacy_homepage_modern'

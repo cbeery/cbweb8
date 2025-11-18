@@ -210,6 +210,183 @@ class HomeController < ApplicationController
     render 'home/legacy/homepage_modern'
   end
 
+  def test22
+    # Combination of test12 and test21 - Best of both worlds
+    # Load ALL viewings (both home and theater)
+    @recent_viewings = Viewing.includes(movie: :movie_posters)
+                              .order(viewed_on: :desc)
+                              .limit(10)
+    
+    @recent_readings = BookRead.includes(book: :cover_image_attachment)
+                               .where.not(finished_on: nil)
+                               .order(finished_on: :desc)
+                               .limit(10)
+    
+    @movies_this_year = Viewing.where(
+      viewed_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count
+    
+    @books_this_year = BookRead.where(
+      finished_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count
+    
+    # Get the most recent movie and book for cover images
+    @most_recent_movie = @recent_viewings.first&.movie
+    @most_recent_book = @recent_readings.first&.book
+  end
+
+  def test23
+    # Alternative: Dense tabular view with alternating row colors
+    # - Even more compact with alternating backgrounds
+    # - Inline ratings without separate row
+    # - Micro thumbnails (24px height)
+    # - Different hover effects
+    load_test22_data_with_variations
+  end
+
+  def test24
+    # Alternative: Card within card design
+    # - Featured most recent item as mini-card inside
+    # - Rest of items in compact list below
+    # - Different visual hierarchy
+    # - Gradient backgrounds for headers
+    load_test22_data_with_variations
+  end
+
+  def test25
+    # Refined version of test22 with improved icons, star ratings, and mobile layout
+    # Load only 5 recent viewings (both home and theater)
+    @recent_viewings = Viewing.includes(movie: :movie_posters)
+                              .order(viewed_on: :desc)
+                              .limit(5)
+    
+    @recent_readings = BookRead.includes(book: :cover_image_attachment)
+                               .where.not(finished_on: nil)
+                               .order(finished_on: :desc)
+                               .limit(5)
+    
+    @movies_this_year = Viewing.where(
+      viewed_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count
+    
+    @books_this_year = BookRead.where(
+      finished_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count
+    
+    # Get the most recent movie and book for cover images
+    @most_recent_movie = @recent_viewings.first&.movie
+    @most_recent_book = @recent_readings.first&.book
+  end
+
+  def test26
+    # Final refinement with gray stars, larger desktop stars, and repositioned icons
+    # Load only 5 recent viewings (both home and theater)
+    @recent_viewings = Viewing.includes(movie: :movie_posters)
+                              .order(viewed_on: :desc)
+                              .limit(5)
+    
+    @recent_readings = BookRead.includes(book: :cover_image_attachment)
+                               .where.not(finished_on: nil)
+                               .order(finished_on: :desc)
+                               .limit(5)
+    
+    @movies_this_year = Viewing.where(
+      viewed_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count
+    
+    @books_this_year = BookRead.where(
+      finished_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count
+    
+    # Get the most recent movie and book for cover images
+    @most_recent_movie = @recent_viewings.first&.movie
+    @most_recent_book = @recent_readings.first&.book
+  end
+
+  def test27
+    # Fine-tuned version with medium desktop stars, lighter mobile stars, and next book footer
+    # Load only 5 recent viewings (both home and theater)
+    @recent_viewings = Viewing.includes(movie: :movie_posters)
+                              .order(viewed_on: :desc)
+                              .limit(5)
+    
+    @recent_readings = BookRead.includes(book: :cover_image_attachment)
+                               .where.not(finished_on: nil)
+                               .order(finished_on: :desc)
+                               .limit(5)
+    
+    @movies_this_year = Viewing.where(
+      viewed_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count
+    
+    @books_this_year = BookRead.where(
+      finished_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count
+    
+    # Get the most recent movie and book for cover images
+    @most_recent_movie = @recent_viewings.first&.movie
+    @most_recent_book = @recent_readings.first&.book
+    
+    # Get the next book from want-to-read list (like test12)
+    @next_book = Book.want_to_read.order(created_at: :desc).first
+  end
+
+  def test28
+    # Enhanced footer with Next up book + author and All books link
+    # Load only 5 recent viewings (both home and theater)
+    @recent_viewings = Viewing.includes(movie: :movie_posters)
+                              .order(viewed_on: :desc)
+                              .limit(5)
+    
+    @recent_readings = BookRead.includes(book: :cover_image_attachment)
+                               .where.not(finished_on: nil)
+                               .order(finished_on: :desc)
+                               .limit(5)
+    
+    @movies_this_year = Viewing.where(
+      viewed_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count
+    
+    @books_this_year = BookRead.where(
+      finished_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count
+    
+    # Get the most recent movie and book for cover images
+    @most_recent_movie = @recent_viewings.first&.movie
+    @most_recent_book = @recent_readings.first&.book
+    
+    # Get the next book from want-to-read list with author info
+    @next_book = Book.want_to_read.order(created_at: :desc).first
+  end
+
+  def test29
+    # Same as test28 but with lg breakpoint instead of xl for cards
+    # Load only 5 recent viewings (both home and theater)
+    @recent_viewings = Viewing.includes(movie: :movie_posters)
+                              .order(viewed_on: :desc)
+                              .limit(5)
+    
+    @recent_readings = BookRead.includes(book: :cover_image_attachment)
+                               .where.not(finished_on: nil)
+                               .order(finished_on: :desc)
+                               .limit(5)
+    
+    @movies_this_year = Viewing.where(
+      viewed_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count
+    
+    @books_this_year = BookRead.where(
+      finished_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count
+    
+    # Get the most recent movie and book for cover images
+    @most_recent_movie = @recent_viewings.first&.movie
+    @most_recent_book = @recent_readings.first&.book
+    
+    # Get the next book from want-to-read list with author info
+    @next_book = Book.want_to_read.order(created_at: :desc).first
+  end
+
   private
 
   def load_dashboard_data
@@ -314,6 +491,29 @@ class HomeController < ApplicationController
       { date: Date.parse('2025-09-19'), artists: ['Sunny Day Real Estate', 'Cursive'], location: 'Boulder, CO' },
       { date: Date.parse('2025-09-02'), artists: ['Pixies', 'Spoon'], location: 'Morrison, CO' }
     ]
+  end
+
+  def load_test22_data_with_variations
+    # Similar to test22 but with potential variations
+    @recent_viewings = Viewing.includes(movie: :movie_posters)
+                              .order(viewed_on: :desc)
+                              .limit(10)
+    
+    @recent_readings = BookRead.includes(book: :cover_image_attachment)
+                               .where.not(finished_on: nil)
+                               .order(finished_on: :desc)
+                               .limit(10)
+    
+    @movies_this_year = Viewing.where(
+      viewed_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count
+    
+    @books_this_year = BookRead.where(
+      finished_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count
+    
+    @most_recent_movie = @recent_viewings.first&.movie
+    @most_recent_book = @recent_readings.first&.book
   end
 
 end

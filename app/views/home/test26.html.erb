@@ -1,0 +1,272 @@
+<!-- app/views/home/test26.html.erb -->
+<!-- Further refinement with gray stars, larger desktop stars, and repositioned icons -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  
+  <!-- Page Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Dashboard - Final Refinement</h1>
+    <div class="flex gap-3 text-sm">
+      <%= link_to "← Test 25", home_test25_path, class: "text-indigo-600 hover:text-indigo-800" %>
+      <%= link_to "Home", root_path, class: "text-gray-600 hover:text-gray-800" %>
+    </div>
+  </div>
+
+  <!-- Main Grid Container - Standard 12-col grid -->
+  <div class="grid grid-cols-12 gap-6 xl:gap-8">
+    
+    <!-- Movies Card -->
+    <div class="col-span-12 xl:col-span-6">
+      <div class="bg-white rounded-lg shadow-lg">
+        
+        <!-- Cover Image - Only at xs size -->
+        <% if @most_recent_movie&.movie_posters&.first %>
+          <div class="block sm:hidden h-48 overflow-hidden relative">
+            <% poster = @most_recent_movie.movie_posters.first %>
+            <% if poster.image.attached? %>
+              <%= image_tag poster.image, 
+                            class: "w-full h-full object-cover object-center",
+                            alt: @most_recent_movie.title,
+                            loading: "lazy" %>
+            <% elsif poster.url? %>
+              <img src="<%= poster.url %>" 
+                   class="w-full h-full object-cover object-center"
+                   alt="<%= @most_recent_movie.title %>"
+                   loading="lazy">
+            <% else %>
+              <div class="w-full h-full bg-gradient-to-br from-purple-100 to-pink-200"></div>
+            <% end %>
+          </div>
+        <% end %>
+        
+        <!-- Card Header - Below image on mobile -->
+        <div class="p-4 border-b">
+          <h2 class="text-xl font-bold">Movies</h2>
+        </div>
+        
+        <!-- Table View - All screen sizes -->
+        <div class="divide-y divide-gray-200">
+          <% @recent_viewings.first(5).each do |viewing| %>
+            <div class="px-3 py-2 hover:bg-gray-50 transition-colors">
+              <div class="flex items-center">
+                
+                <!-- Thumbnail - Hidden at xs -->
+                <div class="hidden sm:block flex-shrink-0 mr-3">
+                  <% if viewing.movie.movie_posters.first %>
+                    <% poster = viewing.movie.movie_posters.first %>
+                    <% if poster.image.attached? %>
+                      <%= image_tag poster.image, 
+                                    class: "w-9 h-12 object-cover rounded-sm shadow",
+                                    alt: "",
+                                    title: viewing.movie.title,
+                                    loading: "lazy" %>
+                    <% elsif poster.url? %>
+                      <img src="<%= poster.url %>" 
+                           class="w-9 h-12 object-cover rounded-sm shadow"
+                           alt=""
+                           title="<%= viewing.movie.title %>"
+                           loading="lazy">
+                    <% else %>
+                      <div class="w-9 h-12 bg-gradient-to-b from-purple-200 to-pink-200 rounded-sm shadow flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white/60" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                        </svg>
+                      </div>
+                    <% end %>
+                  <% else %>
+                    <div class="w-9 h-12 bg-gray-200 rounded-sm shadow"></div>
+                  <% end %>
+                </div>
+                
+                <!-- Compact date badge - slightly larger on mobile -->
+                <div class="flex-shrink-0 w-10 sm:w-10 text-center mr-2">
+                  <div class="text-xs text-gray-500 leading-none"><%= viewing.viewed_on.strftime("%b") %></div>
+                  <div class="text-base sm:text-base font-bold leading-tight"><%= viewing.viewed_on.day %></div>
+                </div>
+                
+                <!-- Movie info and inline stars on mobile -->
+                <div class="flex-grow min-w-0 mr-2">
+                  <div class="flex items-center">
+                    <p class="font-medium truncate text-sm leading-tight">
+                      <%= viewing.movie.title %>
+                      <!-- Year - Hidden at xs -->
+                      <% if viewing.movie.year %>
+                        <span class="hidden sm:inline font-normal text-gray-500 text-xs">(<%= viewing.movie.year %>)</span>
+                      <% end %>
+                    </p>
+                    <!-- Location icon on desktop - back on title line -->
+                    <div class="hidden sm:block ml-2 flex-shrink-0">
+                      <% if viewing.location == 'theater' %>
+                        <!-- Ticket icon for theater - lighter gray -->
+                        <svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20" title="Theater">
+                          <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 100 4v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2a2 2 0 100-4V6z"/>
+                        </svg>
+                      <% else %>
+                        <!-- Home icon - lighter gray -->
+                        <svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20" title="Home">
+                          <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                        </svg>
+                      <% end %>
+                    </div>
+                  </div>
+                  
+                  <!-- Director - Hidden at xs -->
+                  <% if viewing.movie.director.present? %>
+                    <p class="hidden sm:block text-xs text-gray-500 leading-none mt-1"><%= viewing.movie.director %></p>
+                  <% end %>
+                  
+                  <!-- Star rating inline on mobile only -->
+                  <% if viewing.movie.rating %>
+                    <div class="block sm:hidden mt-1">
+                      <%= render 'shared/star_rating_gray', rating: viewing.movie.rating, size: 'mobile' %>
+                    </div>
+                  <% end %>
+                </div>
+                
+                <!-- Desktop: Rating column with larger stars -->
+                <div class="hidden sm:block flex-shrink-0">
+                  <% if viewing.movie.rating %>
+                    <%= render 'shared/star_rating_gray', rating: viewing.movie.rating, size: 'desktop' %>
+                  <% end %>
+                </div>
+                
+                <!-- Mobile: Location icon on the right -->
+                <div class="sm:hidden flex-shrink-0">
+                  <% if viewing.location == 'theater' %>
+                    <!-- Ticket icon for theater - lighter gray -->
+                    <svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20" title="Theater">
+                      <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 100 4v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2a2 2 0 100-4V6z"/>
+                    </svg>
+                  <% else %>
+                    <!-- Home icon - lighter gray -->
+                    <svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20" title="Home">
+                      <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                    </svg>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        
+        <!-- Footer -->
+        <div class="p-4 border-t bg-gray-50 flex justify-between items-center">
+          <p class="text-sm text-gray-600">
+            <span class="font-semibold text-gray-900"><%= @movies_this_year %></span> 
+            movies watched this year
+          </p>
+          <span class="sm:hidden">
+            <%= link_to "All →", admin_movies_path, class: "text-sm text-indigo-600 hover:text-indigo-800" %>
+          </span>
+          <span class="hidden sm:inline-block">
+            <%= link_to "All movies →", admin_movies_path, class: "text-sm text-indigo-600 hover:text-indigo-800" %>
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Books Card -->
+    <div class="col-span-12 xl:col-span-6">
+      <div class="bg-white rounded-lg shadow-lg">
+        
+        <!-- Cover Image - Only at xs size -->
+        <% if @most_recent_book %>
+          <div class="block sm:hidden h-48 overflow-hidden relative">
+            <% if @most_recent_book.cover_image.attached? %>
+              <%= image_tag @most_recent_book.cover_image, 
+                            class: "w-full h-full object-cover object-center",
+                            alt: @most_recent_book.title,
+                            loading: "lazy" %>
+            <% else %>
+              <div class="w-full h-full bg-gradient-to-br from-emerald-100 to-teal-200"></div>
+            <% end %>
+          </div>
+        <% end %>
+        
+        <!-- Card Header - Below image on mobile -->
+        <div class="p-4 border-b">
+          <h2 class="text-xl font-bold">Books</h2>
+        </div>
+        
+        <!-- Table View - All screen sizes -->
+        <div class="divide-y divide-gray-200">
+          <% @recent_readings.first(5).each do |reading| %>
+            <div class="px-3 py-2 hover:bg-gray-50 transition-colors">
+              <div class="flex items-center">
+                
+                <!-- Thumbnail - Hidden at xs -->
+                <div class="hidden sm:block flex-shrink-0 mr-3">
+                  <% if reading.book.cover_image.attached? %>
+                    <%= image_tag reading.book.cover_image, 
+                                  class: "w-9 h-12 object-cover rounded-sm shadow",
+                                  alt: "",
+                                  title: reading.book.title,
+                                  loading: "lazy" %>
+                  <% else %>
+                    <div class="w-9 h-12 bg-gradient-to-b from-emerald-300 to-teal-400 rounded-sm shadow flex items-center justify-center">
+                      <svg class="w-5 h-5 text-white/80" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+                      </svg>
+                    </div>
+                  <% end %>
+                </div>
+                
+                <!-- Compact date badge - slightly larger on mobile -->
+                <div class="flex-shrink-0 w-10 sm:w-10 text-center mr-2">
+                  <div class="text-xs text-gray-500 leading-none"><%= reading.finished_on.strftime("%b") %></div>
+                  <div class="text-base sm:text-base font-bold leading-tight"><%= reading.finished_on.day %></div>
+                </div>
+                
+                <!-- Book info and inline stars on mobile -->
+                <div class="flex-grow min-w-0 mr-2">
+                  <p class="font-medium truncate text-sm leading-tight">
+                    <%= reading.book.title %>
+                    <!-- Year - Hidden at xs -->
+                    <% if reading.book.published_year %>
+                      <span class="hidden sm:inline font-normal text-gray-500 text-xs">(<%= reading.book.published_year %>)</span>
+                    <% end %>
+                  </p>
+                  
+                  <!-- Author -->
+                  <% if reading.book.author.present? %>
+                    <p class="text-xs text-gray-500 leading-none mt-1"><%= reading.book.author %></p>
+                  <% end %>
+                  
+                  <!-- Star rating inline on mobile only -->
+                  <% rating = reading.rating || reading.book.rating %>
+                  <% if rating %>
+                    <div class="block sm:hidden mt-1">
+                      <%= render 'shared/star_rating_gray', rating: rating, size: 'mobile' %>
+                    </div>
+                  <% end %>
+                </div>
+                
+                <!-- Desktop: Rating column with larger stars -->
+                <div class="hidden sm:block flex-shrink-0">
+                  <% rating = reading.rating || reading.book.rating %>
+                  <% if rating %>
+                    <%= render 'shared/star_rating_gray', rating: rating, size: 'desktop' %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        
+        <!-- Footer -->
+        <div class="p-4 border-t bg-gray-50 flex justify-between items-center">
+          <p class="text-sm text-gray-600">
+            <span class="font-semibold text-gray-900"><%= @books_this_year %></span> 
+            books read this year
+          </p>
+          <span class="sm:hidden">
+            <%= link_to "All →", admin_books_path, class: "text-sm text-indigo-600 hover:text-indigo-800" %>
+          </span>
+          <span class="hidden sm:inline-block">
+            <%= link_to "All books →", admin_books_path, class: "text-sm text-indigo-600 hover:text-indigo-800" %>
+          </span>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>

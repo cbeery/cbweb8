@@ -1,0 +1,57 @@
+<%# 
+  Star rating with size and color variations
+  Expects: 
+    - rating (0-5, can be decimal like 4.5)
+    - variant: 'mobile' or 'desktop'
+      - mobile: w-4 h-4, lighter gray (gray-600)
+      - desktop: w-5 h-5, darker gray (gray-700)
+%>
+<% if rating.present? && rating > 0 %>
+  <% 
+    # Set star size and color based on variant
+    if variant == 'mobile'
+      star_class = 'w-4 h-4'
+      color_class = 'text-gray-600'  # Lighter gray for mobile (stacked below title)
+    else
+      star_class = 'w-5 h-5'  # Medium size - between test25 (w-4) and test26 (w-6)
+      color_class = 'text-gray-700'  # Darker gray for desktop (justified right)
+    end
+  %>
+  
+  <div class="flex items-center gap-0.5" title="<%= rating %> stars">
+    <% full_stars = rating.floor %>
+    <% has_half_star = (rating % 1) >= 0.5 %>
+    <% empty_stars = 5 - full_stars - (has_half_star ? 1 : 0) %>
+    
+    <%# Full stars %>
+    <% full_stars.times do %>
+      <svg class="<%= star_class %> <%= color_class %> fill-current" viewBox="0 0 20 20">
+        <path d="M10 1l2.928 5.856 6.549.954-4.738 4.573 1.118 6.523L10 15.833l-5.857 3.073 1.118-6.523L.523 7.81l6.549-.954z"/>
+      </svg>
+    <% end %>
+    
+    <%# Half star - filled half, outline other half %>
+    <% if has_half_star %>
+      <svg class="<%= star_class %> <%= color_class %>" viewBox="0 0 20 20">
+        <defs>
+          <linearGradient id="half-<%= variant %>-<%= rating.to_s.gsub('.', '-') %>">
+            <stop offset="50%" stop-color="currentColor"/>
+            <stop offset="50%" stop-color="transparent"/>
+          </linearGradient>
+        </defs>
+        <path d="M10 1l2.928 5.856 6.549.954-4.738 4.573 1.118 6.523L10 15.833l-5.857 3.073 1.118-6.523L.523 7.81l6.549-.954z" 
+              fill="url(#half-<%= variant %>-<%= rating.to_s.gsub('.', '-') %>)" stroke="currentColor" stroke-width="1"/>
+      </svg>
+    <% end %>
+    
+    <%# Empty stars - outline only %>
+    <% empty_stars.times do %>
+      <svg class="<%= star_class %> <%= color_class %>" viewBox="0 0 20 20">
+        <path d="M10 1l2.928 5.856 6.549.954-4.738 4.573 1.118 6.523L10 15.833l-5.857 3.073 1.118-6.523L.523 7.81l6.549-.954z" 
+              fill="none" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+    <% end %>
+  </div>
+<% else %>
+  <span class="text-xs text-gray-400">—</span>
+<% end %>

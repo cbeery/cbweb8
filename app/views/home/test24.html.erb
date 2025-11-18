@@ -1,0 +1,259 @@
+<!-- app/views/home/test24.html.erb -->
+<!-- Alternative: Card within card design with featured items -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  
+  <!-- Page Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Dashboard - Featured Card Design</h1>
+    <div class="flex gap-3 text-sm">
+      <%= link_to "← Test 23", home_test23_path, class: "text-indigo-600 hover:text-indigo-800" %>
+      <%= link_to "Test 22", home_test22_path, class: "text-gray-600 hover:text-gray-800" %>
+    </div>
+  </div>
+
+  <!-- Main Grid Container -->
+  <div class="grid grid-cols-12 gap-6 xl:gap-8">
+    
+    <!-- Movies Card with Featured Item -->
+    <div class="col-span-12 xl:col-span-6">
+      <div class="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg shadow-lg p-4">
+        <!-- Header with gradient text -->
+        <h2 class="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-4">
+          Movies
+        </h2>
+        
+        <!-- Featured most recent movie as mini-card -->
+        <% if @most_recent_movie %>
+          <% first_viewing = @recent_viewings.first %>
+          <div class="bg-white rounded-lg shadow-sm border border-purple-200 p-3 mb-4">
+            <div class="flex gap-3">
+              <!-- Poster -->
+              <div class="flex-shrink-0">
+                <% if @most_recent_movie.movie_posters.first %>
+                  <% poster = @most_recent_movie.movie_posters.first %>
+                  <% if poster.image.attached? %>
+                    <%= image_tag poster.image, 
+                                  class: "w-16 h-24 object-cover rounded shadow",
+                                  alt: @most_recent_movie.title,
+                                  loading: "lazy" %>
+                  <% elsif poster.url? %>
+                    <img src="<%= poster.url %>" 
+                         class="w-16 h-24 object-cover rounded shadow"
+                         alt="<%= @most_recent_movie.title %>"
+                         loading="lazy">
+                  <% else %>
+                    <div class="w-16 h-24 bg-gradient-to-b from-purple-200 to-indigo-200 rounded shadow"></div>
+                  <% end %>
+                <% else %>
+                  <div class="w-16 h-24 bg-gray-200 rounded shadow"></div>
+                <% end %>
+              </div>
+              
+              <!-- Info -->
+              <div class="flex-grow min-w-0">
+                <div class="flex items-start justify-between">
+                  <div class="flex-grow">
+                    <p class="font-semibold text-sm leading-tight">
+                      <%= @most_recent_movie.title %>
+                      <% if @most_recent_movie.year %>
+                        <span class="font-normal text-gray-500 text-xs">(<%= @most_recent_movie.year %>)</span>
+                      <% end %>
+                    </p>
+                    <% if @most_recent_movie.director.present? %>
+                      <p class="text-xs text-gray-600 mt-0.5"><%= @most_recent_movie.director %></p>
+                    <% end %>
+                  </div>
+                  <!-- Location badge -->
+                  <span class="ml-2 px-2 py-0.5 text-[10px] font-medium rounded-full <%= first_viewing.location == 'theater' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700' %>">
+                    <%= first_viewing.location == 'theater' ? 'Theater' : 'Home' %>
+                  </span>
+                </div>
+                
+                <!-- Date and Rating -->
+                <div class="flex items-center justify-between mt-2">
+                  <span class="text-xs text-gray-500">
+                    <%= first_viewing.viewed_on.strftime("%B %d") %>
+                  </span>
+                  <% if @most_recent_movie.rating %>
+                    <div class="flex items-center">
+                      <%= render 'shared/star_rating', rating: @most_recent_movie.rating %>
+                    </div>
+                  <% end %>
+                </div>
+                
+                <!-- Most Recent badge -->
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800">
+                    Most Recent
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+        
+        <!-- Rest of movies in compact list -->
+        <div class="bg-white/50 rounded-lg">
+          <% @recent_viewings[1..-1].each do |viewing| %>
+            <div class="px-3 py-2 border-b border-purple-100 last:border-0 hover:bg-white/70 transition-colors">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center flex-grow min-w-0">
+                  <!-- Mini date -->
+                  <div class="text-center mr-3 flex-shrink-0">
+                    <div class="text-[10px] text-gray-500"><%= viewing.viewed_on.strftime("%b") %></div>
+                    <div class="text-sm font-bold text-gray-700"><%= viewing.viewed_on.day %></div>
+                  </div>
+                  
+                  <!-- Title -->
+                  <div class="flex-grow min-w-0">
+                    <p class="text-sm font-medium truncate">
+                      <%= viewing.movie.title %>
+                      <% if viewing.location == 'theater' %>
+                        <span class="ml-1 text-red-400">●</span>
+                      <% else %>
+                        <span class="ml-1 text-blue-400">●</span>
+                      <% end %>
+                    </p>
+                    <% if viewing.movie.director.present? %>
+                      <p class="text-xs text-gray-500 truncate"><%= viewing.movie.director %></p>
+                    <% end %>
+                  </div>
+                </div>
+                
+                <!-- Rating -->
+                <% if viewing.movie.rating %>
+                  <div class="flex items-center ml-2 flex-shrink-0">
+                    <span class="text-yellow-500 text-xs">★</span>
+                    <span class="text-xs font-medium text-gray-700 ml-0.5"><%= viewing.movie.rating %></span>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        
+        <!-- Footer -->
+        <div class="mt-4 pt-3 border-t border-purple-200 flex justify-between items-center">
+          <p class="text-sm text-purple-700">
+            <span class="font-bold"><%= @movies_this_year %></span> movies this year
+          </p>
+          <%= link_to "All movies →", admin_movies_path, 
+                      class: "text-sm font-medium text-purple-600 hover:text-purple-800" %>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Books Card with Featured Item -->
+    <div class="col-span-12 xl:col-span-6">
+      <div class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-lg shadow-lg p-4">
+        <!-- Header with gradient text -->
+        <h2 class="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-4">
+          Books
+        </h2>
+        
+        <!-- Featured most recent book as mini-card -->
+        <% if @most_recent_book %>
+          <% first_reading = @recent_readings.first %>
+          <div class="bg-white rounded-lg shadow-sm border border-emerald-200 p-3 mb-4">
+            <div class="flex gap-3">
+              <!-- Cover -->
+              <div class="flex-shrink-0">
+                <% if @most_recent_book.cover_image.attached? %>
+                  <%= image_tag @most_recent_book.cover_image, 
+                                class: "w-16 h-24 object-cover rounded shadow",
+                                alt: @most_recent_book.title,
+                                loading: "lazy" %>
+                <% else %>
+                  <div class="w-16 h-24 bg-gradient-to-b from-emerald-200 to-teal-200 rounded shadow flex items-center justify-center">
+                    <svg class="w-8 h-8 text-white/60" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+                    </svg>
+                  </div>
+                <% end %>
+              </div>
+              
+              <!-- Info -->
+              <div class="flex-grow min-w-0">
+                <p class="font-semibold text-sm leading-tight">
+                  <%= @most_recent_book.title %>
+                  <% if @most_recent_book.published_year %>
+                    <span class="font-normal text-gray-500 text-xs">(<%= @most_recent_book.published_year %>)</span>
+                  <% end %>
+                </p>
+                <% if @most_recent_book.author.present? %>
+                  <p class="text-xs text-gray-600 mt-0.5"><%= @most_recent_book.author %></p>
+                <% end %>
+                
+                <!-- Date and Rating -->
+                <div class="flex items-center justify-between mt-2">
+                  <span class="text-xs text-gray-500">
+                    <%= first_reading.finished_on.strftime("%B %d") %>
+                  </span>
+                  <% rating = first_reading.rating || @most_recent_book.rating %>
+                  <% if rating %>
+                    <div class="flex items-center">
+                      <%= render 'shared/star_rating', rating: rating %>
+                    </div>
+                  <% end %>
+                </div>
+                
+                <!-- Most Recent badge -->
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800">
+                    Most Recent
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+        
+        <!-- Rest of books in compact list -->
+        <div class="bg-white/50 rounded-lg">
+          <% @recent_readings[1..-1].each do |reading| %>
+            <div class="px-3 py-2 border-b border-emerald-100 last:border-0 hover:bg-white/70 transition-colors">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center flex-grow min-w-0">
+                  <!-- Mini date -->
+                  <div class="text-center mr-3 flex-shrink-0">
+                    <div class="text-[10px] text-gray-500"><%= reading.finished_on.strftime("%b") %></div>
+                    <div class="text-sm font-bold text-gray-700"><%= reading.finished_on.day %></div>
+                  </div>
+                  
+                  <!-- Title -->
+                  <div class="flex-grow min-w-0">
+                    <p class="text-sm font-medium truncate">
+                      <%= reading.book.title %>
+                    </p>
+                    <% if reading.book.author.present? %>
+                      <p class="text-xs text-gray-500 truncate"><%= reading.book.author %></p>
+                    <% end %>
+                  </div>
+                </div>
+                
+                <!-- Rating -->
+                <% rating = reading.rating || reading.book.rating %>
+                <% if rating %>
+                  <div class="flex items-center ml-2 flex-shrink-0">
+                    <span class="text-yellow-500 text-xs">★</span>
+                    <span class="text-xs font-medium text-gray-700 ml-0.5"><%= rating %></span>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        
+        <!-- Footer -->
+        <div class="mt-4 pt-3 border-t border-emerald-200 flex justify-between items-center">
+          <p class="text-sm text-emerald-700">
+            <span class="font-bold"><%= @books_this_year %></span> books this year
+          </p>
+          <%= link_to "All books →", admin_books_path, 
+                      class: "text-sm font-medium text-emerald-600 hover:text-emerald-800" %>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>

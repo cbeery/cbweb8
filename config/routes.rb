@@ -34,6 +34,8 @@ Rails.application.routes.draw do
   get 'home/test25', to: 'home#test25'
   get 'home/test26', to: 'home#test26'
   get 'home/test27', to: 'home#test27'
+  get 'home/test28', to: 'home#test28'
+  get 'home/test29', to: 'home#test29'
 
   # Legacy page recreations (for reference/comparison with Bootstrap version)
   get 'home/legacy/homepage', to: 'home#legacy_homepage'

@@ -76,34 +76,49 @@ class Admin::MoviesController < Admin::BaseController
   def enrich
     @viewing = @movie.viewings.order(viewed_on: :desc).first || @movie.viewings.build
     
-    if @movie.director.blank? && @movie.tmdb_id.blank?
-      # Need to find TMDB data first
-      render :enrich_tmdb
-    else
-      # Skip to step 2 if we already have director
-      redirect_to enrich_step2_admin_movie_path(@movie)
+    # Check if we need director info (not just tmdb_id)
+    if @movie.director.blank?
+      if @movie.tmdb_id.present?
+        # We have tmdb_id but no director - fetch it now
+        fetch_director_from_tmdb
+      else
+        # Need to search for the movie on TMDB
+        render :enrich_tmdb
+        return
+      end
     end
+    
+    # If we have director, skip to step 2
+    redirect_to enrich_step2_admin_movie_path(@movie)
   end
   
   # GET /admin/movies/:id/enrich_step2  
   # Step 2: Set viewing details (location, theater, film series)
   def enrich_step2
-    @viewing = @movie.viewings.order(viewed_on: :desc).first || @movie.viewings.build
-    @theaters = Theater.order(:name)
-    @film_series = FilmSeries.order(:name)
-    @film_series_events = @viewing.film_series_event&.film_series&.film_series_events&.order(started_on: :desc) || []
+    @viewing = @movie.viewings.order(viewed_on: :desc).first || @movie.viewings.build(viewed_on: Date.current)
+    @theaters = Theater.alphabetical
+    @film_series = FilmSeries.alphabetical
+    
+    # Load events for the selected series if present
+    if @viewing.film_series_event_id.present?
+      series_id = @viewing.film_series_event.film_series_id
+      @film_series_events = FilmSeriesEvent.where(film_series_id: series_id).recent
+    else
+      @film_series_events = []
+    end
   end
-  
+    
   # GET /admin/movies/:id/enrich_step3
   # Step 3: Select poster
   def enrich_step3
     if @movie.tmdb_id.present?
       @posters = TmdbService.get_movie_images(@movie.tmdb_id, language: 'en')
-      @posters = @posters.select { |p| p['iso_639_1'] == 'en' }
-      @total_count = @posters.size
-      @posters = @posters.first(20)
+      @posters = @posters.select { |p| p['iso_639_1'] == 'en' } if @posters
+      @total_count = @posters&.size || 0
+      @posters = (@posters || []).first(20)
     else
       @posters = []
+      @total_count = 0
     end
   end
   
@@ -111,32 +126,35 @@ class Admin::MoviesController < Admin::BaseController
   # Process the enrichment form submission
   def process_enrichment
     ActiveRecord::Base.transaction do
-      # Update movie with TMDB data if provided
-      if params[:tmdb_id].present? && @movie.tmdb_id != params[:tmdb_id]
-        @movie.update!(tmdb_id: params[:tmdb_id])
+      # Update or create viewing with details
+      if params[:viewing].present?
+        viewing_id = params[:viewing][:id]
         
-        # Fetch and update director
-        if params[:fetch_director] == 'true'
-          credits = TmdbService.get_movie_credits(params[:tmdb_id])
-          director = credits&.dig('crew')&.find { |c| c['job'] == 'Director' }
-          @movie.update!(director: director['name']) if director
+        if viewing_id.present?
+          @viewing = @movie.viewings.find(viewing_id)
+        else
+          @viewing = @movie.viewings.build
+        end
+        
+        # Update viewing attributes
+        @viewing.assign_attributes(viewing_enrichment_params)
+        
+        unless @viewing.save
+          flash[:alert] = "Error saving viewing: #{@viewing.errors.full_messages.join(', ')}"
+          redirect_to enrich_step2_admin_movie_path(@movie)
+          return
         end
       end
       
-      # Update or create viewing with details
-      if params[:viewing].present?
-        viewing = @movie.viewings.find_or_initialize_by(id: params[:viewing][:id])
-        viewing.update!(viewing_enrichment_params)
+      # If continue_to_posters is true, go to poster selection
+      if params[:continue_to_posters] == 'true'
+        redirect_to enrich_step3_admin_movie_path(@movie)
+      else
+        redirect_to admin_movie_path(@movie), notice: 'Movie enrichment completed!'
       end
-      
-      # Handle poster selection
-      if params[:poster_path].present?
-        save_poster_from_tmdb(params[:poster_path])
-      end
-      
-      redirect_to admin_movie_path(@movie), notice: 'Movie successfully enriched!'
     end
   rescue => e
+    logger.error "Enrichment error: #{e.message}"
     redirect_to admin_movie_path(@movie), alert: "Error enriching movie: #{e.message}"
   end
   
@@ -228,6 +246,20 @@ class Admin::MoviesController < Admin::BaseController
         primary: true
       )
     end
+  end
+
+  def fetch_director_from_tmdb
+    return unless @movie.tmdb_id.present?
+    
+    credits = TmdbService.get_movie_credits(@movie.tmdb_id)
+    director = credits&.dig('crew')&.find { |c| c['job'] == 'Director' }
+    
+    if director
+      @movie.update(director: director['name'])
+      flash[:notice] = "Director updated from TMDB: #{director['name']}"
+    end
+  rescue => e
+    logger.error "Error fetching director: #{e.message}"
   end
   
   def save_poster_from_tmdb(poster_path)

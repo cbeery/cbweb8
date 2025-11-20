@@ -69,6 +69,13 @@ Rails.application.routes.draw do
 
     resources :movies do  # Change from: only: [:index, :show, :edit, :update]
       member do
+        # Enrichment workflow
+        get :enrich
+        get :enrich_step2
+        get :enrich_step3
+        patch :process_enrichment
+        
+        # TMDB integration
         get :tmdb_lookup
         post :tmdb_search
         patch :update_from_tmdb
@@ -79,6 +86,29 @@ Rails.application.routes.draw do
       # Nested viewings routes
       resources :viewings, only: [:new, :create, :edit, :update, :destroy]
     end
+
+    # Theaters management
+    resources :theaters do
+      collection do
+        post :quick_create # For AJAX inline creation
+      end
+    end
+    
+    # Film Series management
+    resources :film_series do
+      resources :film_series_events
+      collection do
+        post :quick_create # For AJAX inline creation
+      end
+    end
+    
+    resources :film_series_events, only: [] do
+      collection do
+        get :for_series # AJAX endpoint to get events for a series
+        post :quick_create # For AJAX inline creation
+      end
+    end
+    
 
     resources :books, only: [:index, :show, :edit, :update]
 

@@ -44,6 +44,6 @@ class Admin::ViewingsController < Admin::BaseController
   end
   
   def viewing_params
-    params.require(:viewing).permit(:viewed_on, :notes, :rewatch)
+    params.require(:viewing).permit(:viewed_on, :notes, :rewatch, :location)
   end
 end

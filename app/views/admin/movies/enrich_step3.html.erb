@@ -53,7 +53,11 @@
       <div class="px-6 py-4 border-b">
         <h1 class="text-2xl font-bold text-gray-900">Select Poster</h1>
         <p class="mt-1 text-sm text-gray-600">
-          Choose the best poster for "<%= @movie.title %>"
+          Choose the best poster for 
+          <%= link_to admin_movie_path(@movie), 
+              class: "text-indigo-600 hover:text-indigo-800 underline font-medium" do %>
+            "<%= @movie.title %>"
+          <% end %>
         </p>
       </div>
 

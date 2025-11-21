@@ -45,9 +45,14 @@
       <div class="px-6 py-4 border-b">
         <h1 class="text-2xl font-bold text-gray-900">Find Movie on TMDB</h1>
         <p class="mt-1 text-sm text-gray-600">
-          Let's find director information and other metadata for "<%= @movie.title %>"
+          Let's find director information and other metadata for 
+          <%= link_to admin_movie_path(@movie), 
+              class: "text-indigo-600 hover:text-indigo-800 underline font-medium" do %>
+            "<%= @movie.title %>"
+          <% end %>
         </p>
       </div>
+
 
       <div class="px-6 py-6">
         <%= form_with url: tmdb_search_admin_movie_path(@movie), 

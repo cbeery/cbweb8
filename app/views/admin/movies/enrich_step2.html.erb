@@ -66,170 +66,136 @@
           <%= f.hidden_field :continue_to_posters, value: true %>
           
           <%= f.fields_for :viewing, @viewing do |vf| %>
-            <%= vf.hidden_field :id if @viewing.persisted? %>
+            <% if @viewing.persisted? %>
+              <%= vf.hidden_field :id %>
+            <% end %>
             
-            <!-- Hidden field for viewed_on -->
-            <%= vf.hidden_field :viewed_on, value: @viewing.viewed_on || Date.current %>
+            <!-- Fix: Ensure viewed_on is properly set -->
+            <%= vf.hidden_field :viewed_on, value: (@viewing.viewed_on || Date.current).to_s %>
             
             <div class="space-y-6">
               <!-- Location Selection -->
               <div>
-                <%= vf.label :location, "Where did you watch?", 
-                    class: "block text-sm font-medium text-gray-700 mb-2" %>
-                <div class="flex space-x-4">
-                  <label class="flex-1">
-                    <input type="radio" name="viewing[location]" value="home" 
-                           <%= 'checked' if @viewing.location == 'home' || @viewing.location.blank? %>
-                           class="peer sr-only"
-                           id="location_home">
-                    <div class="px-4 py-3 border-2 rounded-lg cursor-pointer transition
-                                peer-checked:border-indigo-600 peer-checked:bg-indigo-50
-                                hover:bg-gray-50">
-                      <div class="flex items-center">
-                        <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-                        </svg>
-                        <span class="font-medium">Home</span>
-                      </div>
-                    </div>
+                <%= vf.label :location, "Where did you watch?", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <div class="space-y-2">
+                  <label class="flex items-center">
+                    <%= vf.radio_button :location, 'home', 
+                        checked: @viewing.location == 'home' || @viewing.location.blank?,
+                        class: "mr-2 text-indigo-600 focus:ring-indigo-500",
+                        id: "location_home" %>
+                    <span class="text-gray-700">Home</span>
                   </label>
                   
-                  <label class="flex-1">
-                    <input type="radio" name="viewing[location]" value="theater" 
-                           <%= 'checked' if @viewing.location == 'theater' %>
-                           class="peer sr-only"
-                           id="location_theater">
-                    <div class="px-4 py-3 border-2 rounded-lg cursor-pointer transition
-                                peer-checked:border-indigo-600 peer-checked:bg-indigo-50
-                                hover:bg-gray-50">
-                      <div class="flex items-center">
-                        <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                          <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
-                        </svg>
-                        <span class="font-medium">Theater</span>
-                      </div>
-                    </div>
+                  <label class="flex items-center">
+                    <%= vf.radio_button :location, 'theater', 
+                        checked: @viewing.location == 'theater',
+                        class: "mr-2 text-indigo-600 focus:ring-indigo-500",
+                        id: "location_theater" %>
+                    <span class="text-gray-700">Theater</span>
                   </label>
                 </div>
               </div>
               
-              <!-- Theater Selection (shown when theater is selected) -->
+              <!-- Theater Details (shown when theater selected) -->
               <div id="theater-details" style="<%= @viewing.location == 'theater' ? '' : 'display: none;' %>">
-                <div class="space-y-4">
-                  <!-- Theater Dropdown -->
+                <div class="p-4 bg-gray-50 rounded-lg space-y-4">
+                  <h3 class="font-medium text-gray-900">Theater Details</h3>
+                  
+                  <!-- Theater Selection -->
                   <div>
-                    <%= vf.label :theater_id, "Theater", 
-                        class: "block text-sm font-medium text-gray-700 mb-1" %>
-                    <div class="flex space-x-2">
-                      <%= vf.select :theater_id,
-                          options_for_select(Theater.for_select, @viewing.theater_id),
-                          { include_blank: "Select theater..." },
-                          class: "flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
-                          id: "theater_select" %>
-                      <button type="button" 
-                              onclick="showNewTheaterModal()"
-                              class="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                      </button>
+                    <%= vf.label :theater_id, "Theater", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                    <div class="flex items-center space-x-2">
+                      <%= vf.select :theater_id, 
+                          options_for_select(@theaters.map { |t| [t.name, t.id] }, @viewing.theater_id),
+                          { include_blank: "Select a theater..." },
+                          class: "flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+                      
+                      <%= link_to "+", 
+                          new_admin_theater_path(modal: true),
+                          class: "px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700",
+                          data: { turbo_frame: "modal" },
+                          title: "Add new theater" %>
                     </div>
                   </div>
                   
-                  <!-- Price -->
-                  <div>
-                    <%= vf.label :price, "Ticket Price (optional)", 
-                        class: "block text-sm font-medium text-gray-700 mb-1" %>
-                    <%= vf.number_field :price, 
-                        value: @viewing.price,
-                        step: 0.01,
-                        placeholder: "0.00",
-                        class: "w-32 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
-                  </div>
-                  
-                  <!-- Format -->
-                  <div>
-                    <%= vf.label :format, "Format (optional)", 
-                        class: "block text-sm font-medium text-gray-700 mb-1" %>
-                    <%= vf.select :format,
-                        options_for_select([
-                          ['Standard', 'standard'],
-                          ['IMAX', 'imax'],
-                          ['Dolby', 'dolby'],
-                          ['3D', '3d'],
-                          ['70mm', '70mm'],
-                          ['35mm', '35mm'],
-                          ['Digital', 'digital']
-                        ], @viewing.format),
-                        { include_blank: "Select format..." },
-                        class: "w-48 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Film Series Section -->
-              <div class="border-t pt-6">
-                <h3 class="text-sm font-medium text-gray-700 mb-3">Film Series (optional)</h3>
-                
-                <div class="space-y-4">
-                  <!-- Film Series Dropdown -->
-                  <div>
-                    <div class="flex space-x-2">
-                      <select id="film_series_select"
-                              onchange="loadFilmSeriesEvents(this.value)"
-                              class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        <option value="">No film series...</option>
-                        <% @film_series.each do |series| %>
-                          <option value="<%= series.id %>"
-                                  <%= 'selected' if @viewing.film_series_event&.film_series_id == series.id %>>
-                            <%= series.name %>
-                          </option>
-                        <% end %>
-                      </select>
-                      <button type="button" 
-                              onclick="showNewSeriesModal()"
-                              class="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                      </button>
+                  <!-- Optional Fields -->
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <%= vf.label :price, "Ticket Price", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                      <%= vf.number_field :price, 
+                          step: 0.01,
+                          placeholder: "12.50",
+                          class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
                     </div>
-                  </div>
-                  
-                  <!-- Film Series Event Dropdown (shown when series selected) -->
-                  <div id="series-event-section" style="<%= @viewing.film_series_event.present? ? '' : 'display: none;' %>">
-                    <%= vf.label :film_series_event_id, "Event", 
-                        class: "block text-sm font-medium text-gray-700 mb-1" %>
-                    <div class="flex space-x-2">
-                      <%= vf.select :film_series_event_id,
-                          options_for_select(
-                            @film_series_events.map { |e| [e.display_name, e.id] },
-                            @viewing.film_series_event_id
-                          ),
-                          { include_blank: "Select event..." },
-                          class: "flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
-                          id: "film_series_event_select" %>
-                      <button type="button" 
-                              onclick="showNewEventModal()"
-                              class="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                      </button>
+                    
+                    <div>
+                      <%= vf.label :format, "Format", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                      <%= vf.select :format,
+                          options_for_select([
+                            ['Standard', 'standard'],
+                            ['IMAX', 'imax'],
+                            ['Dolby', 'dolby'],
+                            ['3D', '3d'],
+                            ['70mm', '70mm'],
+                            ['35mm', '35mm']
+                          ], @viewing.format),
+                          { include_blank: "Select format..." },
+                          class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
                     </div>
                   </div>
                 </div>
               </div>
               
-              <!-- Notes -->
+              <!-- Film Series (Optional) -->
               <div>
-                <%= vf.label :notes, "Notes (optional)", 
+                <%= vf.label :film_series_event_id, "Part of a Film Series? (Optional)", 
                     class: "block text-sm font-medium text-gray-700 mb-1" %>
-                <%= vf.text_area :notes,
-                    value: @viewing.notes,
-                    rows: 3,
-                    placeholder: "Any thoughts about this viewing...",
-                    class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+                
+                <div class="space-y-2">
+                  <div class="flex items-center space-x-2">
+                    <select id="film_series_select" 
+                            class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            onchange="loadFilmSeriesEvents(this.value)">
+                      <option value="">Select a series...</option>
+                      <% @film_series.each do |series| %>
+                        <% selected = @viewing.film_series_event&.film_series_id == series.id %>
+                        <option value="<%= series.id %>" <%= 'selected' if selected %>>
+                          <%= series.name %>
+                        </option>
+                      <% end %>
+                    </select>
+                    
+                    <%= link_to "+", 
+                        new_admin_film_series_path(modal: true),
+                        class: "px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700",
+                        data: { turbo_frame: "modal" },
+                        title: "Add new series" %>
+                  </div>
+                  
+                  <div id="film_series_events_section" style="<%= @viewing.film_series_event_id.present? ? '' : 'display: none;' %>">
+                    <%= vf.select :film_series_event_id,
+                        options_for_select(@film_series_events.map { |e| 
+                          ["#{e.name} (#{e.started_on.strftime('%b %d, %Y')})", e.id] 
+                        }, @viewing.film_series_event_id),
+                        { include_blank: "Select an event..." },
+                        class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Additional Options -->
+              <div class="space-y-3">
+                <label class="flex items-center">
+                  <%= vf.check_box :rewatch, class: "mr-2 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" %>
+                  <span class="text-sm text-gray-700">This was a rewatch</span>
+                </label>
+                
+                <div>
+                  <%= vf.label :notes, "Notes (Optional)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                  <%= vf.text_area :notes, 
+                      rows: 3,
+                      class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+                </div>
               </div>
             </div>
           <% end %>
@@ -283,123 +249,34 @@
   });
   
   function loadFilmSeriesEvents(seriesId) {
-    const eventSection = document.getElementById('series-event-section');
-    const eventSelect = document.getElementById('film_series_event_select');
+    const eventSection = document.getElementById('film_series_events_section');
+    const eventSelect = document.querySelector('[name="viewing[film_series_event_id]"]');
     
     if (!seriesId) {
       eventSection.style.display = 'none';
-      eventSelect.innerHTML = '<option value="">Select event...</option>';
+      eventSelect.innerHTML = '<option value="">Select an event...</option>';
       return;
     }
     
     // Show the section
     eventSection.style.display = 'block';
     
-    // Fetch events for this series
+    // Fetch events for this series via AJAX
     fetch(`/admin/film_series_events/for_series?series_id=${seriesId}`)
       .then(response => response.json())
-      .then(data => {
-        eventSelect.innerHTML = '<option value="">Select event...</option>';
-        data.events.forEach(event => {
-          const option = document.createElement('option');
-          option.value = event.id;
-          option.textContent = event.name;
-          eventSelect.appendChild(option);
+      .then(events => {
+        let options = '<option value="">Select an event...</option>';
+        events.forEach(event => {
+          const date = new Date(event.started_on).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          options += `<option value="${event.id}">${event.name} (${date})</option>`;
         });
+        eventSelect.innerHTML = options;
       })
       .catch(error => {
         console.error('Error loading events:', error);
+        eventSection.style.display = 'none';
       });
   }
-  
-  // Modal functions (simplified versions - you can enhance these)
-  function showNewTheaterModal() {
-    const name = prompt('Theater name:');
-    if (!name) return;
-    
-    const city = prompt('City (optional):');
-    const state = prompt('State (optional):');
-    
-    // Create theater via AJAX
-    fetch('/admin/theaters/quick_create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-      },
-      body: JSON.stringify({ theater: { name, city, state } })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.id) {
-        // Add to select and select it
-        const select = document.getElementById('theater_select');
-        const option = new Option(data.display_name || data.name, data.id, true, true);
-        select.add(option);
-      } else {
-        alert('Error: ' + (data.errors || ['Unknown error']).join(', '));
-      }
-    });
-  }
-  
-  function showNewSeriesModal() {
-    const name = prompt('Film Series name:');
-    if (!name) return;
-    
-    fetch('/admin/film_series/quick_create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-      },
-      body: JSON.stringify({ film_series: { name } })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.id) {
-        const select = document.getElementById('film_series_select');
-        const option = new Option(data.name, data.id, true, true);
-        select.add(option);
-        // Trigger event loading
-        loadFilmSeriesEvents(data.id);
-      }
-    });
-  }
-  
-  function showNewEventModal() {
-    const seriesId = document.getElementById('film_series_select').value;
-    if (!seriesId) {
-      alert('Please select a film series first');
-      return;
-    }
-    
-    const name = prompt('Event name:');
-    if (!name) return;
-    
-    const startDate = prompt('Start date (YYYY-MM-DD):');
-    if (!startDate) return;
-    
-    fetch('/admin/film_series_events/quick_create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-      },
-      body: JSON.stringify({ 
-        film_series_event: { 
-          name, 
-          film_series_id: seriesId,
-          started_on: startDate 
-        } 
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.id) {
-        const select = document.getElementById('film_series_event_select');
-        const option = new Option(data.name, data.id, true, true);
-        select.add(option);
-      }
-    });
-  }
 </script>
+
+<%= turbo_frame_tag "modal" %>

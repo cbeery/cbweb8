@@ -74,28 +74,32 @@ class Admin::MoviesController < Admin::BaseController
   # GET /admin/movies/:id/enrich
   # Step 1: TMDB lookup for director and year
   def enrich
-    @viewing = @movie.viewings.order(viewed_on: :desc).first || @movie.viewings.build
-    
-    # Check if we need director info (not just tmdb_id)
-    if @movie.director.blank?
-      if @movie.tmdb_id.present?
-        # We have tmdb_id but no director - fetch it now
-        fetch_director_from_tmdb
-      else
-        # Need to search for the movie on TMDB
-        render :enrich_tmdb
-        return
-      end
+    # If we don't have a TMDB ID, show the TMDB search form
+    if @movie.tmdb_id.blank?
+      render :enrich_tmdb
+      return
     end
     
-    # If we have director, skip to step 2
+    # If we have TMDB ID but no director, fetch it silently
+    if @movie.director.blank? && @movie.tmdb_id.present?
+      fetch_director_from_tmdb
+    end
+    
+    # Go directly to step 2 (viewing details)
     redirect_to enrich_step2_admin_movie_path(@movie)
   end
   
   # GET /admin/movies/:id/enrich_step2  
   # Step 2: Set viewing details (location, theater, film series)
   def enrich_step2
-    @viewing = @movie.viewings.order(viewed_on: :desc).first || @movie.viewings.build(viewed_on: Date.current)
+    # Find or build a viewing, ensuring viewed_on is set
+    @viewing = @movie.viewings.order(viewed_on: :desc).first
+    if @viewing.nil?
+      @viewing = @movie.viewings.build(viewed_on: Date.current)
+    elsif @viewing.viewed_on.nil?
+      @viewing.viewed_on = Date.current
+    end
+    
     @theaters = Theater.alphabetical
     @film_series = FilmSeries.alphabetical
     
@@ -128,20 +132,44 @@ class Admin::MoviesController < Admin::BaseController
     ActiveRecord::Base.transaction do
       # Update or create viewing with details
       if params[:viewing].present?
-        viewing_id = params[:viewing][:id]
+        viewing_params = viewing_enrichment_params
         
-        if viewing_id.present?
-          @viewing = @movie.viewings.find(viewing_id)
+        # Ensure viewed_on is present
+        if viewing_params[:viewed_on].blank?
+          viewing_params[:viewed_on] = Date.current
+        end
+        
+        # Find or build viewing
+        if params[:viewing][:id].present?
+          @viewing = @movie.viewings.find(params[:viewing][:id])
         else
           @viewing = @movie.viewings.build
         end
         
+        # Clear location-specific fields if location is 'home'
+        if viewing_params[:location] == 'home'
+          viewing_params[:theater_id] = nil
+          viewing_params[:price] = nil
+          viewing_params[:format] = nil
+        end
+        
         # Update viewing attributes
-        @viewing.assign_attributes(viewing_enrichment_params)
+        @viewing.assign_attributes(viewing_params)
         
         unless @viewing.save
           flash[:alert] = "Error saving viewing: #{@viewing.errors.full_messages.join(', ')}"
-          redirect_to enrich_step2_admin_movie_path(@movie)
+          
+          # Reload the data needed for the form
+          @theaters = Theater.alphabetical
+          @film_series = FilmSeries.alphabetical
+          if @viewing.film_series_event_id.present?
+            series_id = @viewing.film_series_event.film_series_id
+            @film_series_events = FilmSeriesEvent.where(film_series_id: series_id).recent
+          else
+            @film_series_events = []
+          end
+          
+          render :enrich_step2, status: :unprocessable_entity
           return
         end
       end
@@ -155,6 +183,7 @@ class Admin::MoviesController < Admin::BaseController
     end
   rescue => e
     logger.error "Enrichment error: #{e.message}"
+    logger.error e.backtrace.join("\n")
     redirect_to admin_movie_path(@movie), alert: "Error enriching movie: #{e.message}"
   end
   
@@ -229,7 +258,21 @@ class Admin::MoviesController < Admin::BaseController
   end
   
   def viewing_enrichment_params
-    params.require(:viewing).permit(:viewed_on, :location, :theater_id, :film_series_event_id, :notes, :rewatch, :price, :format, :time)
+    # Clean up the params before permitting
+    viewing_params = params.require(:viewing).permit(:viewed_on, :location, :theater_id, :film_series_event_id, :notes, :rewatch, :price, :format, :time)
+    
+    # Ensure viewed_on is a proper date
+    if viewing_params[:viewed_on].present?
+      begin
+        viewing_params[:viewed_on] = Date.parse(viewing_params[:viewed_on].to_s)
+      rescue ArgumentError
+        viewing_params[:viewed_on] = Date.current
+      end
+    else
+      viewing_params[:viewed_on] = Date.current
+    end
+    
+    viewing_params
   end
   
   def handle_poster_upload
@@ -255,22 +298,30 @@ class Admin::MoviesController < Admin::BaseController
     director = credits&.dig('crew')&.find { |c| c['job'] == 'Director' }
     
     if director
-      @movie.update(director: director['name'])
-      flash[:notice] = "Director updated from TMDB: #{director['name']}"
+      @movie.update!(director: director['name'])
     end
   rescue => e
-    logger.error "Error fetching director: #{e.message}"
+    logger.error "Failed to fetch director from TMDB: #{e.message}"
   end
   
   def save_poster_from_tmdb(poster_path)
-    poster_url = TmdbService.poster_url(poster_path, size: 'original')
+    return unless poster_path.present?
     
+    # Build the full poster URL
+    poster_url = "https://image.tmdb.org/t/p/original#{poster_path}"
+    
+    # Check if we already have this poster
     existing_poster = @movie.movie_posters.find_by(url: poster_url)
     
     if existing_poster
+      # Just make it primary
+      @movie.movie_posters.update_all(primary: false)
       existing_poster.update!(primary: true)
     else
-      @movie.movie_posters.update_all(primary: false)
+      # Mark any existing primary posters as non-primary
+      @movie.movie_posters.where(primary: true).update_all(primary: false)
+      
+      # Create new poster record (removed tmdb_path which doesn't exist)
       @movie.movie_posters.create!(
         url: poster_url,
         source: 'tmdb',

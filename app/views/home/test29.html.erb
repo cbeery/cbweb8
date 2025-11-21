@@ -21,7 +21,7 @@
         <!-- Cover Image - Only at xs size -->
         <% if @most_recent_movie&.movie_posters&.first %>
           <div class="block sm:hidden h-48 overflow-hidden relative">
-            <% poster = @most_recent_movie.movie_posters.first %>
+            <% poster = @most_recent_movie.movie_posters.primary.first %>
             <% if poster.image.attached? %>
               <%= image_tag poster.image, 
                             class: "w-full h-full object-cover object-center",
@@ -52,7 +52,7 @@
                 <!-- Thumbnail - Hidden at xs -->
                 <div class="hidden sm:block flex-shrink-0 mr-3">
                   <% if viewing.movie.movie_posters.first %>
-                    <% poster = viewing.movie.movie_posters.first %>
+                    <% poster = viewing.movie.movie_posters.primary.first %>
                     <% if poster.image.attached? %>
                       <%= image_tag poster.image, 
                                     class: "w-9 h-12 object-cover rounded-sm shadow",

@@ -1,0 +1,70 @@
+<!-- app/views/admin/movies/_poster_grid.html.erb -->
+<%# 
+  Locals:
+  - movie: The movie object
+  - posters: Array of poster hashes from TMDB
+  - total_count: Total number of posters available
+  - show_dimensions: Whether to show poster dimensions (default: true)
+  - grid_cols: CSS classes for grid columns (default: responsive)
+%>
+
+<% show_dimensions ||= true %>
+<% grid_cols ||= "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5" %>
+
+<% if posters.present? && posters.any? %>
+  <p class="text-sm text-gray-600 mb-4">
+    Showing <%= posters.size %> of <%= total_count %> available posters
+  </p>
+  
+  <div class="grid <%= grid_cols %> gap-4">
+    <% posters.each_with_index do |poster, index| %>
+      <div class="group relative">
+        <% poster_url = TmdbService.poster_url(poster['file_path'], size: 'w342') %>
+        
+        <%= link_to select_poster_admin_movie_path(movie, poster_path: poster['file_path']),
+            method: :post,
+            data: { turbo_method: :post },
+            class: "block w-full relative" do %>
+          
+          <%= image_tag poster_url,
+              alt: "Movie poster #{index + 1}",
+              class: "w-full h-auto rounded shadow-lg hover:shadow-2xl hover:ring-4 hover:ring-indigo-500 transition-all cursor-pointer bg-gray-100",
+              loading: "lazy" %>
+          
+          <!-- Select button overlay (appears on hover) -->
+          <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+            <span class="px-4 py-2 bg-indigo-600 text-white rounded-md font-medium shadow-lg">
+              Select
+            </span>
+          </div>
+        <% end %>
+        
+        <!-- Poster info -->
+        <% if show_dimensions %>
+          <div class="mt-2 text-xs text-gray-500 text-center">
+            <%= poster['width'] %>×<%= poster['height'] %>
+            <% if poster['vote_average'] && poster['vote_average'] > 0 %>
+              <br>★ <%= poster['vote_average'].round(1) %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  
+  <% if total_count > posters.size %>
+    <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+      <p class="text-sm text-blue-800">
+        <strong>Note:</strong> Only showing the first <%= posters.size %> of <%= total_count %> available English posters.
+      </p>
+    </div>
+  <% end %>
+<% else %>
+  <div class="text-center py-12">
+    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
+    <h3 class="mt-2 text-sm font-medium text-gray-900">No posters found</h3>
+    <p class="mt-1 text-sm text-gray-500">TMDB doesn't have posters for this movie.</p>
+  </div>
+<% end %>

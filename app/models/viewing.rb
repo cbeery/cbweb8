@@ -1,3 +1,4 @@
+# app/models/viewing.rb
 class Viewing < ApplicationRecord
   # Associations
   belongs_to :movie
@@ -22,6 +23,7 @@ class Viewing < ApplicationRecord
   scope :with_film_series, -> { joins(:film_series_event) }
   
   # Callbacks
+  before_validation :set_defaults  # NEW: Added this to ensure viewed_on is set
   before_validation :set_rewatch_status
   # before_validation :set_viewed_at_from_viewed_on
   
@@ -32,6 +34,27 @@ class Viewing < ApplicationRecord
   
   def self.average_price
     where.not(price: nil).average(:price)
+  end
+  
+  # NEW: Add helper methods for forms (optional but helpful)
+  def self.location_options
+    [
+      ['Home', 'home'],
+      ['Theater', 'theater'],
+      ['Streaming', 'streaming'],
+      ['Other', 'other']
+    ]
+  end
+  
+  def self.format_options
+    [
+      ['Standard', 'standard'],
+      ['IMAX', 'imax'],
+      ['Dolby', 'dolby'],
+      ['3D', '3d'],
+      ['70mm', '70mm'],
+      ['35mm', '35mm']
+    ]
   end
   
   # Instance methods
@@ -49,7 +72,40 @@ class Viewing < ApplicationRecord
     film_series_event&.film_series
   end
   
+  # NEW: Add helper methods for checking location type
+  def theater_viewing?
+    location == 'theater'
+  end
+  
+  def home_viewing?
+    location == 'home'
+  end
+  
+  def display_date
+    viewed_on&.strftime('%B %d, %Y')
+  end
+  
+  def display_format
+    format&.upcase || 'Standard'
+  end
+  
   private
+  
+  # NEW: Add set_defaults method to ensure viewed_on and location have defaults
+  def set_defaults
+    # Ensure viewed_on has a default if not set
+    self.viewed_on ||= Date.current if new_record?
+    
+    # Set default location if not specified
+    self.location ||= 'home' if new_record? && location.blank?
+    
+    # Clear theater-related fields if not a theater viewing
+    unless theater_viewing?
+      self.theater_id = nil
+      self.price = nil
+      self.format = nil
+    end
+  end
   
   def set_rewatch_status
     # Only auto-set if rewatch is nil and we have the required data

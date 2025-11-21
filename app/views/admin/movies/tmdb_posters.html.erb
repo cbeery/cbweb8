@@ -7,10 +7,7 @@
         <div>
           <h2 class="text-xl font-bold text-gray-900">Select Movie Poster</h2>
           <p class="text-sm text-gray-600 mt-1">
-            Showing <%= @posters.size %> English posters
-            <% if @total_count > 20 %>
-              (of <%= @total_count %> total)
-            <% end %>
+            Choose a poster for "<%= @movie.title %>"
           </p>
         </div>
         <%= link_to admin_movie_path(@movie), 
@@ -24,52 +21,11 @@
 
       <!-- Modal Body -->
       <div class="px-6 py-4">
-        <% if @posters.present? %>
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            <% @posters.each_with_index do |poster, index| %>
-              <div class="group relative">
-                <% poster_url = TmdbService.poster_url(poster['file_path'], size: 'w342') %>
-                
-                <%= link_to select_poster_admin_movie_path(@movie, poster_path: poster['file_path']),
-                    method: :post,
-                    data: { turbo_method: :post },
-                    class: "block w-full relative" do %>
-                  
-                  <%= image_tag poster_url,
-                      alt: "Movie poster #{index + 1}",
-                      class: "w-full h-auto rounded shadow-lg hover:shadow-2xl hover:ring-4 hover:ring-indigo-500 transition-all cursor-pointer bg-gray-100",
-                      loading: "lazy",
-                      onerror: "console.error('Failed to load poster:', '#{poster_url}'); this.style.border='3px solid red';" %>
-                <% end %>
-                
-                <!-- Poster info -->
-                <div class="mt-2 text-xs text-gray-500 text-center">
-                  <%= poster['width'] %>×<%= poster['height'] %>
-                  <% if poster['vote_average'] && poster['vote_average'] > 0 %>
-                    <br>★ <%= poster['vote_average'].round(1) %>
-                  <% end %>
-                </div>
-                
-                <!-- Debug: Show URL (remove this after fixing) -->
-                <div class="mt-1 text-xs text-gray-400 break-all text-center">
-                  <%= poster_url %>
-                </div>
-              </div>
-            <% end %>
-          </div>
-          
-          <% if @total_count > 20 %>
-            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p class="text-sm text-blue-800">
-                <strong>Note:</strong> Only showing the first 20 of <%= @total_count %> available English posters.
-              </p>
-            </div>
-          <% end %>
-        <% else %>
-          <div class="text-center py-12">
-            <p class="text-gray-600">No English posters found for this movie.</p>
-          </div>
-        <% end %>
+        <!-- Use the shared poster grid partial -->
+        <%= render 'poster_grid', 
+            movie: @movie, 
+            posters: @posters, 
+            total_count: @total_count %>
         
         <div class="mt-6 pt-4 border-t">
           <%= link_to "Cancel", 

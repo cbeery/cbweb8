@@ -78,10 +78,10 @@
                     class: "block text-sm font-medium text-gray-700 mb-2" %>
                 <div class="flex space-x-4">
                   <label class="flex-1">
-                    <%= vf.radio_button :location, 'home', 
-                        checked: @viewing.location == 'home' || @viewing.location.blank?,
-                        class: "peer sr-only",
-                        onchange: "toggleTheaterSection()" %>
+                    <input type="radio" name="viewing[location]" value="home" 
+                           <%= 'checked' if @viewing.location == 'home' || @viewing.location.blank? %>
+                           class="peer sr-only"
+                           id="location_home">
                     <div class="px-4 py-3 border-2 rounded-lg cursor-pointer transition
                                 peer-checked:border-indigo-600 peer-checked:bg-indigo-50
                                 hover:bg-gray-50">
@@ -95,10 +95,10 @@
                   </label>
                   
                   <label class="flex-1">
-                    <%= vf.radio_button :location, 'theater', 
-                        checked: @viewing.location == 'theater',
-                        class: "peer sr-only",
-                        onchange: "toggleTheaterSection()" %>
+                    <input type="radio" name="viewing[location]" value="theater" 
+                           <%= 'checked' if @viewing.location == 'theater' %>
+                           class="peer sr-only"
+                           id="location_theater">
                     <div class="px-4 py-3 border-2 rounded-lg cursor-pointer transition
                                 peer-checked:border-indigo-600 peer-checked:bg-indigo-50
                                 hover:bg-gray-50">
@@ -255,16 +255,32 @@
 </div>
 
 <script>
-  function toggleTheaterSection() {
-    const theaterRadio = document.querySelector('input[name="viewing[location]"][value="theater"]:checked');
+  // Set up location toggle listeners  
+  document.addEventListener('DOMContentLoaded', function() {
+    const homeRadio = document.getElementById('location_home');
+    const theaterRadio = document.getElementById('location_theater');
     const theaterDetails = document.getElementById('theater-details');
     
-    if (theaterRadio) {
-      theaterDetails.style.display = 'block';
-    } else {
-      theaterDetails.style.display = 'none';
+    // Function to toggle theater section
+    function toggleTheaterSection() {
+      if (theaterRadio && theaterRadio.checked) {
+        theaterDetails.style.display = 'block';
+      } else {
+        theaterDetails.style.display = 'none';
+      }
     }
-  }
+    
+    // Add listeners
+    if (homeRadio) {
+      homeRadio.addEventListener('change', toggleTheaterSection);
+    }
+    if (theaterRadio) {
+      theaterRadio.addEventListener('change', toggleTheaterSection);
+    }
+    
+    // Set initial state
+    toggleTheaterSection();
+  });
   
   function loadFilmSeriesEvents(seriesId) {
     const eventSection = document.getElementById('series-event-section');

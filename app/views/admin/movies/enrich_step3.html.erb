@@ -1,0 +1,114 @@
+<!-- app/views/admin/movies/enrich_step3.html.erb -->
+<% content_for :title, "Select Poster: #{@movie.title}" %>
+
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Progress Steps -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <div class="flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-full">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-gray-900">TMDB Data</h3>
+            <p class="text-xs text-gray-500">✓ Complete</p>
+          </div>
+        </div>
+        
+        <div class="flex-1 mx-4">
+          <div class="h-0.5 bg-green-600"></div>
+        </div>
+        
+        <div class="flex items-center">
+          <div class="flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-full">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-gray-900">Viewing Details</h3>
+            <p class="text-xs text-gray-500">✓ Complete</p>
+          </div>
+        </div>
+        
+        <div class="flex-1 mx-4">
+          <div class="h-0.5 bg-green-600"></div>
+        </div>
+        
+        <div class="flex items-center">
+          <div class="flex items-center justify-center w-10 h-10 bg-indigo-600 text-white rounded-full">3</div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-gray-900">Poster</h3>
+            <p class="text-xs text-gray-400">Select artwork</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="bg-white rounded-lg shadow-lg">
+      <div class="px-6 py-4 border-b">
+        <h1 class="text-2xl font-bold text-gray-900">Select Poster</h1>
+        <p class="mt-1 text-sm text-gray-600">
+          Choose the best poster for "<%= @movie.title %>"
+        </p>
+      </div>
+
+      <div class="px-6 py-6">
+        <% if @posters.any? %>
+          <p class="text-sm text-gray-600 mb-4">
+            Showing <%= @posters.size %> of <%= @total_count %> available posters
+          </p>
+          
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <% @posters.each do |poster| %>
+              <% poster_url = "https://image.tmdb.org/t/p/w342#{poster['file_path']}" %>
+              <div class="relative group">
+                <img src="<%= poster_url %>" 
+                     alt="Poster"
+                     class="w-full rounded-lg shadow-md group-hover:shadow-lg transition-shadow"
+                     loading="lazy">
+                
+                <%= button_to select_poster_admin_movie_path(@movie),
+                    params: { poster_path: poster['file_path'] },
+                    method: :post,
+                    data: { turbo: false },
+                    class: "absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 hover:bg-opacity-50 transition-opacity rounded-lg" do %>
+                  <span class="hidden group-hover:block px-4 py-2 bg-indigo-600 text-white rounded-md font-medium">
+                    Select
+                  </span>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+          
+          <div class="mt-8 pt-6 border-t flex justify-between">
+            <%= link_to "← Back", 
+                enrich_step2_admin_movie_path(@movie),
+                class: "px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 font-medium" %>
+            <%= link_to "Skip Poster Selection", 
+                admin_movie_path(@movie),
+                class: "px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 font-medium" %>
+          </div>
+        <% else %>
+          <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No posters found</h3>
+            <p class="mt-1 text-sm text-gray-500">TMDB doesn't have posters for this movie.</p>
+            
+            <div class="mt-6">
+              <%= link_to "Complete Without Poster", 
+                  admin_movie_path(@movie),
+                  class: "px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

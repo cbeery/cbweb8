@@ -1,0 +1,80 @@
+<!-- app/views/admin/movies/enrich_tmdb.html.erb -->
+<% content_for :title, "Enrich Movie: #{@movie.title}" %>
+
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Progress Steps -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <div class="flex items-center justify-center w-10 h-10 bg-indigo-600 text-white rounded-full">1</div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-gray-900">TMDB Data</h3>
+            <p class="text-xs text-gray-500">Find director & year</p>
+          </div>
+        </div>
+        
+        <div class="flex-1 mx-4">
+          <div class="h-0.5 bg-gray-300"></div>
+        </div>
+        
+        <div class="flex items-center">
+          <div class="flex items-center justify-center w-10 h-10 bg-gray-300 text-gray-600 rounded-full">2</div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-gray-400">Viewing Details</h3>
+            <p class="text-xs text-gray-400">Location & series</p>
+          </div>
+        </div>
+        
+        <div class="flex-1 mx-4">
+          <div class="h-0.5 bg-gray-300"></div>
+        </div>
+        
+        <div class="flex items-center">
+          <div class="flex items-center justify-center w-10 h-10 bg-gray-300 text-gray-600 rounded-full">3</div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-gray-400">Poster</h3>
+            <p class="text-xs text-gray-400">Select artwork</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="bg-white rounded-lg shadow-lg">
+      <div class="px-6 py-4 border-b">
+        <h1 class="text-2xl font-bold text-gray-900">Find Movie on TMDB</h1>
+        <p class="mt-1 text-sm text-gray-600">
+          Let's find director information and other metadata for "<%= @movie.title %>"
+        </p>
+      </div>
+
+      <div class="px-6 py-6">
+        <%= form_with url: tmdb_search_admin_movie_path(@movie), 
+            method: :post,
+            data: { turbo_frame: "tmdb_results" },
+            class: "mb-6" do |f| %>
+          <div class="flex space-x-2">
+            <%= f.text_field :query, 
+                placeholder: "Search TMDB...",
+                value: @movie.title,
+                class: "flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
+                required: true %>
+            <%= f.submit "Search", 
+                class: "px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 cursor-pointer font-medium" %>
+          </div>
+        <% end %>
+        
+        <turbo-frame id="tmdb_results">
+          <!-- Search results will appear here -->
+        </turbo-frame>
+        
+        <div class="mt-6 pt-6 border-t flex justify-between">
+          <%= link_to "Skip TMDB →", 
+              enrich_step2_admin_movie_path(@movie),
+              class: "text-gray-600 hover:text-gray-800" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

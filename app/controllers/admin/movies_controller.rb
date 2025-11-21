@@ -74,21 +74,18 @@ class Admin::MoviesController < Admin::BaseController
   # GET /admin/movies/:id/enrich
   # Step 1: TMDB lookup for director and year
   def enrich
-    @viewing = @movie.viewings.order(viewed_on: :desc).first || @movie.viewings.build
-    
-    # Check if we need director info (not just tmdb_id)
-    if @movie.director.blank?
-      if @movie.tmdb_id.present?
-        # We have tmdb_id but no director - fetch it now
-        fetch_director_from_tmdb
-      else
-        # Need to search for the movie on TMDB
-        render :enrich_tmdb
-        return
-      end
+    # If we don't have a TMDB ID, show the TMDB search form
+    if @movie.tmdb_id.blank?
+      render :enrich_tmdb
+      return
     end
     
-    # If we have director, skip to step 2
+    # If we have TMDB ID but no director, fetch it silently
+    if @movie.director.blank? && @movie.tmdb_id.present?
+      fetch_director_from_tmdb
+    end
+    
+    # Go directly to step 2 (viewing details)
     redirect_to enrich_step2_admin_movie_path(@movie)
   end
   

@@ -124,8 +124,10 @@
                         class: "block text-sm font-medium text-gray-700 mb-1" %>
                     
                     <div class="space-y-2">
+                      <!-- Series Selection (not part of form, just for UI) -->
                       <div class="flex items-center space-x-2">
-                        <select data-film-series-select
+                        <select id="film_series_selector"
+                                data-film-series-select
                                 class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                           <option value="">Select a series...</option>
                           <% @film_series.each do |series| %>
@@ -143,13 +145,20 @@
                             title: "Add new series" %>
                       </div>
                       
-                      <div data-film-series-events-section style="<%= @viewing.film_series_event_id.present? ? '' : 'display: none;' %>">
+                      <!-- Events Selection (the actual form field) -->
+                      <div id="film_series_events_section"
+                           data-film-series-events-section 
+                           style="<%= @viewing.film_series_event_id.present? ? '' : 'display: none;' %>">
                         <%= vf.select :film_series_event_id,
                             options_for_select(@film_series_events.map { |e| 
                               ["#{e.name} (#{e.started_on.strftime('%b %d, %Y')})", e.id] 
                             }, @viewing.film_series_event_id),
                             { include_blank: "Select an event..." },
-                            class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+                            { 
+                              id: "film_series_event_select",
+                              class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
+                              'data-film-series-event-select': true
+                            } %>
                       </div>
                     </div>
                   </div>
@@ -220,7 +229,15 @@
 </div>
 
 <script>
-  // Turbo-compatible JavaScript using data attributes instead of IDs
+  // Turbo-compatible JavaScript for location toggle and film series
+  
+  function initializeEnrichStep2() {
+    // Initialize location toggle
+    initializeLocationToggle();
+    // Initialize film series dropdown
+    initializeFilmSeriesSelect();
+  }
+  
   function initializeLocationToggle() {
     const homeRadio = document.querySelector('[data-location-radio="home"]');
     const theaterRadio = document.querySelector('[data-location-radio="theater"]');
@@ -236,10 +253,30 @@
         theaterSection.style.display = 'block';
       } else {
         theaterSection.style.display = 'none';
+        // Clear theater-specific fields when hiding
+        clearTheaterFields();
       }
     }
     
-    // Add listeners
+    function clearTheaterFields() {
+      // Clear film series selection
+      const seriesSelect = document.querySelector('[data-film-series-select]');
+      if (seriesSelect) seriesSelect.value = '';
+      
+      // Hide and clear events section
+      const eventsSection = document.querySelector('[data-film-series-events-section]');
+      if (eventsSection) {
+        eventsSection.style.display = 'none';
+        const eventsSelect = eventsSection.querySelector('select');
+        if (eventsSelect) eventsSelect.value = '';
+      }
+    }
+    
+    // Remove any existing listeners (to prevent duplicates)
+    homeRadio.removeEventListener('change', toggleTheaterSection);
+    theaterRadio.removeEventListener('change', toggleTheaterSection);
+    
+    // Add fresh listeners
     homeRadio.addEventListener('change', toggleTheaterSection);
     theaterRadio.addEventListener('change', toggleTheaterSection);
     
@@ -248,64 +285,141 @@
   }
   
   function initializeFilmSeriesSelect() {
-    const seriesSelect = document.querySelector('[data-film-series-select]');
-    const eventsSection = document.querySelector('[data-film-series-events-section]');
-    const eventsSelect = document.querySelector('[name="viewing[film_series_event_id]"]');
+    // Use IDs for more reliable selection
+    const seriesSelect = document.getElementById('film_series_selector');
+    const eventsSection = document.getElementById('film_series_events_section');
+    const eventsSelect = document.getElementById('film_series_event_select');
     
-    if (!seriesSelect || !eventsSection || !eventsSelect) {
-      console.warn('Film series elements not found');
+    console.log('Film Series Debug:', {
+      seriesSelect: !!seriesSelect,
+      eventsSection: !!eventsSection,
+      eventsSelect: !!eventsSelect
+    });
+    
+    if (!seriesSelect) {
+      console.error('Film series selector not found');
       return;
     }
     
-    seriesSelect.addEventListener('change', function() {
-      const seriesId = this.value;
+    if (!eventsSection) {
+      console.error('Film series events section not found');
+      return;
+    }
+    
+    // Events select might not exist initially, that's OK
+    
+    function handleSeriesChange() {
+      const seriesId = seriesSelect.value;
+      console.log('Film series changed to:', seriesId);
       
-      if (!seriesId) {
+      if (!seriesId || seriesId === '') {
+        // No series selected - hide events section
         eventsSection.style.display = 'none';
-        eventsSelect.innerHTML = '<option value="">Select an event...</option>';
+        
+        // Clear the select if it exists
+        const select = document.getElementById('film_series_event_select');
+        if (select) {
+          select.innerHTML = '<option value="">Select an event...</option>';
+          select.value = '';
+        }
         return;
       }
       
+      // Show the section immediately
       eventsSection.style.display = 'block';
       
-      // Fetch events for this series via AJAX
+      // Get or create the select element
+      let select = document.getElementById('film_series_event_select');
+      if (!select) {
+        console.error('Events select not found even after showing section');
+        return;
+      }
+      
+      // Show loading state
+      select.innerHTML = '<option value="">Loading events...</option>';
+      select.disabled = true;
+      
+      // Fetch events for this series
       fetch(`/admin/film_series_events/for_series?series_id=${seriesId}`)
-        .then(response => response.json())
+        .then(response => {
+          console.log('Response status:', response.status);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
         .then(events => {
+          console.log('Received events:', events);
+          
           let options = '<option value="">Select an event...</option>';
-          events.forEach(event => {
-            const date = new Date(event.started_on).toLocaleDateString('en-US', { 
-              month: 'short', 
-              day: 'numeric', 
-              year: 'numeric' 
+          
+          if (events && events.length > 0) {
+            events.forEach(event => {
+              const date = new Date(event.started_on).toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric' 
+              });
+              options += `<option value="${event.id}">${event.name} (${date})</option>`;
             });
-            options += `<option value="${event.id}">${event.name} (${date})</option>`;
-          });
-          eventsSelect.innerHTML = options;
+          } else {
+            options = '<option value="">No events found for this series</option>';
+          }
+          
+          select.innerHTML = options;
+          select.disabled = false;
         })
         .catch(error => {
-          console.error('Error loading events:', error);
-          eventsSection.style.display = 'none';
+          console.error('Error loading film series events:', error);
+          const select = document.getElementById('film_series_event_select');
+          if (select) {
+            select.innerHTML = '<option value="">Error loading events - check console</option>';
+            select.disabled = false;
+          }
         });
-    });
+    }
+    
+    // Remove any existing listener
+    seriesSelect.removeEventListener('change', handleSeriesChange);
+    
+    // Add fresh listener
+    seriesSelect.addEventListener('change', handleSeriesChange);
+    
+    // If series is pre-selected, load events
+    if (seriesSelect.value) {
+      console.log('Series pre-selected:', seriesSelect.value);
+      handleSeriesChange();
+    }
   }
   
-  // Initialize on DOMContentLoaded (for initial page load)
-  document.addEventListener('DOMContentLoaded', function() {
-    initializeLocationToggle();
-    initializeFilmSeriesSelect();
-  });
+  // Initialize on different Turbo events to ensure it works with navigation
+
+  // Initialize on page load and Turbo navigation
+  document.addEventListener('DOMContentLoaded', initializeFilmSeriesSelect);
+  document.addEventListener('turbo:load', initializeFilmSeriesSelect);
+  document.addEventListener('turbo:frame-load', initializeFilmSeriesSelect);
   
-  // Initialize on turbo:load (for Turbo navigation)
-  document.addEventListener('turbo:load', function() {
-    initializeLocationToggle();
-    initializeFilmSeriesSelect();
-  });
+  // Standard page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeEnrichStep2);
+  } else {
+    // DOM already loaded
+    initializeEnrichStep2();
+  }
   
-  // Initialize on turbo:frame-load (for Turbo frame updates)
-  document.addEventListener('turbo:frame-load', function() {
-    initializeLocationToggle();
-    initializeFilmSeriesSelect();
+  // Turbo navigation
+  document.addEventListener('turbo:load', initializeEnrichStep2);
+  
+  // Turbo frame updates
+  document.addEventListener('turbo:frame-load', initializeEnrichStep2);
+  
+  // Turbo before cache (cleanup)
+  document.addEventListener('turbo:before-cache', function() {
+    // Clean up any state before caching
+    const eventsSection = document.querySelector('[data-film-series-events-section]');
+    if (eventsSection) {
+      eventsSection.style.display = 'none';
+    }
   });
 </script>
 

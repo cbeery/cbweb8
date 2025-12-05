@@ -1,38 +1,72 @@
-# examples:
-#   periodic_cleanup:
-#     class: CleanSoftDeletedRecordsJob
-#     queue: background
-#     args: [ 1000, { batch_size: 500 } ]
-#     schedule: every hour
-#   periodic_cleanup_with_command:
-#     command: "SoftDeletedRecord.due.delete_all"
-#     priority: 2
-#     schedule: at 5am every day
+# config/recurring.yml
 
 production:
+  # Job cleanup
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
-    schedule: every day at 2:00 AM
+    schedule: every day at 5:00 AM
 
-  # Daily Strava sync - runs at...
-  strava_daily_morning:
-    class: StravaActivitySyncJob
-    queue: default
-    schedule: "every day at 10:00 AM"
-    args:
-      - days_back: 2
-        broadcast: false
+  # ===========================================
+  # Strava - cycling activities
+  # ===========================================
   strava_daily_afternoon:
     class: StravaActivitySyncJob
     queue: default
-    schedule: "every day at 2:00 PM"
+    schedule: every day at 1:00 PM
     args:
       - days_back: 2
         broadcast: false
+
   strava_daily_overnight:
     class: StravaActivitySyncJob
     queue: default
-    schedule: "every day at 11:30 PM"
+    schedule: every day at 11:30 PM
     args:
       - days_back: 7
         broadcast: false
+
+  # ===========================================
+  # Letterboxd - movies (nightly)
+  # ===========================================
+  letterboxd_nightly:
+    class: ScheduledLetterboxdSyncJob
+    queue: default
+    schedule: every day at 1:00 AM
+
+  # ===========================================
+  # Hardcover - books (nightly)
+  # ===========================================
+  hardcover_nightly:
+    class: ScheduledHardcoverSyncJob
+    queue: default
+    schedule: every day at 1:20 AM
+
+  # ===========================================
+  # Last.fm / Scrobbles - music tracking
+  # ===========================================
+  
+  # Daily scrobble counts - run nightly to stay current
+  lastfm_daily_counts:
+    class: ScheduledDailyScrobbleCountsSyncJob
+    queue: default
+    schedule: every day at 2:00 AM
+
+  # Top scrobbles (artists/albums/tracks) - run nightly
+  lastfm_top_scrobbles:
+    class: ScheduledTopScrobblesSyncJob
+    queue: default
+    schedule: every day at 2:15 AM
+
+  # Weekly chart plays - run once per week (Monday morning)
+  lastfm_weekly_plays:
+    class: ScheduledScrobblePlaysSyncJob
+    queue: default
+    schedule: every Monday at 2:30 AM
+
+  # ===========================================
+  # Spotify - playlists (future)
+  # ===========================================
+  # spotify_nightly:
+  #   class: ScheduledSpotifySyncJob
+  #   queue: default
+  #   schedule: every day at 5:30 AM

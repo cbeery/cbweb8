@@ -14,7 +14,7 @@
     <% [
       ['Movies', admin_movies_path, number_with_delimiter(@total_movies), 'text-blue-700'],
       ['Concerts', admin_concerts_path, number_with_delimiter(@total_concerts), 'text-blue-400'],
-      ['Scrobbles', top_admin_lastfm_path, number_to_human(@total_scrobbles, precision: 1), 'text-indigo-600'],
+      ['Scrobbles', top_admin_lastfm_path, number_with_delimiter(@total_scrobbles), 'text-indigo-600'],
       ['Playlists', admin_spotify_playlists_path, @total_playlists, 'text-purple-600'],
       ['NBA Games', admin_nba_games_path, number_with_delimiter(@total_nba_games), 'text-red-700'],
       ['Rides', admin_bike_rides_path, number_with_delimiter(@total_rides), 'text-red-400'],

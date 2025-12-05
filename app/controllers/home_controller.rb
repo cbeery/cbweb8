@@ -357,6 +357,59 @@ class HomeController < ApplicationController
     
     # Get the next book from want-to-read list with author info
     @next_book = Book.want_to_read.order(created_at: :desc).first
+
+    # ============================================
+    # NBA Hoops Card Data - Chartkick stacked bar
+    # ============================================
+    @current_nba_season = NbaGame.current_season
+    
+    # Get watched games for current season with team associations
+    season_games = NbaGame.by_season(@current_nba_season)
+                          .watched
+                          .includes(:home_team, :away_team)
+    
+    # Count team appearances (both home and away, hence "total is doubled")
+    team_counts = Hash.new(0)
+    season_games.find_each do |game|
+      team_counts[game.home_team.id] += 1
+      team_counts[game.away_team.id] += 1
+    end
+    
+    # Build Chartkick stacked bar data format:
+    # [{name: "CHI", data: {"2024-25" => 14}}, {name: "LAL", data: {"2024-25" => 10}}, ...]
+    @nba_chart_data = []
+    @nba_team_colors = []
+    
+    if team_counts.any?
+      teams_by_id = NbaTeam.where(id: team_counts.keys).index_by(&:id)
+      
+      # Sort by count descending so largest segments appear first
+      sorted_counts = team_counts.sort_by { |_id, count| -count }
+      
+      sorted_counts.each do |team_id, count|
+        team = teams_by_id[team_id]
+        next unless team
+        
+        @nba_chart_data << {
+          name: team.abbreviation,
+          data: { @current_nba_season => count }
+        }
+        @nba_team_colors << (team.color || '#6B7280')
+      end
+    end
+    
+    @nba_total_watched = team_counts.values.sum
+    @nba_season_total_games = NbaGame.by_season(@current_nba_season).count
+
+    # Actual games watched (not doubled)
+    @nba_games_watched = NbaGame.by_season(@current_nba_season).watched.count
+
+    # Bulls count (find CHI in the team data)
+    bulls_data = @nba_chart_data.find { |t| t[:name] == 'CHI' }
+    @nba_bulls_count = bulls_data ? bulls_data[:data][@current_nba_season] : 0
+    
+    # ============================================
+
   end
 
   def test29

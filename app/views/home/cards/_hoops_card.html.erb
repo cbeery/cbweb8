@@ -37,7 +37,7 @@
                         },
                         y: { 
                           stacked: true,
-                          grid: { display: false }
+                          display: false
                         }
                       }
                     } %>
@@ -54,7 +54,14 @@
   <div class="px-4 py-3 bg-gray-50 border-t rounded-b-lg">
     <div class="flex justify-between items-center text-sm text-gray-600">
       <span>Watched: <span class="font-medium"><%= @nba_games_watched %></span></span>
-      <span>Bulls: <span class="font-medium"><%= @nba_bulls_count %></span></span>
+      <span class="flex items-center gap-1">
+        <% if @nba_bulls_team&.logo&.attached? %>
+          <%= image_tag @nba_bulls_team.logo, class: "w-5 h-5 object-contain", alt: "Bulls" %>
+        <% else %>
+          <span class="inline-block w-4 h-4 rounded-full" style="background-color: <%= @nba_bulls_team&.color || '#CE1141' %>;"></span>
+        <% end %>
+        <span class="font-medium"><%= @nba_bulls_count %></span>
+      </span>
     </div>
   </div>
 </div>

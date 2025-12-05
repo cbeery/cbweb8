@@ -404,7 +404,8 @@ class HomeController < ApplicationController
     # Actual games watched (not doubled)
     @nba_games_watched = NbaGame.by_season(@current_nba_season).watched.count
 
-    # Bulls count (find CHI in the team data)
+    # Bulls team and count
+    @nba_bulls_team = NbaTeam.find_by(abbreviation: 'CHI')
     bulls_data = @nba_chart_data.find { |t| t[:name] == 'CHI' }
     @nba_bulls_count = bulls_data ? bulls_data[:data][@current_nba_season] : 0
     

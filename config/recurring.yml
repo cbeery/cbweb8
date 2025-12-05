@@ -10,22 +10,16 @@
 #     schedule: at 5am every day
 
 production:
+  # Job cleanup
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every day at 2:00 AM
 
-  # Daily Strava sync - runs at...
-  strava_daily_morning:
-    class: StravaActivitySyncJob
-    queue: default
-    schedule: "every day at 10:00 AM"
-    args:
-      - days_back: 2
-        broadcast: false
+  # Daily Strava sync
   strava_daily_afternoon:
     class: StravaActivitySyncJob
     queue: default
-    schedule: "every day at 2:00 PM"
+    schedule: "every day at 1:00 PM"
     args:
       - days_back: 2
         broadcast: false
@@ -36,3 +30,11 @@ production:
     args:
       - days_back: 7
         broadcast: false
+
+  # Letterboxd - movies
+
+  # Hardcover - books
+
+  # Last.fm / Scrobbles - multiple sync jobs...
+
+  # Spotify?

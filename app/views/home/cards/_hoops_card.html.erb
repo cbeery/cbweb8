@@ -1,0 +1,67 @@
+<%# app/views/home/_hoops_card.html.erb %>
+<%# NBA Games Watched Card with Chartkick stacked bar chart %>
+<%# Expects: @current_nba_season, @nba_chart_data, @nba_team_colors, @nba_games_watched, @nba_bulls_count %>
+
+<div class="bg-white rounded-lg shadow-lg">
+  <!-- Card Header -->
+  <div class="p-4 border-b">
+    <h2 class="text-xl font-bold">
+      Hoops
+      <span class="font-thin text-gray-400">(<%= @current_nba_season %>)</span>
+    </h2>
+    <%# Subheading - commented out for potential future use on other cards %>
+    <%# <p class="text-sm text-gray-500 mt-0.5">NBA games watched, by team (so total is doubled), current season.</p> %>
+  </div>
+  
+  <!-- Chart Area -->
+  <div class="p-4">
+    <% if @nba_chart_data.present? && @nba_chart_data.any? %>
+      <%= bar_chart @nba_chart_data, 
+                    stacked: true, 
+                    colors: @nba_team_colors,
+                    height: "80px",
+                    library: {
+                      indexAxis: 'y',
+                      plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                          mode: 'point',
+                          intersect: true,
+                          position: 'nearest'
+                        }
+                      },
+                      scales: {
+                        x: { 
+                          stacked: true,
+                          display: false
+                        },
+                        y: { 
+                          stacked: true,
+                          display: false
+                        }
+                      }
+                    } %>
+    <% else %>
+      <div class="py-8 text-center">
+        <div class="text-4xl mb-2">🏀</div>
+        <p class="text-gray-500 text-sm">No games watched yet this season.</p>
+        <p class="text-gray-400 text-xs mt-1"><%= @current_nba_season %></p>
+      </div>
+    <% end %>
+  </div>
+  
+  <!-- Card Footer -->
+  <div class="px-4 py-3 bg-gray-50 border-t rounded-b-lg">
+    <div class="flex justify-between items-center text-sm text-gray-600">
+      <span>Watched: <span class="font-medium"><%= @nba_games_watched %></span></span>
+      <span class="flex items-center gap-1">
+        <% if @nba_bulls_team&.logo&.attached? %>
+          <%= image_tag @nba_bulls_team.logo, class: "w-5 h-5 object-contain", alt: "Bulls" %>
+        <% else %>
+          <span class="inline-block w-4 h-4 rounded-full" style="background-color: <%= @nba_bulls_team&.color || '#CE1141' %>;"></span>
+        <% end %>
+        <span class="font-medium"><%= @nba_bulls_count %></span>
+      </span>
+    </div>
+  </div>
+</div>

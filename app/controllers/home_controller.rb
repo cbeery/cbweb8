@@ -1,12 +1,84 @@
 # app/controllers/home_controller.rb
 class HomeController < ApplicationController
   def index
-    @recent_movies = Movie.joins(:viewings)
-                          .select('movies.*, MAX(viewings.viewed_on) as last_viewed_date')
-                          .group('movies.id')
-                          .order('last_viewed_date DESC')
-                          .limit(5)
-    # render :index4                          
+    # Enhanced footer with Next up book + author and All books link
+    # Load only 5 recent viewings (both home and theater)
+    @recent_viewings = Viewing.includes(movie: :movie_posters)
+                              .order(viewed_on: :desc)
+                              .limit(5)
+    
+    @recent_readings = BookRead.includes(book: :cover_image_attachment)
+                               .where.not(finished_on: nil)
+                               .order(finished_on: :desc)
+                               .limit(5)
+    
+    @movies_this_year = Viewing.where(
+      viewed_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count
+    
+    @books_this_year = BookRead.where(
+      finished_on: Date.current.beginning_of_year..Date.current.end_of_year
+    ).count
+    
+    # Get the most recent movie and book for cover images
+    @most_recent_movie = @recent_viewings.first&.movie
+    @most_recent_book = @recent_readings.first&.book
+    
+    # Get the next book from want-to-read list with author info
+    @next_book = Book.want_to_read.order(created_at: :desc).first
+
+    # ============================================
+    # NBA Hoops Card Data - Chartkick stacked bar
+    # ============================================
+    @current_nba_season = NbaGame.current_season
+    
+    # Get watched games for current season with team associations
+    season_games = NbaGame.by_season(@current_nba_season)
+                          .watched
+                          .includes(:home_team, :away_team)
+    
+    # Count team appearances (both home and away, hence "total is doubled")
+    team_counts = Hash.new(0)
+    season_games.find_each do |game|
+      team_counts[game.home_team.id] += 1
+      team_counts[game.away_team.id] += 1
+    end
+    
+    # Build Chartkick stacked bar data format:
+    # [{name: "CHI", data: {"2024-25" => 14}}, {name: "LAL", data: {"2024-25" => 10}}, ...]
+    @nba_chart_data = []
+    @nba_team_colors = []
+    
+    if team_counts.any?
+      teams_by_id = NbaTeam.where(id: team_counts.keys).index_by(&:id)
+      
+      # Sort by count descending so largest segments appear first
+      sorted_counts = team_counts.sort_by { |_id, count| -count }
+      
+      sorted_counts.each do |team_id, count|
+        team = teams_by_id[team_id]
+        next unless team
+        
+        @nba_chart_data << {
+          name: team.abbreviation,
+          data: { @current_nba_season => count }
+        }
+        @nba_team_colors << (team.color || '#6B7280')
+      end
+    end
+    
+    @nba_total_watched = team_counts.values.sum
+    @nba_season_total_games = NbaGame.by_season(@current_nba_season).count
+
+    # Actual games watched (not doubled)
+    @nba_games_watched = NbaGame.by_season(@current_nba_season).watched.count
+
+    # Bulls team and count
+    @nba_bulls_team = NbaTeam.find_by(abbreviation: 'CHI')
+    bulls_data = @nba_chart_data.find { |t| t[:name] == 'CHI' }
+    @nba_bulls_count = bulls_data ? bulls_data[:data][@current_nba_season] : 0
+    
+    # ============================================
   end
   
   def test1
@@ -408,7 +480,7 @@ class HomeController < ApplicationController
     @nba_bulls_team = NbaTeam.find_by(abbreviation: 'CHI')
     bulls_data = @nba_chart_data.find { |t| t[:name] == 'CHI' }
     @nba_bulls_count = bulls_data ? bulls_data[:data][@current_nba_season] : 0
-    
+
     # ============================================
 
   end

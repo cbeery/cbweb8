@@ -20,12 +20,11 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   </head>
 
-  <body class="h-full" data-controller="navigation">
+  <body class="h-full flex flex-col" data-controller="navigation">
 
     <%= render partial: 'shared/breakpoint_banner' if ENV['SHOW_BREAKPOINTS'] == 'true'%>
 
-    <div class="min-h-full">
-
+    <div class="flex-1">
       <%= render partial: 'shared/header/header' %>
       <%= render partial: 'shared/nav/nav' %>
       <%= render partial: 'shared/flash' %>
@@ -41,6 +40,8 @@
         </div>
       </main>
     </div>
+
+    <%= render partial: 'shared/footer' %>
 
   </body>
 </html>

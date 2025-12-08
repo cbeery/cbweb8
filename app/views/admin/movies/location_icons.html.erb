@@ -1,0 +1,108 @@
+<%# app/views/admin/movies/location_icons.html.erb %>
+<% content_for :title, "Viewing Location Icons Preview" %>
+
+<div class="max-w-4xl mx-auto">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Viewing Location Icons</h1>
+    <p class="mt-2 text-gray-600">Preview of all available location icons at various sizes</p>
+  </div>
+
+  <!-- Icons Grid -->
+  <div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Small (w-4)</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Medium (w-5)</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Large (w-8)</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">XL (w-12)</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">2XL (w-16)</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% Viewing.location_options.each do |label, value| %>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+              <%= label %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+              <%= value %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <%= viewing_location_icon(value, size: 'sm', css_class: 'text-gray-700 inline-block') %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <%= viewing_location_icon(value, size: 'md', css_class: 'text-gray-700 inline-block') %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <%= viewing_location_icon(value, size: 'w-8 h-8', css_class: 'text-gray-700 inline-block') %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <%= viewing_location_icon(value, size: 'w-12 h-12', css_class: 'text-gray-700 inline-block') %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <%= viewing_location_icon(value, size: 'w-16 h-16', css_class: 'text-gray-700 inline-block') %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Large Preview Cards -->
+  <div class="mt-12">
+    <h2 class="text-xl font-semibold text-gray-900 mb-4">Large Preview</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <% Viewing.location_options.each do |label, value| %>
+        <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
+          <div class="mb-3">
+            <%= viewing_location_icon(value, size: 'w-16 h-16', css_class: 'text-gray-700') %>
+          </div>
+          <span class="text-sm font-medium text-gray-900"><%= label %></span>
+          <span class="text-xs text-gray-500 font-mono"><%= value %></span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Color Variants -->
+  <div class="mt-12">
+    <h2 class="text-xl font-semibold text-gray-900 mb-4">Color Variants (using Netflix as example)</h2>
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex flex-wrap gap-6 items-end">
+        <div class="text-center">
+          <%= viewing_location_icon('netflix', size: 'w-12 h-12', css_class: 'text-gray-300') %>
+          <p class="text-xs text-gray-500 mt-2">gray-300</p>
+        </div>
+        <div class="text-center">
+          <%= viewing_location_icon('netflix', size: 'w-12 h-12', css_class: 'text-gray-400') %>
+          <p class="text-xs text-gray-500 mt-2">gray-400</p>
+        </div>
+        <div class="text-center">
+          <%= viewing_location_icon('netflix', size: 'w-12 h-12', css_class: 'text-gray-500') %>
+          <p class="text-xs text-gray-500 mt-2">gray-500</p>
+        </div>
+        <div class="text-center">
+          <%= viewing_location_icon('netflix', size: 'w-12 h-12', css_class: 'text-gray-700') %>
+          <p class="text-xs text-gray-500 mt-2">gray-700</p>
+        </div>
+        <div class="text-center">
+          <%= viewing_location_icon('netflix', size: 'w-12 h-12', css_class: 'text-indigo-500') %>
+          <p class="text-xs text-gray-500 mt-2">indigo-500</p>
+        </div>
+        <div class="text-center">
+          <%= viewing_location_icon('netflix', size: 'w-12 h-12', css_class: 'text-red-600') %>
+          <p class="text-xs text-gray-500 mt-2">red-600</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back link -->
+  <div class="mt-8">
+    <%= link_to "← Back to Movies", admin_movies_path, class: "text-indigo-600 hover:text-indigo-800" %>
+  </div>
+</div>

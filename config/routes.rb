@@ -82,7 +82,11 @@ Rails.application.routes.draw do
         get :tmdb_posters
         post :select_poster
       end
-      
+
+      collection do
+        get :location_icons
+      end
+
       # Nested viewings routes
       resources :viewings, only: [:new, :create, :edit, :update, :destroy]
     end

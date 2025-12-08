@@ -246,7 +246,12 @@ class Admin::MoviesController < Admin::BaseController
       format.json { render json: { success: true, poster_url: @movie.primary_poster&.display_url } }
     end
   end
-  
+
+  # GET /admin/movies/location_icons
+  def location_icons
+    # No data needed - view uses Viewing.location_options directly
+  end
+
   private
   
   def set_movie

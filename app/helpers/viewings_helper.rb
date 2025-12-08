@@ -67,8 +67,8 @@ module ViewingsHelper
     when 'netflix'
       {
         title: 'Netflix',
-        viewbox: '0 0 24 24',
-        path: 'M5.398 0v24l6.75-9.75L18.602 24V0h-3.602v12.75l-3.102-4.5-3.098 4.5V0H5.398z',
+        viewbox: '0 0 55 100',
+        path: 'M0 0 L20 0 L20 100 L0 100 Z M35 0 L55 0 L55 100 L35 100 Z M0 0 L20 0 L55 100 L35 100 Z',
         fill_rule: nil,
         clip_rule: nil
       }

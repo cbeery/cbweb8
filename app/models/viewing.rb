@@ -41,7 +41,17 @@ class Viewing < ApplicationRecord
     [
       ['Home', 'home'],
       ['Theater', 'theater'],
+      ['Airplane', 'airplane'],
       ['Streaming', 'streaming'],
+      ['Netflix', 'netflix'],
+      ['Apple TV+', 'appletv'],
+      ['Hulu', 'hulu'],
+      ['HBO', 'hbo'],
+      ['Disney+', 'disney'],
+      ['Amazon', 'amazon'],
+      ['Peacock', 'peacock'],
+      ['Hoopla', 'hoppla'],
+      ['Kanopy', 'kanopy'],
       ['Other', 'other']
     ]
   end

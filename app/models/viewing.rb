@@ -1,5 +1,8 @@
 # app/models/viewing.rb
 class Viewing < ApplicationRecord
+
+  VALID_LOCATIONS = %w[home theater airplane streaming netflix appletv hulu hbo disney amazon peacock hoopla kanopy other].freeze
+
   # Associations
   belongs_to :movie
   belongs_to :theater, optional: true
@@ -7,7 +10,7 @@ class Viewing < ApplicationRecord
   
   # Validations
   validates :viewed_on, presence: true
-  validates :location, inclusion: { in: %w[home theater streaming other] }, allow_nil: true
+  validates :location, inclusion: { in: VALID_LOCATIONS }, allow_nil: true
   validates :price, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   
   # Scopes
@@ -55,7 +58,7 @@ class Viewing < ApplicationRecord
       ['Other', 'other']
     ]
   end
-  
+
   def self.format_options
     [
       ['Standard', 'standard'],

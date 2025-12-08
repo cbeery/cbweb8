@@ -1,0 +1,16 @@
+<%# app/views/shared/_viewing_location_icon.html.erb %>
+<%# Renders an SVG icon for the viewing location %>
+<%# %>
+<%# Usage: %>
+<%#   <%= render 'shared/viewing_location_icon', location: viewing.location %> %>
+<%#   <%= render 'shared/viewing_location_icon', location: 'netflix', size: 'md', css_class: 'text-gray-300' %> %>
+<%# %>
+<%# Parameters: %>
+<%#   location: [String] The location value (e.g., 'home', 'theater', 'netflix') %>
+<%#   size: [String] 'sm' (w-4 h-4), 'md' (w-5 h-5), 'lg' (w-6 h-6), or custom class (default: 'sm') %>
+<%#   css_class: [String] CSS classes for color etc. (default: 'text-gray-400') %>
+<%= viewing_location_icon(
+      local_assigns.fetch(:location, 'home'),
+      size: local_assigns.fetch(:size, 'sm'),
+      css_class: local_assigns.fetch(:css_class, 'text-gray-400')
+    ) %>

@@ -46,11 +46,11 @@ class Viewing < ApplicationRecord
       ['Netflix', 'netflix'],
       ['Apple TV+', 'appletv'],
       ['Hulu', 'hulu'],
-      ['HBO', 'hbo'],
+      ['HBO / Max', 'hbo'],
       ['Disney+', 'disney'],
-      ['Amazon', 'amazon'],
+      ['Amazon Prime', 'amazon'],
       ['Peacock', 'peacock'],
-      ['Hoopla', 'hoppla'],
+      ['Hoopla', 'hoopla'],
       ['Kanopy', 'kanopy'],
       ['Other', 'other']
     ]

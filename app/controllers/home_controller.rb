@@ -66,6 +66,7 @@ class HomeController < ApplicationController
         @nba_team_colors << (team.color || '#6B7280')
       end
     end
+    @nba_chart_max = @nba_chart_data.sum { |series| series[:data].values.sum }
     
     @nba_total_watched = team_counts.values.sum
     @nba_season_total_games = NbaGame.by_season(@current_nba_season).count

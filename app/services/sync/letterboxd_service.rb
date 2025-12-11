@@ -67,14 +67,6 @@ module Sync
         return :skipped
       end
       
-      # Log TMDB ID if found
-      # if movie_data[:tmdb_id]
-      #   log(:info, "Found TMDB ID", 
-      #     title: movie_data[:title],
-      #     tmdb_id: movie_data[:tmdb_id]
-      #   )
-      # end
-      
       # Find or create movie
       movie = Movie.find_or_create_by(
         title: movie_data[:title],
@@ -172,7 +164,7 @@ module Sync
     def parse_letterboxd_entry(entry)
       # Find the corresponding item in the XML document by matching the guid
       item_node = @xml_doc.xpath("//item[guid[text()='#{entry.entry_id}']]").first
-      
+
       # Extract custom fields from the XML node
       custom_data = if item_node
         {
@@ -204,17 +196,9 @@ module Sync
         film_url: extract_film_url(entry),
         tmdb_id: custom_data[:tmdb_id]
       }
-      
+
       # Extract poster URL from content
       parsed_data[:poster_url] = extract_poster_url(entry)
-      
-      # Debug logging
-      # if custom_data[:tmdb_id].present?
-      #   log(:debug, "Successfully extracted TMDB ID from XML", 
-      #     tmdb_id: custom_data[:tmdb_id],
-      #     title: parsed_data[:title]
-      #   )
-      # end
       
       parsed_data
     end
@@ -286,23 +270,13 @@ module Sync
       
       # Look for Letterboxd CDN image URLs
       if content =~ /https?:\/\/[as]\.ltrbxd\.com\/[^"'\s>]+/
-        url = $&
-        
-        # Get a larger version if it's a resized URL
-        # if url.include?('/resized/sm/')
-        #   url = url.gsub('/resized/sm/', '/resized/film-poster/')
-        #            .gsub(/-\d+-\d+-\d+-\d+-crop/, '')
-        # end
-        
-        return url
+        return $&
       end
       
       # Fallback: try to find any img src
       if content =~ /<img[^>]+src=["']([^"']+)["']/
         url = $1
-        if url.include?('ltrbxd.com') || url.include?('film-poster')
-          return url
-        end
+        return url if url.include?('ltrbxd.com') || url.include?('film-poster')
       end
       
       nil

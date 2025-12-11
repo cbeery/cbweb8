@@ -36,7 +36,7 @@ namespace :letterboxd do
     
     CSV.open(filename, 'w', encoding: 'UTF-8') do |csv|
       # Letterboxd required headers
-      csv << ['Title', 'Year', 'Directors', 'tmdbID', 'Rating', 'WatchedDate', 'Rewatch', 'Review', 'LetterboxdURI']
+      csv << ['Title', 'Year', 'Directors', 'tmdbID', 'Rating', 'WatchedDate', 'Rewatch', 'Tags', 'Review', 'LetterboxdURI']
       
       # Export all viewings
       Viewing.includes(movie: :movie_posters).find_each do |viewing|
@@ -50,6 +50,7 @@ namespace :letterboxd do
           format_rating(movie.rating),
           viewing.viewed_on.strftime('%Y-%m-%d'),
           viewing.rewatch ? 'true' : 'false',
+          format_tags(viewing),
           clean_review(viewing.notes),
           movie.letterboxd_id ? "https://letterboxd.com/film/#{movie.letterboxd_id}" : nil
         ]
@@ -67,6 +68,7 @@ namespace :letterboxd do
           format_rating(movie.rating),
           nil, # No watched date
           nil, # No rewatch flag
+          nil, # No tags (no viewing)
           clean_review(movie.review), # Use movie's review if available
           movie.letterboxd_id ? "https://letterboxd.com/film/#{movie.letterboxd_id}" : nil
         ]
@@ -123,7 +125,7 @@ namespace :letterboxd do
     row_count = 0
     
     CSV.open(filename, 'w', encoding: 'UTF-8') do |csv|
-      csv << ['Title', 'Year', 'Directors', 'tmdbID', 'Rating', 'WatchedDate', 'Rewatch', 'Review', 'LetterboxdURI']
+      csv << ['Title', 'Year', 'Directors', 'tmdbID', 'Rating', 'WatchedDate', 'Rewatch', 'Tags', 'Review', 'LetterboxdURI']
       
       Viewing.includes(:movie).order(viewed_on: :desc).find_each do |viewing|
         movie = viewing.movie
@@ -136,6 +138,7 @@ namespace :letterboxd do
           format_rating(movie.rating),
           viewing.viewed_on.strftime('%Y-%m-%d'),
           viewing.rewatch ? 'true' : 'false',
+          format_tags(viewing),
           clean_review(viewing.notes),
           movie.letterboxd_id ? "https://letterboxd.com/film/#{movie.letterboxd_id}" : nil
         ]
@@ -160,7 +163,7 @@ namespace :letterboxd do
     end_date = Date.new(year, 12, 31)
     
     CSV.open(filename, 'w', encoding: 'UTF-8') do |csv|
-      csv << ['Title', 'Year', 'Directors', 'tmdbID', 'Rating', 'WatchedDate', 'Rewatch', 'Review', 'LetterboxdURI']
+      csv << ['Title', 'Year', 'Directors', 'tmdbID', 'Rating', 'WatchedDate', 'Rewatch', 'Tags', 'Review', 'LetterboxdURI']
       
       Viewing.includes(:movie)
              .where(viewed_on: start_date..end_date)
@@ -176,6 +179,7 @@ namespace :letterboxd do
           format_rating(movie.rating),
           viewing.viewed_on.strftime('%Y-%m-%d'),
           viewing.rewatch ? 'true' : 'false',
+          format_tags(viewing),
           clean_review(viewing.notes),
           movie.letterboxd_id ? "https://letterboxd.com/film/#{movie.letterboxd_id}" : nil
         ]
@@ -200,6 +204,18 @@ namespace :letterboxd do
     
     # Round to nearest 0.5
     (rating * 2).round / 2.0
+  end
+  
+  def format_tags(viewing)
+    return nil unless viewing.location.present?
+    
+    # Only include theater or home as tags
+    case viewing.location
+    when 'theater'
+      'theater'
+    when 'home'
+      'home'
+    end
   end
   
   def clean_review(text)
@@ -262,6 +278,8 @@ namespace :letterboxd do
     puts "  • Movies with Letterboxd IDs: #{Movie.where.not(letterboxd_id: nil).count}"
     puts "  • Total viewings: #{Viewing.count}"
     puts "  • Rewatches: #{Viewing.where(rewatch: true).count}"
+    puts "  • Theater viewings: #{Viewing.where(location: 'theater').count}"
+    puts "  • Home viewings: #{Viewing.where(location: 'home').count}"
     puts ""
     
     if issues.any?
@@ -279,11 +297,17 @@ namespace :letterboxd do
     puts "👀 Preview of Letterboxd export (first 10 entries):"
     puts ""
     
-    headers = ['Title', 'Year', 'Directors', 'TMDB ID', 'Rating', 'Watched', 'Rewatch', 'Has Notes']
+    headers = ['Title', 'Year', 'Directors', 'TMDB ID', 'Rating', 'Watched', 'Rewatch', 'Tags', 'Has Notes']
     
     rows = []
     Viewing.includes(:movie).limit(10).each do |viewing|
       movie = viewing.movie
+      tag = case viewing.location
+            when 'theater' then 'theater'
+            when 'home' then 'home'
+            else '-'
+            end
+      
       rows << [
         movie.title[0..30],
         movie.year,
@@ -292,6 +316,7 @@ namespace :letterboxd do
         movie.rating || '-',
         viewing.viewed_on.strftime('%Y-%m-%d'),
         viewing.rewatch? ? '✓' : '-',
+        tag,
         viewing.notes.present? ? '✓' : '-'
       ]
     end

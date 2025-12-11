@@ -164,19 +164,24 @@ Rails.application.routes.draw do
       # get 'import', to: 'import#index'
     end
 
-    # Concerts
-    resources :concerts do
-      member do
-        post :add_artist
-        delete :remove_artist
+    # Concerts Section with its own namespace
+    namespace :concerts do
+      root to: 'dashboard#index'  # /admin/concerts
+
+      resources :shows do
+        member do
+          post :add_artist
+          delete :remove_artist
+        end
+        collection do
+          get :search_artists
+          get :search_venues
+        end
       end
-      collection do
-        get :search_artists
-        get :search_venues
-      end
-      end
-    resources :concert_artists, only: [:index, :show, :new, :create]
-    resources :concert_venues, only: [:index, :show, :new, :create]
+
+      resources :artists, only: [:index, :show, :new, :create, :edit, :update]
+      resources :venues, only: [:index, :show, :new, :create, :edit, :update]
+    end
 
     # Bicycles & Related
     namespace :bike do

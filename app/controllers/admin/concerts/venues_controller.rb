@@ -1,7 +1,6 @@
-# app/controllers/admin/concert_venues_controller.rb
-class Admin::ConcertVenuesController < Admin::BaseController
-  before_action :set_venue, only: [:show]
-  
+class Admin::Concerts::VenuesController < Admin::BaseController
+  before_action :set_venue, only: [:show, :edit, :update]
+
   def index
     @venues = ConcertVenue.left_joins(:concerts)
                          .group('concert_venues.id')
@@ -10,13 +9,13 @@ class Admin::ConcertVenuesController < Admin::BaseController
                          .page(params[:page])
                          .per(50)
   end
-  
+
   def show
     @concerts = @venue.concerts
                      .includes(:concert_artists)
                      .recent
                      .page(params[:page])
-    
+
     # Statistics - Fixed with Arel.sql for safety
     @stats = {
       total_concerts: @venue.concerts.count,
@@ -30,7 +29,7 @@ class Admin::ConcertVenuesController < Admin::BaseController
                          .count
                          .first
     }
-    
+
     # Most frequent artists at this venue - Fixed with Arel.sql
     @frequent_artists = ConcertArtist.joins(:concerts)
                                     .where(concerts: { concert_venue_id: @venue.id })
@@ -38,33 +37,44 @@ class Admin::ConcertVenuesController < Admin::BaseController
                                     .select('concert_artists.*, COUNT(concerts.id) as venue_concerts')
                                     .order(Arel.sql('venue_concerts DESC'))
                                     .limit(10)
-    
+
     # Concerts by year - Fixed with Arel.sql
     @concerts_by_year = @venue.concerts
                              .group(Arel.sql('EXTRACT(YEAR FROM played_on)'))
                              .order(Arel.sql('EXTRACT(YEAR FROM played_on) DESC'))
                              .count
   end
-  
+
   def new
     @venue = ConcertVenue.new
   end
-  
+
   def create
     @venue = ConcertVenue.new(venue_params)
     if @venue.save
-      redirect_to admin_concert_venue_path(@venue), notice: 'Venue was successfully created.'
+      redirect_to admin_concerts_venue_path(@venue), notice: 'Venue was successfully created.'
     else
       render :new, status: :unprocessable_entity
     end
   end
-  
+
+  def edit
+  end
+
+  def update
+    if @venue.update(venue_params)
+      redirect_to admin_concerts_venue_path(@venue), notice: 'Venue was successfully updated.'
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
   private
-  
+
   def set_venue
     @venue = ConcertVenue.find(params[:id])
   end
-  
+
   def venue_params
     params.require(:concert_venue).permit(:name, :city, :state)
   end

@@ -20,7 +20,7 @@
             <% end %>
           </p>
         </div>
-        <%= link_to "✕ Clear Filter", admin_concerts_path, 
+        <%= link_to "✕ Clear Filter", admin_concerts_shows_path,
             class: "text-sm text-indigo-600 hover:text-indigo-800 font-medium" %>
       </div>
     </div>
@@ -37,7 +37,7 @@
         Concerts
       <% end %>
     </h1>
-    <%= link_to "New Concert", new_admin_concert_path, 
+    <%= link_to "New Concert", new_admin_concerts_show_path,
         class: "px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors",
         data: { turbo_frame: "_top" } %>
   </div>
@@ -59,14 +59,14 @@
         <% @concerts.each do |concert| %>
           <tr class="hover:bg-gray-50">
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-              <%= link_to concert.played_on&.strftime('%b %d, %Y'), 
-                  admin_concert_path(concert),
+              <%= link_to concert.played_on&.strftime('%b %d, %Y'),
+                  admin_concerts_show_path(concert),
                   class: "text-indigo-600 hover:text-indigo-900" %>
             </td>
             <td class="px-6 py-4 text-sm">
               <% concert.concert_artists.each_with_index do |artist, index| %>
-                <%= link_to artist.name, 
-                    admin_concert_artist_path(artist),
+                <%= link_to artist.name,
+                    admin_concerts_artist_path(artist),
                     class: "text-gray-700 hover:text-indigo-600 hover:underline transition-colors" %>
                 <%= ", " unless index == concert.concert_artists.size - 1 %>
               <% end %>
@@ -74,7 +74,7 @@
             <td class="px-6 py-4 whitespace-nowrap text-sm">
               <% if concert.concert_venue %>
                 <%= link_to concert.concert_venue.display_name,
-                    admin_concert_venue_path(concert.concert_venue),
+                    admin_concerts_venue_path(concert.concert_venue),
                     class: "text-gray-700 hover:text-indigo-600 hover:underline transition-colors" %>
               <% else %>
                 <span class="text-gray-400 italic">No venue</span>
@@ -107,10 +107,10 @@
       </p>
       <div class="mt-6">
         <% if @filtered_artist || @filtered_venue %>
-          <%= link_to "View all concerts", admin_concerts_path, 
+          <%= link_to "View all concerts", admin_concerts_shows_path,
               class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
         <% else %>
-          <%= link_to "New concert", new_admin_concert_path, 
+          <%= link_to "New concert", new_admin_concerts_show_path, 
               class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
         <% end %>
       </div>

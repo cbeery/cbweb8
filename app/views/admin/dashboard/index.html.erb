@@ -13,7 +13,7 @@
 
     <% [
       ['Movies', admin_movies_path, number_with_delimiter(@total_movies), 'text-blue-700'],
-      ['Concerts', admin_concerts_path, number_with_delimiter(@total_concerts), 'text-blue-400'],
+      ['Concerts', admin_concerts_root_path, number_with_delimiter(@total_concerts), 'text-blue-400'],
       ['Scrobbles', top_admin_lastfm_path, number_with_delimiter(@total_scrobbles), 'text-indigo-600'],
       ['Playlists', admin_spotify_playlists_path, @total_playlists, 'text-purple-600'],
       ['NBA Games', admin_nba_games_path, number_with_delimiter(@total_nba_games), 'text-red-700'],
@@ -247,8 +247,8 @@
         <nav class="space-y-2">
           <% [
             ['Movies', admin_movies_path, 'film'],
-            ['Concerts', admin_concerts_path, 'music'],
-            ['Artists', admin_concert_artists_path, 'mic'],
+            ['Concerts', admin_concerts_shows_path, 'music'],
+            ['Artists', admin_concerts_artists_path, 'mic'],
             ['Books', admin_books_path, 'book-open'],
             ['NBA Games', admin_nba_games_path, 'basketball'],
             ['Spotify', admin_spotify_playlists_path, 'spotify'],

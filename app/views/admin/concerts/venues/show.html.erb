@@ -1,24 +1,26 @@
-<%# app/views/admin/concert_artists/show.html.erb %>
-<% content_for :title, @artist.name %>
+<% content_for :title, @venue.display_name %>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   <!-- Header -->
   <div class="mb-8">
     <div class="flex justify-between items-start">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900"><%= @artist.name %></h1>
+        <h1 class="text-3xl font-bold text-gray-900"><%= @venue.name %></h1>
+        <p class="mt-1 text-lg text-gray-600">
+          <%= @venue.location.presence || "Location not specified" %>
+        </p>
         <p class="mt-2 text-sm text-gray-600">
           <%= pluralize(@stats[:total_concerts], 'concert') %> • 
-          <%= pluralize(@stats[:venues_played], 'venue') %> • 
+          <%= pluralize(@stats[:total_artists], 'artist') %>
           <% if @stats[:first_show] %>
-            Active <%= @stats[:first_show].year %> - <%= @stats[:last_show]&.year || 'present' %>
+            • <%= @stats[:first_show].year %> - <%= @stats[:last_show].year %>
           <% end %>
         </p>
       </div>
       <div class="flex space-x-3">
-        <%= link_to "All Artists", admin_concert_artists_path, 
+        <%= link_to "All Venues", admin_concerts_venues_path,
             class: "px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
-        <%= link_to "Filter Concerts", admin_concerts_path(artist_id: @artist.id), 
+        <%= link_to "Filter Concerts", admin_concerts_shows_path(venue_id: @venue.id),
             class: "px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700" %>
       </div>
     </div>
@@ -35,25 +37,30 @@
     
     <div class="bg-white overflow-hidden shadow rounded-lg">
       <div class="px-4 py-5 sm:p-6">
-        <dt class="text-sm font-medium text-gray-500 truncate">Venues Played</dt>
-        <dd class="mt-1 text-3xl font-semibold text-gray-900"><%= @stats[:venues_played] %></dd>
+        <dt class="text-sm font-medium text-gray-500 truncate">Total Artists</dt>
+        <dd class="mt-1 text-3xl font-semibold text-gray-900"><%= @stats[:total_artists] %></dd>
       </div>
     </div>
     
     <div class="bg-white overflow-hidden shadow rounded-lg">
       <div class="px-4 py-5 sm:p-6">
-        <dt class="text-sm font-medium text-gray-500 truncate">First Show</dt>
-        <dd class="mt-1 text-xl font-semibold text-gray-900">
-          <%= @stats[:first_show]&.strftime('%b %Y') || 'N/A' %>
+        <dt class="text-sm font-medium text-gray-500 truncate">Busiest Year</dt>
+        <dd class="mt-1 text-2xl font-semibold text-gray-900">
+          <% if @stats[:busiest_year] %>
+            <%= @stats[:busiest_year][0].to_i %>
+            <span class="text-sm text-gray-500">(<%= @stats[:busiest_year][1] %> shows)</span>
+          <% else %>
+            N/A
+          <% end %>
         </dd>
       </div>
     </div>
     
     <div class="bg-white overflow-hidden shadow rounded-lg">
       <div class="px-4 py-5 sm:p-6">
-        <dt class="text-sm font-medium text-gray-500 truncate">Most Recent</dt>
+        <dt class="text-sm font-medium text-gray-500 truncate">Last Show</dt>
         <dd class="mt-1 text-xl font-semibold text-gray-900">
-          <%= @stats[:last_show]&.strftime('%b %Y') || 'N/A' %>
+          <%= @stats[:last_show]&.strftime('%b %d, %Y') || 'N/A' %>
         </dd>
       </div>
     </div>
@@ -71,7 +78,7 @@
           <ul class="divide-y divide-gray-200">
             <% @concerts.each do |concert| %>
               <li>
-                <%= link_to admin_concert_path(concert), class: "block hover:bg-gray-50 px-6 py-4" do %>
+                <%= link_to admin_concerts_show_path(concert), class: "block hover:bg-gray-50 px-6 py-4" do %>
                   <div class="flex items-center justify-between">
                     <div class="flex-1">
                       <div class="flex items-center">
@@ -79,15 +86,15 @@
                           <%= concert.played_on&.strftime('%B %d, %Y') %>
                         </p>
                         <span class="ml-2 text-xs text-gray-500">
-                          <%= time_ago_in_words(concert.played_on) %> ago
+                          <%= concert.played_on.strftime('%A') %>
                         </span>
                       </div>
-                      <p class="mt-1 text-sm text-gray-900">
-                        <%= concert.concert_venue&.display_name || "Venue TBD" %>
+                      <p class="mt-1 text-sm text-gray-900 font-medium">
+                        <%= concert.concert_artists.map(&:name).join(', ') %>
                       </p>
-                      <% if concert.concert_artists.count > 1 %>
-                        <p class="mt-1 text-xs text-gray-500">
-                          with <%= (concert.concert_artists - [@artist]).map(&:name).join(', ') %>
+                      <% if concert.notes.present? %>
+                        <p class="mt-1 text-xs text-gray-500 line-clamp-1">
+                          <%= concert.notes %>
                         </p>
                       <% end %>
                     </div>
@@ -105,7 +112,7 @@
           </div>
         <% else %>
           <div class="px-6 py-12 text-center">
-            <p class="text-gray-500">No concerts found for this artist.</p>
+            <p class="text-gray-500">No concerts found at this venue.</p>
           </div>
         <% end %>
       </div>
@@ -113,21 +120,21 @@
     
     <!-- Sidebar (1/3 width) -->
     <div class="space-y-6">
-      <!-- Frequent Collaborators -->
-      <% if @collaborators.any? %>
+      <!-- Frequent Artists -->
+      <% if @frequent_artists.any? %>
         <div class="bg-white shadow overflow-hidden sm:rounded-lg">
           <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-sm font-medium text-gray-900">Frequent Collaborators</h3>
+            <h3 class="text-sm font-medium text-gray-900">Most Frequent Artists</h3>
           </div>
           <div class="px-6 py-4">
             <ul class="space-y-3">
-              <% @collaborators.first(5).each do |collaborator| %>
+              <% @frequent_artists.each do |artist| %>
                 <li class="flex justify-between items-center">
-                  <%= link_to collaborator.name, 
-                      admin_concert_artist_path(collaborator),
+                  <%= link_to artist.name,
+                      admin_concerts_artist_path(artist),
                       class: "text-sm text-indigo-600 hover:text-indigo-900" %>
                   <span class="text-xs text-gray-500">
-                    <%= pluralize(collaborator.shared_concerts, 'show') %>
+                    <%= pluralize(artist.venue_concerts, 'show') %>
                   </span>
                 </li>
               <% end %>
@@ -136,49 +143,27 @@
         </div>
       <% end %>
       
-      <!-- Venues Breakdown -->
-      <% if @venues_breakdown.any? %>
+      <!-- Shows by Year -->
+      <% if @concerts_by_year.any? %>
         <div class="bg-white shadow overflow-hidden sm:rounded-lg">
           <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-sm font-medium text-gray-900">Top Venues</h3>
+            <h3 class="text-sm font-medium text-gray-900">Shows by Year</h3>
           </div>
           <div class="px-6 py-4">
-            <ul class="space-y-3">
-              <% @venues_breakdown.first(5).each do |venue_data| %>
-                <% venue_id, name, city, state, count = venue_data %>
-                <li>
-                  <div class="flex justify-between items-center">
-                    <% if venue_id %>
-                      <%= link_to admin_concert_venue_path(venue_id), 
-                          class: "text-sm text-indigo-600 hover:text-indigo-900 flex-1" do %>
-                        <div>
-                          <span><%= name %></span>
-                          <% if city.present? %>
-                            <span class="text-xs text-gray-500 block"><%= city %>, <%= state %></span>
-                          <% end %>
-                        </div>
-                      <% end %>
-                    <% else %>
-                      <div class="text-sm text-gray-700 flex-1">
-                        <span><%= name || "Unknown Venue" %></span>
-                      </div>
-                    <% end %>
-                    <span class="text-xs text-gray-500 ml-2">
-                      <%= pluralize(count, 'show') %>
-                    </span>
+            <ul class="space-y-2">
+              <% @concerts_by_year.each do |year, count| %>
+                <li class="flex justify-between items-center">
+                  <span class="text-sm text-gray-900"><%= year.to_i %></span>
+                  <div class="flex items-center">
+                    <div class="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                      <div class="bg-indigo-600 h-2 rounded-full" 
+                           style="width: <%= (count.to_f / @concerts_by_year.values.max * 100).round %>%"></div>
+                    </div>
+                    <span class="text-xs text-gray-500 w-8 text-right"><%= count %></span>
                   </div>
                 </li>
               <% end %>
             </ul>
-            
-            <% if @stats[:most_played_venue] %>
-              <div class="mt-4 pt-4 border-t border-gray-200">
-                <p class="text-xs text-gray-500">
-                  Most played: <span class="font-medium"><%= @stats[:most_played_venue][0] %></span>
-                  (<%= pluralize(@stats[:most_played_venue][1], 'show') %>)
-                </p>
-              </div>
-            <% end %>
           </div>
         </div>
       <% end %>

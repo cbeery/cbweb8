@@ -1,0 +1,54 @@
+<%# app/views/admin/concerts/artists/index.html.erb %>
+<% content_for :title, "Artists" %>
+
+<div class="mb-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-3xl font-bold text-gray-900">Artists</h1>
+    <%= link_to "New Artist", new_admin_concerts_artist_path,
+        class: "px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors" %>
+  </div>
+</div>
+
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+  <% if @artists.any? %>
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Concerts</th>
+        </tr>
+      </thead>
+
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @artists.each do |artist| %>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <%= link_to artist.name,
+                  admin_concerts_artist_path(artist),
+                  class: "text-indigo-600 hover:text-indigo-900" %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <%= artist.concerts_count %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <div class="px-6 py-3 border-t border-gray-200">
+      <%= paginate @artists %>
+    </div>
+  <% else %>
+    <div class="text-center py-12 px-6">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No artists found</h3>
+      <p class="mt-1 text-sm text-gray-500">Get started by creating a new artist.</p>
+      <div class="mt-6">
+        <%= link_to "New Artist", new_admin_concerts_artist_path,
+            class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" %>
+      </div>
+    </div>
+  <% end %>
+</div>

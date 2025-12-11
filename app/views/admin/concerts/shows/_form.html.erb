@@ -1,4 +1,4 @@
-<%= form_with model: [:admin, @concert], local: false do |form| %>
+<%= form_with model: @concert, url: (@concert.persisted? ? admin_concerts_show_path(@concert) : admin_concerts_shows_path), local: false do |form| %>
   
   <% if @concert.errors.any? %>
     <div class="rounded-md bg-red-50 p-4 mb-4">
@@ -31,7 +31,7 @@
     <div>
       <%= form.label :concert_venue_id, "Venue", class: "block text-sm font-medium text-gray-700" %>
       <div class="mt-1" data-controller="autocomplete"
-           data-autocomplete-url-value="<%= search_venues_admin_concerts_path %>"
+           data-autocomplete-url-value="<%= search_venues_admin_concerts_shows_path %>"
            data-autocomplete-create-new-value="true">
         
         <div class="relative flex">
@@ -119,7 +119,7 @@
 
     <!-- Form Actions -->
     <div class="flex justify-end space-x-3 pt-6 border-t">
-      <%= link_to "Cancel", admin_concerts_path, 
+      <%= link_to "Cancel", admin_concerts_shows_path,
           class: "inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
       <%= form.submit class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
     </div>

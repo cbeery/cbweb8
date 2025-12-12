@@ -30,110 +30,165 @@
             <div>
               <h1 class="text-3xl font-bold text-gray-900"><%= @movie.title %></h1>
               <% if @movie.year.present? %>
-                <p class="text-xl text-gray-600 mt-1"><%= @movie.year %></p>
+                <p class="text-xl text-gray-600"><%= @movie.year %></p>
+              <% end %>
+              <% if @movie.director.present? %>
+                <p class="text-lg text-gray-500">Directed by <%= @movie.director %></p>
               <% end %>
             </div>
             
-            <div class="flex space-x-2">
-              <%= link_to tmdb_lookup_admin_movie_path(@movie),
-                  data: { turbo_frame: "tmdb_modal" },
-                  class: "inline-flex items-center px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700" do %>
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                TMDB Lookup
-              <% end %>
-              
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap gap-2">
               <%= link_to edit_admin_movie_path(@movie), 
-                  class: "inline-flex items-center px-3 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700" do %>
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
+                  class: "px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm font-medium" do %>
                 Edit
               <% end %>
-
-              <%= link_to "Enrich Movie", enrich_admin_movie_path(@movie), class: "inline-flex items-center px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700" %>
               
+              <%= link_to enrich_admin_movie_path(@movie),
+                  class: "px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium" do %>
+                Enrich
+              <% end %>
+              
+              <%= link_to tmdb_lookup_admin_movie_path(@movie),
+                  data: { turbo_frame: "tmdb_modal" },
+                  class: "px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 text-sm font-medium" do %>
+                TMDB
+              <% end %>
+              
+              <%= link_to admin_movie_path(@movie),
+                  data: { 
+                    turbo_method: :delete, 
+                    turbo_confirm: "Are you sure you want to delete \"#{@movie.title}\"? This will also delete all #{@movie.viewings.count} viewing(s) and poster(s). This action cannot be undone."
+                  },
+                  class: "px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm font-medium" do %>
+                Delete
+              <% end %>
             </div>
           </div>
           
-          <!-- Movie Info -->
-          <div class="space-y-3">
-            <% if @movie.rating.present? %>
-              <div class="flex">
-                <span class="text-gray-500 w-32">Rating:</span>
-                <div class="flex items-center gap-1">
+          <!-- Movie Info Grid -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <!-- Rating -->
+            <div class="bg-gray-50 rounded-lg p-4">
+              <div class="text-sm text-gray-500">Rating</div>
+              <% if @movie.rating.present? %>
+                <div class="text-2xl font-bold text-gray-900">
+                  <%= @movie.rating %>
                   <span class="text-yellow-500">★</span>
-                  <span class="font-semibold"><%= @movie.rating %>/5</span>
                 </div>
-              </div>
-            <% end %>
-            
-            <% if @movie.director.present? %>
-              <div class="flex">
-                <span class="text-gray-500 w-32">Director:</span>
-                <span class="font-semibold"><%= @movie.director %></span>
-              </div>
-            <% end %>
-            
-            <% if @movie.score.present? %>
-              <div class="flex">
-                <span class="text-gray-500 w-32">Score:</span>
-                <span><%= @movie.score %>/100</span>
-              </div>
-            <% end %>
-            
-            <div class="flex">
-              <span class="text-gray-500 w-32">Total Views:</span>
-              <span><%= pluralize(@movie.viewings.count, 'viewing') %></span>
+              <% else %>
+                <div class="text-gray-400">—</div>
+              <% end %>
             </div>
             
-            <% if @movie.viewings.rewatches.any? %>
-              <div class="flex">
-                <span class="text-gray-500 w-32">Rewatches:</span>
-                <span class="text-green-600"><%= @movie.viewings.rewatches.count %></span>
-              </div>
-            <% end %>
+            <!-- View Count -->
+            <div class="bg-gray-50 rounded-lg p-4">
+              <div class="text-sm text-gray-500">Viewings</div>
+              <div class="text-2xl font-bold text-gray-900"><%= @movie.viewings.count %></div>
+            </div>
             
-            <% if @movie.tmdb_id.present? %>
-              <div class="flex">
-                <span class="text-gray-500 w-32">TMDB ID:</span>
-                <span><%= @movie.tmdb_id %></span>
-              </div>
-            <% end %>
+            <!-- First Watched -->
+            <div class="bg-gray-50 rounded-lg p-4">
+              <div class="text-sm text-gray-500">First Watched</div>
+              <% first_viewed = @movie.viewings.minimum(:viewed_on) %>
+              <% if first_viewed %>
+                <div class="text-lg font-semibold text-gray-900"><%= first_viewed.strftime('%b %d, %Y') %></div>
+              <% else %>
+                <div class="text-gray-400">—</div>
+              <% end %>
+            </div>
             
-            <% if @movie.url.present? %>
-              <div class="flex">
-                <span class="text-gray-500 w-32">Link:</span>
-                <%= link_to "View on Letterboxd", 
-                    @movie.url,
-                    target: "_blank",
-                    class: "text-indigo-600 hover:text-indigo-800" %>
-              </div>
-            <% end %>
+            <!-- Runtime -->
+            <div class="bg-gray-50 rounded-lg p-4">
+              <div class="text-sm text-gray-500">Runtime</div>
+              <% if @movie.runtime.present? %>
+                <div class="text-lg font-semibold text-gray-900"><%= @movie.runtime %> min</div>
+              <% else %>
+                <div class="text-gray-400">—</div>
+              <% end %>
+            </div>
           </div>
           
-          <% if @movie.review.present? %>
-            <div class="border-t pt-6 mt-6">
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">Review</h3>
-              <p class="text-gray-700 whitespace-pre-wrap"><%= @movie.review %></p>
+          <!-- External IDs -->
+          <div class="border-t pt-4 mb-6">
+            <h3 class="text-sm font-medium text-gray-500 mb-2">External IDs</h3>
+            <div class="flex flex-wrap gap-2">
+              <% if @movie.tmdb_id.present? %>
+                <a href="https://www.themoviedb.org/movie/<%= @movie.tmdb_id %>" 
+                   target="_blank"
+                   class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800 hover:bg-blue-200">
+                  TMDB: <%= @movie.tmdb_id %>
+                  <svg class="w-3 h-3 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                  </svg>
+                </a>
+              <% end %>
+              
+              <% if @movie.imdb_id.present? %>
+                <a href="https://www.imdb.com/title/<%= @movie.imdb_id %>" 
+                   target="_blank"
+                   class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800 hover:bg-yellow-200">
+                  IMDb: <%= @movie.imdb_id %>
+                  <svg class="w-3 h-3 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                  </svg>
+                </a>
+              <% end %>
+              
+              <% if @movie.letterboxd_id.present? %>
+                <a href="https://letterboxd.com/film/<%= @movie.letterboxd_id %>/" 
+                   target="_blank"
+                   class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800 hover:bg-green-200">
+                  Letterboxd: <%= @movie.letterboxd_id %>
+                  <svg class="w-3 h-3 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                  </svg>
+                </a>
+              <% end %>
+              
+              <% if @movie.tmdb_id.blank? && @movie.imdb_id.blank? && @movie.letterboxd_id.blank? %>
+                <span class="text-gray-400 text-sm">No external IDs linked</span>
+              <% end %>
+            </div>
+          </div>
+          
+          <!-- Poster Debug Info (only in development) -->
+          <% if Rails.env.development? && @poster.present? %>
+            <div class="border-t pt-4 mb-6">
+              <h3 class="text-sm font-medium text-gray-500 mb-2">Poster Debug</h3>
+              <div class="text-xs text-gray-500 space-y-1">
+                <p><strong>Source:</strong> <%= @poster.source %></p>
+                <p><strong>URL:</strong> <%= truncate(@poster.url.to_s, length: 80) %></p>
+                <p><strong>Image attached:</strong> <%= @poster.image.attached? %></p>
+                <% if @poster.image.attached? %>
+                  <p><strong>Blob key:</strong> <%= @poster.image.blob.key %></p>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+          
+          <!-- Notes -->
+          <% if @movie.notes.present? %>
+            <div class="border-t pt-4">
+              <h3 class="text-sm font-medium text-gray-500 mb-2">Notes</h3>
+              <p class="text-gray-700"><%= @movie.notes %></p>
             </div>
           <% end %>
         </div>
       </div>
     </div>
     
-    <!-- Viewing History -->
+    <!-- Viewings Section -->
     <div class="mt-8">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-bold text-gray-900">Viewing History</h2>
-        <%= link_to new_admin_movie_viewing_path(@movie),
-            class: "inline-flex items-center px-3 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700" do %>
-          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
-          Add Viewing
-        <% end %>        
+        <h2 class="text-2xl font-bold text-gray-900">Viewings</h2>
+        <%= link_to new_admin_movie_viewing_path(@movie), 
+            class: "px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium" do %>
+          + Add Viewing
+        <% end %>
       </div>
       
       <% if @viewings.any? %>
@@ -185,7 +240,7 @@
                     <% end %>
                   </td>
                   <td class="px-6 py-4 text-sm text-gray-900">
-                    <%= viewing.notes || "-" %>
+                    <%= viewing.notes.present? ? truncate(viewing.notes, length: 50) : "-" %>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <%= link_to "Edit", edit_admin_movie_viewing_path(@movie, viewing),

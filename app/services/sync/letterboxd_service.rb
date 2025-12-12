@@ -1,4 +1,9 @@
 # app/services/sync/letterboxd_service.rb
+# 
+# CHANGES FROM ORIGINAL:
+# 1. Improved create_or_update_poster method to handle failed downloads
+# 2. Better poster URL extraction with size upgrade
+# 3. Re-queue download job if image is missing
 
 require 'feedjira'
 require 'open-uri'
@@ -164,7 +169,7 @@ module Sync
     def parse_letterboxd_entry(entry)
       # Find the corresponding item in the XML document by matching the guid
       item_node = @xml_doc.xpath("//item[guid[text()='#{entry.entry_id}']]").first
-
+      
       # Extract custom fields from the XML node
       custom_data = if item_node
         {
@@ -196,7 +201,7 @@ module Sync
         film_url: extract_film_url(entry),
         tmdb_id: custom_data[:tmdb_id]
       }
-
+      
       # Extract poster URL from content
       parsed_data[:poster_url] = extract_poster_url(entry)
       
@@ -270,16 +275,42 @@ module Sync
       
       # Look for Letterboxd CDN image URLs
       if content =~ /https?:\/\/[as]\.ltrbxd\.com\/[^"'\s>]+/
-        return $&
+        url = $&
+        
+        # Upgrade to larger poster size if it's a small thumbnail
+        # Letterboxd uses patterns like /resized/sm/ for small images
+        # We can try to get a larger version
+        url = upgrade_letterboxd_poster_url(url)
+        
+        return url
       end
       
       # Fallback: try to find any img src
       if content =~ /<img[^>]+src=["']([^"']+)["']/
         url = $1
-        return url if url.include?('ltrbxd.com') || url.include?('film-poster')
+        if url.include?('ltrbxd.com') || url.include?('film-poster')
+          return upgrade_letterboxd_poster_url(url)
+        end
       end
       
       nil
+    end
+    
+    # Attempt to get a larger version of Letterboxd poster URLs
+    def upgrade_letterboxd_poster_url(url)
+      # Letterboxd poster URL patterns:
+      # Small: https://a.ltrbxd.com/resized/sm/upload/xx/xx/xx/xx/xxxxx-0-150-0-225-crop.jpg
+      # Large: https://a.ltrbxd.com/resized/film-poster/x/x/x/x/x/xxxxxx-0-500-0-750-crop.jpg
+      
+      # Try to upgrade small thumbnails to larger versions
+      if url.include?('/resized/sm/')
+        # Replace the size in the URL to get a larger version
+        # Change dimensions from 150x225 to 230x345 (standard poster size)
+        upgraded = url.gsub(/-\d+-\d+-\d+-\d+-crop/, '-0-230-0-345-crop')
+        return upgraded
+      end
+      
+      url
     end
     
     def film_entry?(entry)
@@ -300,33 +331,43 @@ module Sync
       end
     end
     
+    # IMPROVED: Better poster handling that re-queues downloads for failed posters
     def create_or_update_poster(movie, poster_url)
-      existing_poster = movie.movie_poster
-
-      # Skip if we already have this exact URL
-      if existing_poster&.url == poster_url
-        log(:info, "Poster already exists for movie",
-          movie: movie.title,
-          url: poster_url
-        )
+      # Look for existing poster with this URL
+      poster = movie.movie_posters.find_by(url: poster_url)
+      
+      if poster
+        # Poster record exists - check if image was downloaded
+        if poster.needs_download?
+          log(:info, "Re-queuing poster download (previous download may have failed)", 
+            movie: movie.title,
+            url: poster_url
+          )
+          DownloadPosterJob.perform_later(poster)
+        end
         return
       end
-
-      # Replace existing poster or create new one
-      if existing_poster
-        existing_poster.destroy
-      end
-
-      movie.create_movie_poster!(
+      
+      # Create new poster record
+      poster = movie.movie_posters.new(
         url: poster_url,
-        source: 'letterboxd'
+        source: 'letterboxd',
+        primary: movie.movie_posters.where(primary: true).empty?
       )
-
-      log(:info, "#{existing_poster ? 'Replaced' : 'Added'} poster for movie",
-        movie: movie.title,
-        url: poster_url
-      )
+      
+      if poster.save
+        log(:info, "Added poster for movie", 
+          movie: movie.title,
+          url: poster_url,
+          primary: poster.primary?
+        )
+        # Note: after_create callback will queue the download job
+      else
+        log(:error, "Failed to save poster", 
+          movie: movie.title,
+          errors: poster.errors.full_messages
+        )
+      end
     end
-    
   end
 end

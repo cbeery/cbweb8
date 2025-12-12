@@ -107,10 +107,10 @@ namespace :movies do
     
     total_movies = Movie.count
     
-    # Count movies that have at least one poster record
+    # Count movies that have a poster record (has_one)
     movies_with_posters = MoviePoster.distinct.count(:movie_id)
     
-    # Count movies with at least one attached poster image
+    # Count movies with attached poster image
     movies_with_attached = MoviePoster.joins(:image_attachment).distinct.count(:movie_id)
     
     puts "Total movies: #{total_movies}"

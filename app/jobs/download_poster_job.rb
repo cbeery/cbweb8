@@ -30,16 +30,18 @@ class DownloadPosterJob < ApplicationJob
       return
     end
     
-    # Skip if already has an image attached
-    if movie_poster.image.attached?
-      Rails.logger.info "[DownloadPosterJob] Poster ##{poster_id} already has image, skipping"
-      return
-    end
-    
     # Skip if no URL
     unless movie_poster.url.present?
       Rails.logger.warn "[DownloadPosterJob] Poster ##{poster_id} has no URL, skipping"
       return
+    end
+    
+    # CRITICAL FIX: Always purge any existing attachment before downloading
+    # This prevents orphaned attachments from ID recycling from being reused
+    if movie_poster.image.attached?
+      Rails.logger.info "[DownloadPosterJob] Purging existing attachment for poster ##{poster_id}"
+      movie_poster.image.purge
+      movie_poster.reload
     end
     
     download_and_attach(movie_poster)

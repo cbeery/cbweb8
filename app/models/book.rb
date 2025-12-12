@@ -4,7 +4,7 @@ class Book < ApplicationRecord
   has_many :book_reads, dependent: :destroy
   has_one :current_read, -> { in_progress }, class_name: 'BookRead'
   has_one :most_recent_read, -> { completed.recent }, class_name: 'BookRead'
-  has_one_attached :cover_image
+  has_one_attached :cover_image, dependent: :purge_later
   
   # Enums
   enum :status, {

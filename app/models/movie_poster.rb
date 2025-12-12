@@ -6,14 +6,8 @@ class MoviePoster < ApplicationRecord
   # Validations
   validate :has_image_or_url
   
-  # Scopes
-  scope :primary, -> { where(primary: true) }
-  scope :ordered, -> { order(:position, :created_at) }
-  
   # Callbacks
-  before_validation :set_position, on: :create
   after_create :download_image_from_url, if: :should_download_image?
-  after_save :ensure_single_primary
   
   # Returns the best available URL for displaying this poster
   def display_url
@@ -51,10 +45,6 @@ class MoviePoster < ApplicationRecord
     end
   end
   
-  def set_position
-    self.position ||= (movie.movie_posters.maximum(:position) || 0) + 1
-  end
-  
   def should_download_image?
     url.present? && !image.attached?
   end
@@ -63,9 +53,4 @@ class MoviePoster < ApplicationRecord
     DownloadPosterJob.perform_later(self)
   end
   
-  def ensure_single_primary
-    return unless primary?
-    
-    movie.movie_posters.where.not(id: id).update_all(primary: false)
-  end
 end

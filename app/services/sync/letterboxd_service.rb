@@ -301,18 +301,32 @@ module Sync
     end
     
     def create_or_update_poster(movie, poster_url)
-      poster = movie.movie_posters.find_or_initialize_by(url: poster_url)
-      
-      if poster.new_record?
-        poster.source = 'letterboxd'
-        poster.primary = movie.movie_posters.empty?
-        poster.save!
-        
-        log(:info, "Added poster for movie", 
+      existing_poster = movie.movie_poster
+
+      # Skip if we already have this exact URL
+      if existing_poster&.url == poster_url
+        log(:info, "Poster already exists for movie",
           movie: movie.title,
           url: poster_url
         )
+        return
       end
+
+      # Replace existing poster or create new one
+      if existing_poster
+        existing_poster.destroy
+      end
+
+      movie.create_movie_poster!(
+        url: poster_url,
+        source: 'letterboxd'
+      )
+
+      log(:info, "#{existing_poster ? 'Replaced' : 'Added'} poster for movie",
+        movie: movie.title,
+        url: poster_url
+      )
     end
+    
   end
 end

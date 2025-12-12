@@ -45,8 +45,8 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <!-- Poster -->
           <div class="md:col-span-1">
-            <% if @last_movie&.movie_posters&.any? %>
-              <%= image_tag @last_movie.movie_posters.first.image, 
+            <% if @last_movie&.movie_poster %>
+              <%= image_tag @last_movie.movie_poster.image, 
                   class: "w-full rounded-lg shadow-lg",
                   alt: @last_movie.title %>
             <% else %>
@@ -124,8 +124,8 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <!-- Poster -->
           <div class="md:col-span-1">
-            <% if @last_home_movie&.movie_posters&.any? %>
-              <%= image_tag @last_home_movie.movie_posters.first.image, 
+            <% if @last_home_movie&.movie_poster %>
+              <%= image_tag @last_home_movie.movie_poster.image, 
                   class: "w-full rounded-lg shadow-lg",
                   alt: @last_home_movie.title %>
             <% else %>

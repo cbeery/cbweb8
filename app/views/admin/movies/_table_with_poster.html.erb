@@ -36,25 +36,24 @@
           <tr class="hover:bg-gray-50">
             <!-- Poster - sticky left column -->
             <td class="px-6 py-4 whitespace-nowrap sticky left-0 bg-white z-10 hover:bg-gray-50">
-              <% poster = movie.movie_posters.first %>
+              <% poster = movie.movie_poster %>
               <% if poster&.image&.attached? %>
-                <%= image_tag poster.image,
-                    class: "h-20 w-14 object-cover rounded",
-                    alt: movie.title,
-                    loading: "lazy" %>
-              <% elsif poster&.url %>
-                <%= image_tag poster.url,
-                    class: "h-20 w-14 object-cover rounded",
-                    alt: movie.title,
-                    loading: "lazy" %>
+                <%= image_tag poster.image, 
+                    class: "w-12 h-auto rounded shadow-sm",
+                    alt: movie.title %>
+              <% elsif poster&.url? %>
+                <img src="<%= poster.url %>" 
+                     class="w-12 h-auto rounded shadow-sm"
+                     alt="<%= movie.title %>">
               <% else %>
-                <div class="h-20 w-14 bg-gray-200 rounded flex items-center justify-center">
-                  <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <div class="w-12 h-16 bg-gray-200 rounded flex items-center justify-center">
+                  <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
                   </svg>
                 </div>
               <% end %>
             </td>
+
             <!-- Title - truncated for long titles -->
             <td class="px-6 py-4 text-sm font-medium text-gray-900">
               <div class="max-w-xs lg:max-w-sm">
@@ -106,7 +105,8 @@
               <% else %>
                 <span class="text-gray-400">-</span>
               <% end %>
-            </td>
+            </td>            
+
           </tr>
         <% end %>
       </tbody>

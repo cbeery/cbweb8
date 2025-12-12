@@ -17,7 +17,7 @@
             <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <!-- Poster -->
               <div class="flex-shrink-0 mx-auto sm:mx-0">
-                <% poster = movie.movie_posters.first %>
+                <% poster = movie.movie_poster %>
                 <% if poster&.image&.attached? %>
                   <%= image_tag poster.image,
                       alt: movie.title,

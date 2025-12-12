@@ -92,7 +92,7 @@
               <div class="flex items-center space-x-4">
                 <!-- Poster Thumbnail -->
                 <div class="flex-shrink-0">
-                  <% poster = movie.movie_posters.first %>
+                  <% poster = movie.movie_poster %>
                   <% if poster&.image&.attached? %>
                     <%= image_tag poster.image,
                         alt: movie.title,

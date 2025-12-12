@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_11_211345) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_12_200953) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -201,15 +201,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_11_211345) do
   create_table "movie_posters", force: :cascade do |t|
     t.bigint "movie_id", null: false
     t.text "url"
-    t.boolean "primary", default: false
-    t.integer "position"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "source"
-    t.index ["movie_id", "primary"], name: "index_movie_posters_on_movie_id_and_primary"
     t.index ["movie_id", "url"], name: "index_movie_posters_on_movie_id_and_url", unique: true
     t.index ["movie_id"], name: "index_movie_posters_on_movie_id"
-    t.index ["position"], name: "index_movie_posters_on_position"
   end
 
   create_table "movies", force: :cascade do |t|

@@ -2,89 +2,120 @@
 class DownloadPosterJob < ApplicationJob
   queue_as :default
   
-  # Retry on network failures
+  # Retry on transient failures
   retry_on Net::OpenTimeout, Net::ReadTimeout, wait: 5.seconds, attempts: 3
   
   def perform(movie_poster)
-    return unless movie_poster.url.present?
-    return if movie_poster.image.attached?
+    # Store the expected URL at job creation time
+    expected_url = movie_poster.url
+    poster_id = movie_poster.id
+    movie_id = movie_poster.movie_id
     
-    Rails.logger.info "[DownloadPosterJob] Starting download for MoviePoster ##{movie_poster.id}, Movie: #{movie_poster.movie&.title}"
-    Rails.logger.info "[DownloadPosterJob] URL: #{movie_poster.url}"
+    Rails.logger.info "[DownloadPosterJob] Starting for poster ##{poster_id}, movie ##{movie_id}"
+    Rails.logger.info "[DownloadPosterJob] URL: #{expected_url}"
     
+    # Reload to get fresh state
     begin
-      # Use HTTParty with explicit redirect handling and timeout
-      response = HTTParty.get(
-        movie_poster.url,
-        follow_redirects: true,
-        timeout: 30,
-        headers: {
-          'User-Agent' => 'Mozilla/5.0 (compatible; cbweb8/1.0)'
-        }
-      )
-      
-      unless response.success?
-        Rails.logger.error "[DownloadPosterJob] Failed to download poster from #{movie_poster.url}: HTTP #{response.code}"
-        return
-      end
-      
-      # Verify we got actual image data
-      content_type = response.headers['content-type']&.split(';')&.first || 'image/jpeg'
-      
-      unless content_type.start_with?('image/')
-        Rails.logger.error "[DownloadPosterJob] Response is not an image. Content-Type: #{content_type}"
-        return
-      end
-      
-      # Verify minimum file size (avoid empty or broken images)
-      if response.body.bytesize < 1000
-        Rails.logger.error "[DownloadPosterJob] Downloaded file too small (#{response.body.bytesize} bytes), possibly broken"
-        return
-      end
-      
-      filename = extract_filename(movie_poster.url, content_type)
-      
-      Rails.logger.info "[DownloadPosterJob] Attaching image: #{filename} (#{response.body.bytesize} bytes, #{content_type})"
-      
-      movie_poster.image.attach(
-        io: StringIO.new(response.body),
-        filename: filename,
-        content_type: content_type
-      )
-      
-      Rails.logger.info "[DownloadPosterJob] Successfully downloaded poster for Movie ##{movie_poster.movie_id}: #{movie_poster.movie&.title}"
-      
-    rescue HTTParty::Error, SocketError, Errno::ECONNREFUSED => e
-      Rails.logger.error "[DownloadPosterJob] Network error downloading poster: #{e.class.name} - #{e.message}"
-    rescue ActiveStorage::IntegrityError => e
-      Rails.logger.error "[DownloadPosterJob] File integrity error: #{e.message}"
-    rescue => e
-      Rails.logger.error "[DownloadPosterJob] Unexpected error: #{e.class.name} - #{e.message}"
-      Rails.logger.error e.backtrace.first(5).join("\n")
+      movie_poster.reload
+    rescue ActiveRecord::RecordNotFound
+      Rails.logger.warn "[DownloadPosterJob] Poster ##{poster_id} no longer exists, skipping"
+      return
     end
+    
+    # CRITICAL: Verify the URL hasn't changed (prevents race condition)
+    if movie_poster.url != expected_url
+      Rails.logger.warn "[DownloadPosterJob] URL changed for poster ##{poster_id}, skipping"
+      Rails.logger.warn "[DownloadPosterJob]   Expected: #{expected_url}"
+      Rails.logger.warn "[DownloadPosterJob]   Current:  #{movie_poster.url}"
+      return
+    end
+    
+    # Skip if already has an image attached
+    if movie_poster.image.attached?
+      Rails.logger.info "[DownloadPosterJob] Poster ##{poster_id} already has image, skipping"
+      return
+    end
+    
+    # Skip if no URL
+    unless movie_poster.url.present?
+      Rails.logger.warn "[DownloadPosterJob] Poster ##{poster_id} has no URL, skipping"
+      return
+    end
+    
+    download_and_attach(movie_poster)
   end
   
   private
   
-  def extract_filename(url, content_type)
-    # Try to get filename from URL
-    uri = URI.parse(url)
-    basename = File.basename(uri.path)
+  def download_and_attach(movie_poster)
+    url = movie_poster.url
     
-    # If we got a reasonable filename with extension, use it
-    if basename.present? && basename.match?(/\.\w{3,4}$/)
-      return basename
+    Rails.logger.info "[DownloadPosterJob] Downloading from: #{url}"
+    
+    response = HTTParty.get(
+      url,
+      follow_redirects: true,
+      timeout: 30,
+      headers: { 'User-Agent' => 'Mozilla/5.0 (compatible; cbweb8/1.0)' }
+    )
+    
+    unless response.success?
+      Rails.logger.error "[DownloadPosterJob] HTTP #{response.code} for #{url}"
+      return
     end
     
-    # Otherwise, generate a filename based on content type
+    content_type = response.headers['content-type']
+    unless content_type&.start_with?('image/')
+      Rails.logger.error "[DownloadPosterJob] Not an image: #{content_type}"
+      return
+    end
+    
+    body = response.body
+    if body.bytesize < 1000
+      Rails.logger.error "[DownloadPosterJob] Image too small: #{body.bytesize} bytes"
+      return
+    end
+    
+    # Use a unique filename that includes poster ID to prevent any confusion
+    filename = generate_unique_filename(movie_poster, url, content_type)
+    
+    Rails.logger.info "[DownloadPosterJob] Attaching #{body.bytesize} bytes as #{filename}"
+    
+    # Perform the attachment
+    movie_poster.image.attach(
+      io: StringIO.new(body),
+      filename: filename,
+      content_type: content_type
+    )
+    
+    # Verify attachment succeeded
+    if movie_poster.image.attached?
+      Rails.logger.info "[DownloadPosterJob] Successfully attached poster ##{movie_poster.id}"
+    else
+      Rails.logger.error "[DownloadPosterJob] Attachment failed for poster ##{movie_poster.id}"
+    end
+    
+  rescue HTTParty::Error, SocketError, Timeout::Error => e
+    Rails.logger.error "[DownloadPosterJob] Network error: #{e.class.name}: #{e.message}"
+    raise  # Re-raise for retry
+  rescue => e
+    Rails.logger.error "[DownloadPosterJob] Error: #{e.class.name}: #{e.message}"
+    Rails.logger.error e.backtrace.first(5).join("\n")
+  end
+  
+  def generate_unique_filename(movie_poster, url, content_type)
+    # Include poster ID and movie ID in filename to ensure uniqueness
     extension = case content_type
-                when /jpeg|jpg/i then 'jpg'
                 when /png/i then 'png'
                 when /gif/i then 'gif'
                 when /webp/i then 'webp'
                 else 'jpg'
                 end
     
-    "poster_#{SecureRandom.hex(8)}.#{extension}"
+    # Extract original filename from URL for reference
+    original_name = File.basename(URI.parse(url).path).gsub(/\.[^.]+$/, '')
+    
+    # Format: poster_{poster_id}_movie_{movie_id}_{original_name}.{ext}
+    "poster_#{movie_poster.id}_movie_#{movie_poster.movie_id}_#{original_name}.#{extension}"
   end
 end

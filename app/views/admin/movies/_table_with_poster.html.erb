@@ -54,7 +54,60 @@
                 </div>
               <% end %>
             </td>
-            <!-- ... rest of table row ... -->
+
+            <!-- Title - truncated for long titles -->
+            <td class="px-6 py-4 text-sm font-medium text-gray-900">
+              <div class="max-w-xs lg:max-w-sm">
+                <%= link_to admin_movie_path(movie), 
+                    class: "text-gray-900 hover:text-indigo-600 block truncate",
+                    title: movie.title do %>
+                  <%= movie.title %>
+                <% end %>
+              </div>
+            </td>
+            <!-- Last Viewed - now third column (after poster) -->
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <% last_viewed = movie.viewings.maximum(:viewed_on) %>
+              <%= last_viewed ? last_viewed.strftime("%b %d, %Y") : "Never" %>
+            </td>
+            <!-- Year -->
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <%= movie.year || "-" %>
+            </td>
+            <!-- Rating -->
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <% if movie.rating %>
+                <div class="flex items-center gap-1">
+                  <span class="text-yellow-500">★</span>
+                  <span><%= movie.rating %></span>
+                </div>
+              <% else %>
+                <span class="text-gray-400">-</span>
+              <% end %>
+            </td>
+            <!-- Views -->
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+              <%= movie.viewings.count %>
+            </td>
+            <!-- Rewatches - just the number -->
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+              <% rewatch_count = movie.viewings.rewatches.count %>
+              <% if rewatch_count > 0 %>
+                <span class="text-green-600 font-medium"><%= rewatch_count %></span>
+              <% else %>
+                <span class="text-gray-400">-</span>
+              <% end %>
+            </td>
+            <!-- Location -->
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <% last_viewing = movie.viewings.order(viewed_on: :desc).first %>
+              <% if last_viewing %>
+                <%= last_viewing.location&.capitalize || "-" %>
+              <% else %>
+                <span class="text-gray-400">-</span>
+              <% end %>
+            </td>            
+
           </tr>
         <% end %>
       </tbody>

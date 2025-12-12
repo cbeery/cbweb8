@@ -257,16 +257,14 @@ class Admin::MoviesController < Admin::BaseController
   def set_movie
     @movie = Movie.find(params[:id])
   end
-  
+
   def movie_params
     params.require(:movie).permit(:title, :director, :year, :rating, :runtime, :imdb_id, :tmdb_id, :letterboxd_id, :notes)
   end
-  
+
   def viewing_enrichment_params
-    # Clean up the params before permitting
     viewing_params = params.require(:viewing).permit(:viewed_on, :location, :theater_id, :film_series_event_id, :notes, :rewatch, :price, :format, :time)
-    
-    # Ensure viewed_on is a proper date
+
     if viewing_params[:viewed_on].present?
       begin
         viewing_params[:viewed_on] = Date.parse(viewing_params[:viewed_on].to_s)
@@ -276,62 +274,54 @@ class Admin::MoviesController < Admin::BaseController
     else
       viewing_params[:viewed_on] = Date.current
     end
-    
+
     viewing_params
   end
-  
+
   def handle_poster_upload
     if params[:movie][:poster_file].present?
-      poster = @movie.movie_posters.create!(
-        source: 'manual',
-        primary: true
-      )
-      poster.image.attach(params[:movie][:poster_file])
+      replace_poster(source: 'manual') do |poster|
+        poster.image.attach(params[:movie][:poster_file])
+      end
     elsif params[:movie][:poster_url].present?
-      @movie.movie_posters.create!(
-        url: params[:movie][:poster_url],
-        source: 'manual',
-        primary: true
-      )
+      replace_poster(url: params[:movie][:poster_url], source: 'manual')
     end
   end
 
   def fetch_director_from_tmdb
     return unless @movie.tmdb_id.present?
-    
+
     credits = TmdbService.get_movie_credits(@movie.tmdb_id)
     director = credits&.dig('crew')&.find { |c| c['job'] == 'Director' }
-    
+
     if director
       @movie.update!(director: director['name'])
     end
   rescue => e
     logger.error "Failed to fetch director from TMDB: #{e.message}"
   end
-  
+
   def save_poster_from_tmdb(poster_path)
     return unless poster_path.present?
-    
-    # Build the full poster URL
+
     poster_url = "https://image.tmdb.org/t/p/original#{poster_path}"
-    
-    # Check if we already have this poster
-    existing_poster = @movie.movie_posters.find_by(url: poster_url)
-    
-    if existing_poster
-      # Just make it primary
-      @movie.movie_posters.update_all(primary: false)
-      existing_poster.update!(primary: true)
-    else
-      # Mark any existing primary posters as non-primary
-      @movie.movie_posters.where(primary: true).update_all(primary: false)
-      
-      # Create new poster record (removed tmdb_path which doesn't exist)
-      @movie.movie_posters.create!(
-        url: poster_url,
-        source: 'tmdb',
-        primary: true
-      )
-    end
+
+    # Skip if we already have this exact poster URL
+    return if @movie.movie_poster&.url == poster_url
+
+    replace_poster(url: poster_url, source: 'tmdb')
   end
-end
+
+  # Unified method to replace a movie's poster
+  def replace_poster(attributes = {}, &block)
+    # Destroy existing poster (and its attached image)
+    @movie.movie_poster&.destroy
+
+    # Create new poster
+    poster = @movie.create_movie_poster!(attributes)
+
+    # Allow block for additional setup (like attaching a file)
+    yield(poster) if block_given?
+
+    poster
+  end

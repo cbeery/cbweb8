@@ -6,7 +6,7 @@
       <%= link_to admin_movie_path(movie), class: "block" do %>
         <!-- Poster Card -->
         <div class="aspect-[2/3] bg-gray-200 rounded-t-lg overflow-hidden">
-          <% poster = movie.movie_posters.first %>
+          <% poster = movie.movie_poster %>
           <% if poster&.image&.attached? %>
             <%= image_tag poster.image, 
                 alt: movie.title,

@@ -325,3 +325,4 @@ class Admin::MoviesController < Admin::BaseController
 
     poster
   end
+end

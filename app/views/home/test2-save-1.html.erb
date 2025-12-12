@@ -30,7 +30,7 @@
           
           <!-- Movie Poster and Info -->
           <div class="flex flex-col">
-            <% poster = movie.movie_posters.first %>
+            <% poster = movie.movie_poster %>
             
             <!-- Poster or placeholder -->
             <div class="relative mb-3 <%= ['', 'h-48', 'h-56', 'h-64'][index % 4] %> rounded-lg overflow-hidden bg-white/50">

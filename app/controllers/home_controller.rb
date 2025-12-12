@@ -3,7 +3,7 @@ class HomeController < ApplicationController
   def index
     # Enhanced footer with Next up book + author and All books link
     # Load only 5 recent viewings (both home and theater)
-    @recent_viewings = Viewing.includes(movie: :movie_posters)
+    @recent_viewings = Viewing.includes(movie: :movie_poster)
                               .order(viewed_on: :desc)
                               .limit(5)
     
@@ -97,7 +97,7 @@ class HomeController < ApplicationController
   
   def test2
     # Masonry-style layout example
-    @all_movies = Movie.includes(:movie_posters, :viewings)
+    @all_movies = Movie.includes(:movie_poster, :viewings)
                        .joins(:viewings)
                        .distinct
                        .order('viewings.viewed_on DESC')
@@ -122,61 +122,61 @@ class HomeController < ApplicationController
   def test4
     # Mixed content grid - equal prominence
     @recent_movies = Movie.joins(:viewings)
-                          .includes(:movie_posters, :viewings)
+                          .includes(:movie_poster, :viewings)
                           .distinct
                           .order('viewings.viewed_on DESC')
                           .limit(5)
-    @last_movie_poster = @recent_movies.first&.movie_posters&.first
+    @last_movie_poster = @recent_movies.first&.movie_poster
   end
   
   def test5
     # Hero card layout with supporting cards
     @recent_movies = Movie.joins(:viewings)
-                          .includes(:movie_posters, :viewings)
+                          .includes(:movie_poster, :viewings)
                           .distinct
                           .order('viewings.viewed_on DESC')
                           .limit(5)
-    @last_movie_poster = @recent_movies.first&.movie_posters&.first
+    @last_movie_poster = @recent_movies.first&.movie_poster
   end
   
   def test6
     # Bento box layout - varied card sizes
     @recent_movies = Movie.joins(:viewings)
-                          .includes(:movie_posters, :viewings)
+                          .includes(:movie_poster, :viewings)
                           .distinct
                           .order('viewings.viewed_on DESC')
                           .limit(5)
-    @last_movie_poster = @recent_movies.first&.movie_posters&.first
+    @last_movie_poster = @recent_movies.first&.movie_poster
   end
   
   def test7
     # Timeline/feed style layout
     @recent_movies = Movie.joins(:viewings)
-                          .includes(:movie_posters, :viewings)
+                          .includes(:movie_poster, :viewings)
                           .distinct
                           .order('viewings.viewed_on DESC')
                           .limit(5)
-    @last_movie_poster = @recent_movies.first&.movie_posters&.first
+    @last_movie_poster = @recent_movies.first&.movie_poster
   end
   
   def test8
     # Compact widget grid
     @recent_movies = Movie.joins(:viewings)
-                          .includes(:movie_posters, :viewings)
+                          .includes(:movie_poster, :viewings)
                           .distinct
                           .order('viewings.viewed_on DESC')
                           .limit(5)
-    @last_movie_poster = @recent_movies.first&.movie_posters&.first
+    @last_movie_poster = @recent_movies.first&.movie_poster
   end
   
   def test9
     # Magazine-style layout
     @recent_movies = Movie.joins(:viewings)
-                          .includes(:movie_posters, :viewings)
+                          .includes(:movie_poster, :viewings)
                           .distinct
                           .order('viewings.viewed_on DESC')
                           .limit(5)
-    @last_movie_poster = @recent_movies.first&.movie_posters&.first
+    @last_movie_poster = @recent_movies.first&.movie_poster
   end
 
   def test11
@@ -247,7 +247,7 @@ class HomeController < ApplicationController
   # Legacy homepage recreations (for reference/comparison with Bootstrap version)
   def legacy_homepage
     # Only use what we KNOW exists - Movies and Viewings
-    @recent_movies = Movie.includes(:movie_posters, :viewings)
+    @recent_movies = Movie.includes(:movie_poster, :viewings)
                           .joins(:viewings)
                           .order('viewings.viewed_on DESC')
                           .distinct
@@ -286,7 +286,7 @@ class HomeController < ApplicationController
   def test22
     # Combination of test12 and test21 - Best of both worlds
     # Load ALL viewings (both home and theater)
-    @recent_viewings = Viewing.includes(movie: :movie_posters)
+    @recent_viewings = Viewing.includes(movie: :movie_poster)
                               .order(viewed_on: :desc)
                               .limit(10)
     
@@ -329,7 +329,7 @@ class HomeController < ApplicationController
   def test25
     # Refined version of test22 with improved icons, star ratings, and mobile layout
     # Load only 5 recent viewings (both home and theater)
-    @recent_viewings = Viewing.includes(movie: :movie_posters)
+    @recent_viewings = Viewing.includes(movie: :movie_poster)
                               .order(viewed_on: :desc)
                               .limit(5)
     
@@ -354,7 +354,7 @@ class HomeController < ApplicationController
   def test26
     # Final refinement with gray stars, larger desktop stars, and repositioned icons
     # Load only 5 recent viewings (both home and theater)
-    @recent_viewings = Viewing.includes(movie: :movie_posters)
+    @recent_viewings = Viewing.includes(movie: :movie_poster)
                               .order(viewed_on: :desc)
                               .limit(5)
     
@@ -379,7 +379,7 @@ class HomeController < ApplicationController
   def test27
     # Fine-tuned version with medium desktop stars, lighter mobile stars, and next book footer
     # Load only 5 recent viewings (both home and theater)
-    @recent_viewings = Viewing.includes(movie: :movie_posters)
+    @recent_viewings = Viewing.includes(movie: :movie_poster)
                               .order(viewed_on: :desc)
                               .limit(5)
     
@@ -407,7 +407,7 @@ class HomeController < ApplicationController
   def test28
     # Enhanced footer with Next up book + author and All books link
     # Load only 5 recent viewings (both home and theater)
-    @recent_viewings = Viewing.includes(movie: :movie_posters)
+    @recent_viewings = Viewing.includes(movie: :movie_poster)
                               .order(viewed_on: :desc)
                               .limit(5)
     
@@ -489,7 +489,7 @@ class HomeController < ApplicationController
   def test29
     # Same as test28 but with lg breakpoint instead of xl for cards
     # Load only 5 recent viewings (both home and theater)
-    @recent_viewings = Viewing.includes(movie: :movie_posters)
+    @recent_viewings = Viewing.includes(movie: :movie_poster)
                               .order(viewed_on: :desc)
                               .limit(5)
     
@@ -518,7 +518,7 @@ class HomeController < ApplicationController
 
   def load_dashboard_data
     # Shared data loading for test13-17
-    @recent_viewings = Viewing.includes(movie: :movie_posters)
+    @recent_viewings = Viewing.includes(movie: :movie_poster)
                               .order(viewed_on: :desc)
                               .limit(5)
     
@@ -540,7 +540,7 @@ class HomeController < ApplicationController
 
   def setup_legacy_data
     # Movies (theater) - Get recent viewings, then get unique movies
-    recent_theater_viewings = Viewing.includes(movie: :movie_posters)
+    recent_theater_viewings = Viewing.includes(movie: :movie_poster)
                                      .where(location: 'theater')
                                      .order(viewed_on: :desc)
                                      .limit(20)
@@ -558,7 +558,7 @@ class HomeController < ApplicationController
     ).count
     
     # Movies (home/Netflix) - Same approach
-    recent_home_viewings = Viewing.includes(movie: :movie_posters)
+    recent_home_viewings = Viewing.includes(movie: :movie_poster)
                                   .where(location: 'home')
                                   .order(viewed_on: :desc)
                                   .limit(20)
@@ -622,7 +622,7 @@ class HomeController < ApplicationController
 
   def load_test22_data_with_variations
     # Similar to test22 but with potential variations
-    @recent_viewings = Viewing.includes(movie: :movie_posters)
+    @recent_viewings = Viewing.includes(movie: :movie_poster)
                               .order(viewed_on: :desc)
                               .limit(10)
     

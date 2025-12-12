@@ -43,7 +43,7 @@
       <div class="<%= row_span %> bg-gradient-to-br <%= card_color %> rounded-xl shadow-sm border hover:shadow-lg transition-shadow duration-200 overflow-hidden flex flex-col">
         
         <!-- Movie Poster - flexes to fill available space -->
-        <% poster = movie.movie_posters.first %>
+        <% poster = movie.movie_poster %>
         
         <div class="relative flex-1 bg-white/50 min-h-0">
           <% if poster&.image&.attached? %>

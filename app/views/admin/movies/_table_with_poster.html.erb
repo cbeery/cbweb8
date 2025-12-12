@@ -36,7 +36,6 @@
           <tr class="hover:bg-gray-50">
             <!-- Poster - sticky left column -->
             <td class="px-6 py-4 whitespace-nowrap sticky left-0 bg-white z-10 hover:bg-gray-50">
-              <%# CHANGED: movie.movie_posters.first -> movie.movie_poster %>
               <% poster = movie.movie_poster %>
               <% if poster&.image&.attached? %>
                 <%= image_tag poster.image, 

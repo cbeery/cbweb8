@@ -32,7 +32,7 @@
               <div class="flex gap-4">
                 <!-- Poster on the left -->
                 <div class="flex-shrink-0">
-                  <% poster = movie.movie_posters.first %>
+                  <% poster = movie.movie_poster %>
                   <% if poster&.image&.attached? %>
                     <%= image_tag poster.image,
                         alt: movie.title,
@@ -98,7 +98,7 @@
           <% @top_rated.each do |movie| %>
             <div class="group cursor-pointer">
               <div class="aspect-[2/3] rounded-lg overflow-hidden bg-gray-200 shadow-md group-hover:shadow-xl transition-shadow">
-                <% poster = movie.movie_posters.first %>
+                <% poster = movie.movie_poster %>
                 <% if poster&.image&.attached? %>
                   <%= image_tag poster.image,
                       alt: movie.title,

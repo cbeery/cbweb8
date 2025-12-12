@@ -30,8 +30,8 @@
                 
                 <!-- Micro thumbnail -->
                 <div class="flex-shrink-0 mr-2">
-                  <% if viewing.movie.movie_posters.first %>
-                    <% poster = viewing.movie.movie_posters.first %>
+                  <% if viewing.movie.movie_poster %>
+                    <% poster = viewing.movie.movie_poster %>
                     <% if poster.image.attached? %>
                       <%= image_tag poster.image, 
                                     class: "w-4 h-6 object-cover rounded",

@@ -24,8 +24,8 @@
           <div class="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible">
             <% @recent_viewings.take(3).each do |viewing| %>
               <div class="w-20 h-28 flex-shrink-0 bg-gray-100 rounded overflow-hidden">
-                <% if viewing.movie.movie_posters.first %>
-                  <% poster = viewing.movie.movie_posters.first %>
+                <% if viewing.movie.movie_poster %>
+                  <% poster = viewing.movie.movie_poster %>
                   <% if poster.image.attached? %>
                     <%= image_tag poster.image, 
                                   class: "w-full h-full object-cover",

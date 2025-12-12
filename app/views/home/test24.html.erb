@@ -29,8 +29,8 @@
             <div class="flex gap-3">
               <!-- Poster -->
               <div class="flex-shrink-0">
-                <% if @most_recent_movie.movie_posters.first %>
-                  <% poster = @most_recent_movie.movie_posters.first %>
+                <% if @most_recent_movie.movie_poster %>
+                  <% poster = @most_recent_movie.movie_poster %>
                   <% if poster.image.attached? %>
                     <%= image_tag poster.image, 
                                   class: "w-16 h-24 object-cover rounded shadow",

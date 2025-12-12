@@ -27,8 +27,8 @@
           <% @recent_viewings.each do |viewing| %>
             <div class="flex-shrink-0 w-24">
               <div class="aspect-[2/3] bg-gray-100 rounded overflow-hidden mb-2">
-                <% if viewing.movie.movie_posters.first %>
-                  <% poster = viewing.movie.movie_posters.first %>
+                <% if viewing.movie.movie_poster %>
+                  <% poster = viewing.movie.movie_poster %>
                   <% if poster.image.attached? %>
                     <%= image_tag poster.image, 
                                   class: "w-full h-full object-cover",

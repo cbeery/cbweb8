@@ -6,8 +6,8 @@
     <!-- Poster Container - Fixed aspect ratio, crops image to fit -->
     <div class="relative bg-gray-100 flex-shrink-0">
       
-      <% if viewings&.first&.movie&.movie_posters&.first %>
-        <% poster = viewings.first.movie.movie_posters.first %>
+      <% if viewings&.first&.movie&.movie_poster %>
+        <% poster = viewings.first.movie.movie_poster %>
         
         <!-- Mobile (xs, sm): Top image, cropped -->
         <div class="block md:hidden h-32 w-full relative overflow-hidden">

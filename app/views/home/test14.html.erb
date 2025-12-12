@@ -19,7 +19,7 @@
       <div class="bg-white rounded-lg shadow-lg overflow-hidden">
         <% if @recent_viewings.first %>
           <% first_viewing = @recent_viewings.first %>
-          <% poster = first_viewing.movie.movie_posters.first %>
+          <% poster = first_viewing.movie.movie_poster %>
           
           <!-- Hero poster for most recent -->
           <div class="h-48 bg-gray-100 relative">

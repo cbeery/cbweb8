@@ -41,10 +41,10 @@
         </div>
         
         <div class="p-4">
-          <% if @last_movie&.movie_posters&.any? %>
+          <% if @last_movie&.movie_poster %>
             <div class="flex gap-3 mb-3">
               <div class="w-16 flex-shrink-0">
-                <%= image_tag @last_movie.movie_posters.first.image, 
+                <%= image_tag @last_movie.movie_poster.image, 
                     class: "w-full rounded shadow",
                     alt: @last_movie.title %>
               </div>
@@ -88,10 +88,10 @@
         </div>
         
         <div class="p-4">
-          <% if @last_home_movie&.movie_posters&.any? %>
+          <% if @last_home_movie&.movie_poster %>
             <div class="flex gap-3 mb-3">
               <div class="w-16 flex-shrink-0">
-                <%= image_tag @last_home_movie.movie_posters.first.image, 
+                <%= image_tag @last_home_movie.movie_poster.image, 
                     class: "w-full rounded shadow",
                     alt: @last_home_movie.title %>
               </div>

@@ -3,7 +3,7 @@ class Admin::MoviesController < Admin::BaseController
   before_action :set_movie, only: [:show, :edit, :update, :destroy, :enrich, :enrich_step2, :enrich_step3, :process_enrichment, :tmdb_lookup, :tmdb_search, :update_from_tmdb, :tmdb_posters, :select_poster]
   
   def index
-    @movies = Movie.includes(:movie_posters, :viewings)
+    @movies = Movie.includes(:movie_poster, :viewings)
     
     # Add view mode handling
     @view_mode = params[:view] || 'table'

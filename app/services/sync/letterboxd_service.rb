@@ -102,7 +102,7 @@ module Sync
         )
       end
       
-      # Handle movie poster
+      # Handle movie poster (uses has_one association)
       if movie_data[:poster_url].present?
         create_or_update_poster(movie, movie_data[:poster_url])
       end
@@ -300,6 +300,7 @@ module Sync
       end
     end
     
+    # Uses has_one :movie_poster association
     def create_or_update_poster(movie, poster_url)
       existing_poster = movie.movie_poster
 

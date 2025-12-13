@@ -3,57 +3,6 @@
   <div class="py-6">
     <h1 class="text-3xl font-bold text-gray-900 mb-6">Data Syncs</h1>
     
-    <!-- Test Sync Section -->
-    <div class="bg-white rounded-lg shadow mb-6">
-      <div class="px-6 py-4 border-b border-gray-200">
-        <h3 class="text-lg font-semibold text-gray-900">Test Sync Service</h3>
-      </div>
-      <div class="p-6">
-        <p class="text-gray-700 mb-4">Run test syncs to verify the system is working correctly:</p>
-        
-        <div class="flex flex-wrap gap-2 mb-4">
-          <%= button_to "Quick Test (10 items)", 
-              admin_syncs_path(source: 'test', scenario: 'quick'),
-              method: :post,
-              class: "px-4 py-2 border border-blue-500 text-blue-500 rounded-md hover:bg-blue-50 transition-colors" %>
-              
-          <%= button_to "Normal Test (50 items)", 
-              admin_syncs_path(source: 'test', scenario: 'normal'),
-              method: :post,
-              class: "px-4 py-2 border border-blue-500 text-blue-500 rounded-md hover:bg-blue-50 transition-colors" %>
-              
-          <%= button_to "Slow Test (100 items)", 
-              admin_syncs_path(source: 'test', scenario: 'slow'),
-              method: :post,
-              class: "px-4 py-2 border border-yellow-500 text-yellow-600 rounded-md hover:bg-yellow-50 transition-colors" %>
-              
-          <%= button_to "Error Test", 
-              admin_syncs_path(source: 'test', scenario: 'error_prone'),
-              method: :post,
-              class: "px-4 py-2 border border-red-500 text-red-500 rounded-md hover:bg-red-50 transition-colors" %>
-              
-          <%= button_to "Will Fail Test", 
-              admin_syncs_path(source: 'test', scenario: 'will_fail'),
-              method: :post,
-              class: "px-4 py-2 border border-red-500 text-red-500 rounded-md hover:bg-red-50 transition-colors" %>
-              
-          <%= button_to "Unknown Count Test", 
-              admin_syncs_path(source: 'test', scenario: 'unknown_count'),
-              method: :post,
-              class: "px-4 py-2 border border-cyan-500 text-cyan-600 rounded-md hover:bg-cyan-50 transition-colors" %>
-        </div>
-        
-        <div class="text-sm text-gray-500 space-y-1">
-          <div><span class="font-semibold">Quick:</span> 10 items, fast processing</div>
-          <div><span class="font-semibold">Normal:</span> 50 items, 10% failure rate</div>
-          <div><span class="font-semibold">Slow:</span> 100 items, slow processing</div>
-          <div><span class="font-semibold">Error:</span> 20 items, 30% failure rate</div>
-          <div><span class="font-semibold">Will Fail:</span> Crashes after 5 items</div>
-          <div><span class="font-semibold">Unknown:</span> Random count, no progress bar</div>
-        </div>
-      </div>
-    </div>
-    
     <!-- Real Services -->
     <div class="bg-white rounded-lg shadow mb-6">
       <div class="px-6 py-4 border-b border-gray-200">
@@ -155,4 +104,56 @@
       </table>
     </div>
   </div>
+
+  <!-- Test Sync Section -->
+  <div class="bg-white rounded-lg shadow mb-6">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-semibold text-gray-900">Test Sync Service</h3>
+    </div>
+    <div class="p-6">
+      <p class="text-gray-700 mb-4">Run test syncs to verify the system is working correctly:</p>
+      
+      <div class="flex flex-wrap gap-2 mb-4">
+        <%= button_to "Quick Test (10 items)", 
+            admin_syncs_path(source: 'test', scenario: 'quick'),
+            method: :post,
+            class: "px-4 py-2 border border-blue-500 text-blue-500 rounded-md hover:bg-blue-50 transition-colors" %>
+            
+        <%= button_to "Normal Test (50 items)", 
+            admin_syncs_path(source: 'test', scenario: 'normal'),
+            method: :post,
+            class: "px-4 py-2 border border-blue-500 text-blue-500 rounded-md hover:bg-blue-50 transition-colors" %>
+            
+        <%= button_to "Slow Test (100 items)", 
+            admin_syncs_path(source: 'test', scenario: 'slow'),
+            method: :post,
+            class: "px-4 py-2 border border-yellow-500 text-yellow-600 rounded-md hover:bg-yellow-50 transition-colors" %>
+            
+        <%= button_to "Error Test", 
+            admin_syncs_path(source: 'test', scenario: 'error_prone'),
+            method: :post,
+            class: "px-4 py-2 border border-red-500 text-red-500 rounded-md hover:bg-red-50 transition-colors" %>
+            
+        <%= button_to "Will Fail Test", 
+            admin_syncs_path(source: 'test', scenario: 'will_fail'),
+            method: :post,
+            class: "px-4 py-2 border border-red-500 text-red-500 rounded-md hover:bg-red-50 transition-colors" %>
+            
+        <%= button_to "Unknown Count Test", 
+            admin_syncs_path(source: 'test', scenario: 'unknown_count'),
+            method: :post,
+            class: "px-4 py-2 border border-cyan-500 text-cyan-600 rounded-md hover:bg-cyan-50 transition-colors" %>
+      </div>
+      
+      <div class="text-sm text-gray-500 space-y-1">
+        <div><span class="font-semibold">Quick:</span> 10 items, fast processing</div>
+        <div><span class="font-semibold">Normal:</span> 50 items, 10% failure rate</div>
+        <div><span class="font-semibold">Slow:</span> 100 items, slow processing</div>
+        <div><span class="font-semibold">Error:</span> 20 items, 30% failure rate</div>
+        <div><span class="font-semibold">Will Fail:</span> Crashes after 5 items</div>
+        <div><span class="font-semibold">Unknown:</span> Random count, no progress bar</div>
+      </div>
+    </div>
+  </div>
+    
 </div>

@@ -1,21 +1,21 @@
 <%# app/views/admin/lastfm/_top_table.html.erb %>
 <%= turbo_frame_tag "#{@category}-#{@period}-frame" do %>
-  <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-    <table class="min-w-full divide-y divide-gray-300">
+  <div class="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+    <table class="min-w-full divide-y divide-gray-300 table-fixed">
       <thead class="bg-gray-50">
         <tr>
-          <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
+          <th scope="col" class="py-3.5 px-2 text-left text-sm font-semibold text-gray-900 w-10">
             #
           </th>
           <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-            <%= @category == 'artist' ? 'Artist' : 'Artist' %>
+            Artist
           </th>
           <% if @category != 'artist' %>
             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
               <%= @category.capitalize %>
             </th>
           <% end %>
-          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-16">
             Plays
           </th>
         </tr>
@@ -24,7 +24,7 @@
         <% if @top_scrobbles.any? %>
           <% @top_scrobbles.each do |scrobble| %>
             <tr class="hover:bg-gray-50">
-              <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+              <td class="py-4 px-2 text-sm text-gray-500 whitespace-nowrap">
                 <%= scrobble.position %>
               </td>
               <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">

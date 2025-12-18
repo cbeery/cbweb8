@@ -70,7 +70,7 @@
           <!-- Hidden field to indicate we want to continue to posters -->
           <%= f.hidden_field :continue_to_posters, value: true %>
           
-          <%= f.fields_for :viewing, @viewing do |vf| %>
+          <%= fields_for :viewing, @viewing do |vf| %>
             <% if @viewing.persisted? %>
               <%= vf.hidden_field :id %>
             <% end %>

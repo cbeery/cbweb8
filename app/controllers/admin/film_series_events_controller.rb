@@ -52,15 +52,15 @@ class Admin::FilmSeriesEventsController < Admin::BaseController
   # AJAX endpoint to get events for a specific series
   def for_series
     series_id = params[:series_id]
-    
+
     if series_id.present?
       events = FilmSeriesEvent.where(film_series_id: series_id)
                              .order(started_on: :desc)
-                             .map { |e| { id: e.id, name: e.display_name } }
-      
-      render json: { events: events }
+                             .map { |e| { id: e.id, name: e.name, started_on: e.started_on } }
+
+      render json: events
     else
-      render json: { events: [] }
+      render json: []
     end
   end
   

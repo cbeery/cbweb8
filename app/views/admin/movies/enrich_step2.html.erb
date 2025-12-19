@@ -290,39 +290,23 @@
   }
   
   function initializeFilmSeriesSelect() {
-    // Use IDs for more reliable selection
     const seriesSelect = document.getElementById('film_series_selector');
     const eventsSection = document.getElementById('film_series_events_section');
     const eventsSelect = document.getElementById('film_series_event_select');
     
-    console.log('Film Series Debug:', {
-      seriesSelect: !!seriesSelect,
-      eventsSection: !!eventsSection,
-      eventsSelect: !!eventsSelect
-    });
-    
-    if (!seriesSelect) {
-      console.error('Film series selector not found');
+    if (!seriesSelect || !eventsSection) {
       return;
     }
     
-    if (!eventsSection) {
-      console.error('Film series events section not found');
-      return;
-    }
-    
-    // Events select might not exist initially, that's OK
-    
-    function handleSeriesChange() {
+    function handleSeriesChange(preserveValue = false) {
       const seriesId = seriesSelect.value;
-      console.log('Film series changed to:', seriesId);
+      const select = document.getElementById('film_series_event_select');
+      
+      // Capture current value before any changes
+      const currentValue = select ? select.value : '';
       
       if (!seriesId || seriesId === '') {
-        // No series selected - hide events section
         eventsSection.style.display = 'none';
-        
-        // Clear the select if it exists
-        const select = document.getElementById('film_series_event_select');
         if (select) {
           select.innerHTML = '<option value="">Select an event...</option>';
           select.value = '';
@@ -330,32 +314,28 @@
         return;
       }
       
-      // Show the section immediately
       eventsSection.style.display = 'block';
       
-      // Get or create the select element
-      let select = document.getElementById('film_series_event_select');
       if (!select) {
-        console.error('Events select not found even after showing section');
         return;
       }
       
-      // Show loading state
+      // If preserving value and already have valid options with the current value, skip fetch
+      if (preserveValue && currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
+        return;
+      }
+      
       select.innerHTML = '<option value="">Loading events...</option>';
       select.disabled = true;
       
-      // Fetch events for this series
       fetch(`/admin/film_series_events/for_series?series_id=${seriesId}`)
         .then(response => {
-          console.log('Response status:', response.status);
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
           return response.json();
         })
         .then(events => {
-          console.log('Received events:', events);
-          
           let options = '<option value="">Select an event...</option>';
           
           if (events && events.length > 0) {
@@ -365,7 +345,8 @@
                 day: 'numeric', 
                 year: 'numeric' 
               });
-              options += `<option value="${event.id}">${event.name} (${date})</option>`;
+              const selected = (preserveValue && String(event.id) === String(currentValue)) ? ' selected' : '';
+              options += `<option value="${event.id}"${selected}>${event.name} (${date})</option>`;
             });
           } else {
             options = '<option value="">No events found for this series</option>';
@@ -376,24 +357,24 @@
         })
         .catch(error => {
           console.error('Error loading film series events:', error);
-          const select = document.getElementById('film_series_event_select');
           if (select) {
-            select.innerHTML = '<option value="">Error loading events - check console</option>';
+            select.innerHTML = '<option value="">Error loading events</option>';
             select.disabled = false;
           }
         });
     }
     
-    // Remove any existing listener
-    seriesSelect.removeEventListener('change', handleSeriesChange);
+    // Store handler reference for removal
+    const changeHandler = () => handleSeriesChange(false);
+    if (seriesSelect._filmSeriesHandler) {
+      seriesSelect.removeEventListener('change', seriesSelect._filmSeriesHandler);
+    }
+    seriesSelect._filmSeriesHandler = changeHandler;
+    seriesSelect.addEventListener('change', changeHandler);
     
-    // Add fresh listener
-    seriesSelect.addEventListener('change', handleSeriesChange);
-    
-    // If series is pre-selected, load events
+    // On page load with pre-selected series, preserve existing event selection
     if (seriesSelect.value) {
-      console.log('Series pre-selected:', seriesSelect.value);
-      handleSeriesChange();
+      handleSeriesChange(true);
     }
   }
   

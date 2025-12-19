@@ -1,0 +1,161 @@
+<%# app/views/admin/viewings/_viewing_fields.html.erb %>
+<%# 
+  Shared partial for viewing form fields.
+  
+  Required locals:
+    - f: form builder for the viewing
+    - viewing: the Viewing object
+    
+  Optional locals:
+    - theaters: collection of theaters (defaults to Theater.alphabetical)
+    - film_series: collection of film series (defaults to FilmSeries.alphabetical)
+    - film_series_events: events for selected series (defaults to [])
+    - show_viewed_on: whether to show the date field (defaults to true)
+%>
+<% theaters ||= Theater.alphabetical %>
+<% film_series ||= FilmSeries.alphabetical %>
+<% film_series_events ||= viewing.film_series_event_id.present? ? 
+     FilmSeriesEvent.where(film_series_id: viewing.film_series_event.film_series_id).recent : [] %>
+<% show_viewed_on = true if local_assigns[:show_viewed_on].nil? %>
+
+<div class="space-y-6" data-controller="viewing-form">
+  <%# Date Watched %>
+  <% if show_viewed_on %>
+    <div>
+      <%= f.label :viewed_on, "Date Watched", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.date_field :viewed_on,
+          class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
+          required: true,
+          data: { viewing_form_target: "viewedOn" } %>
+    </div>
+  <% else %>
+    <%= f.hidden_field :viewed_on, value: (viewing.viewed_on || Date.current).to_s %>
+  <% end %>
+
+  <%# Location Selection %>
+  <div>
+    <%= f.label :location, "Location", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.select :location, 
+        options_for_select(Viewing.location_options, viewing.location || 'home'),
+        { include_blank: 'Select location...' },
+        { 
+          class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
+          data: { 
+            viewing_form_target: "location",
+            action: "change->viewing-form#toggleTheaterSection" 
+          }
+        } %>
+  </div>
+
+  <%# Theater Details Section %>
+  <div data-viewing-form-target="theaterSection" 
+       class="<%= viewing.location == 'theater' ? '' : 'hidden' %>">
+    <div class="p-4 bg-gray-50 rounded-lg space-y-4">
+      <h3 class="font-medium text-gray-900">Theater Details</h3>
+      
+      <%# Theater Selection %>
+      <div>
+        <%= f.label :theater_id, "Theater", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <div class="flex items-center space-x-2">
+          <%= f.select :theater_id, 
+              options_for_select(theaters.map { |t| [t.name, t.id] }, viewing.theater_id),
+              { include_blank: "Select a theater..." },
+              { 
+                class: "flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
+                data: { viewing_form_target: "theaterId" }
+              } %>
+          
+          <%= link_to "+", 
+              new_admin_theater_path(modal: true),
+              class: "px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700",
+              data: { turbo_frame: "modal" },
+              title: "Add new theater" %>
+        </div>
+      </div>
+      
+      <%# Film Series (Optional) %>
+      <div>
+        <%= f.label :film_series_event_id, "Part of a Film Series? (Optional)", 
+            class: "block text-sm font-medium text-gray-700 mb-1" %>
+        
+        <div class="space-y-2">
+          <%# Series Selection (UI only, for filtering events) %>
+          <div class="flex items-center space-x-2">
+            <select data-viewing-form-target="filmSeriesSelector"
+                    data-action="change->viewing-form#loadFilmSeriesEvents"
+                    class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+              <option value="">Select a series...</option>
+              <% film_series.each do |series| %>
+                <% selected = viewing.film_series_event&.film_series_id == series.id %>
+                <option value="<%= series.id %>" <%= 'selected' if selected %>>
+                  <%= series.name %>
+                </option>
+              <% end %>
+            </select>
+            
+            <%= link_to "+", 
+                new_admin_film_series_path(modal: true),
+                class: "px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700",
+                data: { turbo_frame: "modal" },
+                title: "Add new series" %>
+          </div>
+          
+          <%# Events Selection %>
+          <div data-viewing-form-target="filmSeriesEventsSection"
+               class="<%= viewing.film_series_event_id.present? ? '' : 'hidden' %>">
+            <%= f.select :film_series_event_id,
+                options_for_select(film_series_events.map { |e| 
+                  ["#{e.name} (#{e.started_on.strftime('%b %d, %Y')})", e.id] 
+                }, viewing.film_series_event_id),
+                { include_blank: "Select an event..." },
+                { 
+                  class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
+                  data: { viewing_form_target: "filmSeriesEventId" }
+                } %>
+          </div>
+        </div>
+      </div>
+      
+      <%# Price and Format %>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <%= f.label :price, "Ticket Price", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.number_field :price, 
+              step: 0.01,
+              placeholder: "12.50",
+              class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
+              data: { viewing_form_target: "price" } %>
+        </div>
+        
+        <div>
+          <%= f.label :format, "Format", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.select :format,
+              options_for_select(Viewing.format_options, viewing.format),
+              { include_blank: "Select format..." },
+              { 
+                class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
+                data: { viewing_form_target: "format" }
+              } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Rewatch %>
+  <div class="flex items-center">
+    <%= f.check_box :rewatch,
+        class: "rounded border-gray-300 text-indigo-600 focus:ring-indigo-500",
+        data: { viewing_form_target: "rewatch" } %>
+    <%= f.label :rewatch, "This was a rewatch", class: "ml-2 text-sm text-gray-700" %>
+  </div>
+
+  <%# Notes %>
+  <div>
+    <%= f.label :notes, "Notes (optional)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.text_area :notes,
+        rows: 3,
+        placeholder: "Your thoughts about this viewing...",
+        class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
+        data: { viewing_form_target: "notes" } %>
+  </div>
+</div>

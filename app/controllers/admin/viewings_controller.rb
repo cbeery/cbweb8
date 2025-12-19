@@ -5,6 +5,7 @@ class Admin::ViewingsController < Admin::BaseController
   
   def new
     @viewing = @movie.viewings.new
+    load_form_data
   end
   
   def create
@@ -13,17 +14,20 @@ class Admin::ViewingsController < Admin::BaseController
     if @viewing.save
       redirect_to admin_movie_path(@movie), notice: 'Viewing was successfully added.'
     else
+      load_form_data
       render :new, status: :unprocessable_entity
     end
   end
   
   def edit
+    load_form_data
   end
   
   def update
     if @viewing.update(viewing_params)
       redirect_to admin_movie_path(@movie), notice: 'Viewing was successfully updated.'
     else
+      load_form_data
       render :edit, status: :unprocessable_entity
     end
   end
@@ -41,6 +45,19 @@ class Admin::ViewingsController < Admin::BaseController
   
   def set_viewing
     @viewing = @movie.viewings.find(params[:id])
+  end
+  
+  def load_form_data
+    @theaters = Theater.alphabetical
+    @film_series = FilmSeries.alphabetical
+    
+    # Load events for the selected series if present
+    if @viewing&.film_series_event_id.present?
+      series_id = @viewing.film_series_event.film_series_id
+      @film_series_events = FilmSeriesEvent.where(film_series_id: series_id).recent
+    else
+      @film_series_events = []
+    end
   end
   
   def viewing_params

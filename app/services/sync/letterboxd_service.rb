@@ -301,21 +301,18 @@ module Sync
     end
     
     # Uses has_one :movie_poster association
+    # Only creates a poster if the movie doesn't already have one
+    # This preserves user-customized posters (manual uploads, TMDB selections)
     def create_or_update_poster(movie, poster_url)
       existing_poster = movie.movie_poster
 
-      # Skip if we already have this exact URL
-      if existing_poster&.url == poster_url
-        log(:info, "Poster already exists for movie",
+      # Skip if movie already has a poster (preserve user's choice)
+      if existing_poster
+        log(:info, "Skipping poster - movie already has one",
           movie: movie.title,
-          url: poster_url
+          existing_source: existing_poster.source
         )
         return
-      end
-
-      # Replace existing poster or create new one
-      if existing_poster
-        existing_poster.destroy
       end
 
       movie.create_movie_poster!(
@@ -323,7 +320,7 @@ module Sync
         source: 'letterboxd'
       )
 
-      log(:info, "#{existing_poster ? 'Replaced' : 'Added'} poster for movie",
+      log(:info, "Added poster for movie",
         movie: movie.title,
         url: poster_url
       )

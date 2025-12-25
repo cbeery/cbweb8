@@ -50,3 +50,4 @@ bin/rails db:migrate # Run migrations
 - Sync services use `save` with error logging rather than `save!` for item-level resilience
 - Book matching uses multi-strategy approach: hardcover_id → ISBN13 → ISBN → title/author → fuzzy match
 - All API credentials stored in Rails credentials or environment variables
+- Always create a new branch before making file edits; never commit directly to main without asking first

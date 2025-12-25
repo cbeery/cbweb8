@@ -436,14 +436,19 @@ module Sync
     end
     
     def handle_completed_read(book, book_data)
-      # If we have a finished date, use it to find/create the read
       if book_data[:finished_on].present?
-        book_read = book.book_reads.find_or_initialize_by(
-          finished_on: book_data[:finished_on]
-        )
-        
+        # First, try to find an existing read by finished_on date
+        book_read = book.book_reads.find_by(finished_on: book_data[:finished_on])
+
+        # If not found, check for a read with missing finish date we can update
+        book_read ||= book.book_reads.find_by(finished_on: nil)
+
+        # If still not found, create a new one
+        book_read ||= book.book_reads.new
+
         # Update the read details
         book_read.assign_attributes(
+          finished_on: book_data[:finished_on],
           started_on: book_data[:started_on],
           rating: book_data[:rating],
           metadata: (book_read.metadata || {}).merge(
@@ -452,16 +457,18 @@ module Sync
             review: book_data[:review]
           )
         )
-        
+
         if book_read.save
           log(:debug, "Updated/created completed BookRead for #{book_data[:finished_on]}")
+        else
+          log(:error, "Failed to save BookRead: #{book_read.errors.full_messages.join(', ')}")
         end
       else
         # No finish date but marked as read - create a basic read entry
-        # Check if we already have any completed reads
-        unless book.book_reads.completed.exists?
+        # Check if we already have any reads at all
+        unless book.book_reads.exists?
           book_read = book.book_reads.create!(
-            finished_on: nil, # Will need to be updated later
+            finished_on: nil,
             started_on: book_data[:started_on],
             rating: book_data[:rating],
             metadata: {

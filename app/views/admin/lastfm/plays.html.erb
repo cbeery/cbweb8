@@ -171,19 +171,19 @@
               </svg>
             <% end %>
           <% end %>
-          
+
           <div>
             <label class="text-sm text-gray-600">Week ending:</label>
             <select onchange="window.location.href=this.value" class="ml-2 rounded-md border-gray-300">
               <% @available_weeks.each do |week_date| %>
-                <option value="<%= url_for(controller: 'admin/lastfm', action: 'plays', week: week_date, category: @category) %>" 
+                <option value="<%= url_for(controller: 'admin/lastfm', action: 'plays', week: week_date, category: @category) %>"
                         <%= 'selected' if week_date == @week %>>
                   <%= week_date.strftime("%B %d, %Y") %>
                 </option>
               <% end %>
             </select>
           </div>
-          
+
           <% next_week = @available_weeks.reverse.find { |w| w > @week } %>
           <% if next_week %>
             <%= link_to url_for(controller: 'admin/lastfm', action: 'plays', week: next_week, category: @category),
@@ -194,10 +194,14 @@
             <% end %>
           <% end %>
         </div>
-        
-        <div class="text-sm text-gray-600">
+
+        <div class="hidden sm:block text-sm text-gray-600">
           <%= (@week - 6.days).strftime("%b %d") %> - <%= @week.strftime("%b %d, %Y") %>
         </div>
+      </div>
+      <%# Mobile date range - shown below on its own line %>
+      <div class="sm:hidden mt-3 pt-3 border-t border-gray-200 text-sm text-gray-600 text-center">
+        <%= (@week - 6.days).strftime("%b %d") %> - <%= @week.strftime("%b %d, %Y") %>
       </div>
     </div>
     

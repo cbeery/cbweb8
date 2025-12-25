@@ -1,0 +1,63 @@
+<%# app/views/admin/lastfm/_nav.html.erb %>
+<%# Navigation partial for Last.fm admin views %>
+<%# Required locals: current_action (string: 'counts', 'top', or 'plays') %>
+
+<%
+  # Define sync sources for each action
+  sync_sources = {
+    'counts' => 'daily_scrobbles',
+    'top' => 'top_scrobbles',
+    'plays' => 'scrobble_plays'
+  }
+
+  # Define labels
+  labels = {
+    'counts' => 'Counts',
+    'top' => 'Top',
+    'plays' => 'Plays'
+  }
+
+  # Define update button labels
+  update_labels = {
+    'counts' => 'Update Counts',
+    'top' => 'Update Tops',
+    'plays' => 'Update Plays'
+  }
+%>
+
+<div class="flex flex-wrap gap-2 sm:gap-4">
+  <%# Update button for current action (always shown with label) %>
+  <%= link_to admin_syncs_path(source: sync_sources[current_action]),
+              class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
+              data: { turbo_method: :post, turbo_confirm: "Start #{labels[current_action].downcase} sync?" } do %>
+    <%# Refresh/sync icon %>
+    <svg class="mr-2 -ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+    </svg>
+    <%= update_labels[current_action] %>
+  <% end %>
+
+  <%# Navigation links to other views %>
+  <% ['counts', 'top', 'plays'].reject { |a| a == current_action }.each do |action| %>
+    <%= link_to url_for(controller: 'admin/lastfm', action: action),
+                class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" do %>
+      <% if action == 'counts' %>
+        <%# 1-2-3 numbered list icon %>
+        <svg class="sm:mr-2 sm:-ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+        </svg>
+      <% elsif action == 'top' %>
+        <%# Trophy/medal icon for top rankings %>
+        <svg class="sm:mr-2 sm:-ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+        </svg>
+      <% elsif action == 'plays' %>
+        <%# Calendar with list icon for weekly charts %>
+        <svg class="sm:mr-2 sm:-ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+      <% end %>
+      <span class="hidden sm:inline"><%= labels[action] %></span>
+    <% end %>
+  <% end %>
+</div>

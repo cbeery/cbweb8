@@ -1,6 +1,4 @@
 <%# app/views/admin/lastfm/_top_table.html.erb %>
-<%# Last.fm deprecated artist images in 2019; they return this placeholder for artists/tracks %>
-<% lastfm_placeholder_hash = "2a96cbd8b46e442fc41c2b86b821562f" %>
 <%= turbo_frame_tag "#{@category}-#{@period}-frame" do %>
   <div class="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 rounded-lg">
     <table class="min-w-full divide-y divide-gray-300 table-fixed">
@@ -25,7 +23,11 @@
       <tbody class="divide-y divide-gray-200 bg-white">
         <% if @top_scrobbles.any? %>
           <% @top_scrobbles.each do |scrobble| %>
-            <% has_real_image = scrobble.image_url.present? && !scrobble.image_url.include?(lastfm_placeholder_hash) %>
+            <%# Look up the image from preloaded @images hash %>
+            <% image_key = @category == 'artist' ? [scrobble.artist, nil] : [scrobble.artist, scrobble.name] %>
+            <% image_record = @images[image_key] %>
+            <% has_image = image_record&.has_image? %>
+            <% image_url = image_record&.image_url %>
             <tr class="hover:bg-gray-50 group">
               <td class="py-2 px-2 text-sm text-gray-500 whitespace-nowrap">
                 <%= scrobble.position %>
@@ -34,8 +36,8 @@
                 <div class="flex items-center gap-3">
                   <%# Image thumbnail with hover effect %>
                   <div class="relative flex-shrink-0">
-                    <% if has_real_image %>
-                      <img src="<%= scrobble.image_url %>"
+                    <% if has_image %>
+                      <img src="<%= image_url %>"
                            alt="<%= scrobble.artist %>"
                            loading="lazy"
                            class="w-8 h-8 object-cover <%= @category == 'artist' ? 'rounded-full' : 'rounded' %> bg-gray-200 transition-transform group-hover:scale-110"
@@ -47,7 +49,7 @@
                         </svg>
                       </div>
                     <% else %>
-                      <%# No image or Last.fm placeholder - show our fallback %>
+                      <%# No image available - show placeholder %>
                       <div class="w-8 h-8 <%= @category == 'artist' ? 'rounded-full' : 'rounded' %> bg-gray-200 flex items-center justify-center">
                         <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>

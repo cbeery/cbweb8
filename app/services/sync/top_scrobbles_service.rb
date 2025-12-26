@@ -156,8 +156,8 @@ module Sync
         image_url: image_url,
         revised_at: Time.current
       }
-      
-      if scrobble.new_record?
+
+      result = if scrobble.new_record?
         scrobble.assign_attributes(new_attributes)
         scrobble.save!
         :created
@@ -167,22 +167,44 @@ module Sync
       else
         :skipped
       end
+
+      # Ensure TopScrobbleImage exists for this artist/album/track
+      ensure_image_record(task.category, artist_name, item_name)
+
+      result
     rescue ActiveRecord::RecordNotUnique => e
       # Handle race condition - record was created between our check and save
       log(:warn, "Record already exists for #{task.category}/#{task.period}/#{position}, updating instead")
-      
+
       scrobble = TopScrobble.find_by!(
         category: task.category,
         period: task.period,
         position: position
       )
-      
+
       if attributes_changed?(scrobble, new_attributes)
         scrobble.update!(new_attributes)
         :updated
       else
         :skipped
       end
+    end
+
+    def ensure_image_record(category, artist, name)
+      # Find or create TopScrobbleImage, enqueue fetch job if pending
+      image = TopScrobbleImage.find_or_create_for(
+        category: category,
+        artist: artist,
+        name: category == 'artist' ? nil : name
+      )
+
+      # Enqueue Spotify fetch job if image is still pending
+      if image.pending?
+        SpotifyImageFetchJob.perform_later(image.id)
+      end
+    rescue => e
+      # Don't fail the sync if image record creation fails
+      log(:warn, "Failed to create image record for #{category}/#{artist}/#{name}: #{e.message}")
     end
     
     def extract_names(item, category)

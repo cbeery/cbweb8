@@ -135,16 +135,17 @@ module Sync
       rank = item.dig('@attr', 'rank')&.to_i || position
       plays = item['playcount']&.to_i || 0
       url = item['url'] || ''
-      
+      image_url = extract_image_url(item)
+
       artist_name, item_name = extract_names(item, task.category)
-      
+
       # Find existing record or build a new one
       scrobble = TopScrobble.where(
         category: task.category,
         period: task.period,
         position: position
       ).first_or_initialize
-      
+
       # Check if we need to update
       new_attributes = {
         artist: artist_name,
@@ -152,6 +153,7 @@ module Sync
         plays: plays,
         rank: rank,
         url: url,
+        image_url: image_url,
         revised_at: Time.current
       }
       
@@ -201,9 +203,27 @@ module Sync
     
     def attributes_changed?(scrobble, new_attributes)
       # Check if any relevant attributes have changed
-      %i[artist name plays rank url].any? do |attr|
+      %i[artist name plays rank url image_url].any? do |attr|
         scrobble.public_send(attr) != new_attributes[attr]
       end
+    end
+
+    def extract_image_url(item)
+      # Last.fm returns images as an array: [{ "#text": "url", "size": "small" }, ...]
+      # Sizes: small (34px), medium (64px), large (174px), extralarge (300px)
+      # We prefer "large" for good quality at small display sizes, fallback to others
+      images = item['image']
+      return nil unless images.is_a?(Array)
+
+      # Try to find preferred size, fallback to any available
+      preferred_sizes = %w[large medium extralarge small]
+      preferred_sizes.each do |size|
+        image = images.find { |img| img['size'] == size }
+        url = image&.dig('#text')
+        return url if url.present?
+      end
+
+      nil
     end
     
     def clear_remaining_positions(task, start_position)

@@ -14,19 +14,22 @@ class Admin::LastfmController < Admin::BaseController
   def top
     @category = params[:category] || 'artist'
     @period = params[:period] || '7day'
-    
+
     # Validate params
     @category = 'artist' unless CATEGORIES.include?(@category)
     @period = '7day' unless PERIODS.include?(@period)
-    
+
     @top_scrobbles = TopScrobble.where(category: @category, period: @period)
                                 .order(:position)
                                 .limit(50)
-    
+
+    # Preload images for all scrobbles
+    @images = load_scrobble_images(@top_scrobbles, @category)
+
     # Get last sync time
     @last_sync = TopScrobble.where(category: @category, period: @period)
                             .maximum(:revised_at)
-    
+
     # If this is a Turbo Frame request, just render the table partial
     if turbo_frame_request?
       render partial: 'top_table'
@@ -238,5 +241,24 @@ class Admin::LastfmController < Admin::BaseController
     # Add your admin authentication logic here
     # For now, just use authenticate_user!
     authenticate_user!
+  end
+
+  def load_scrobble_images(scrobbles, category)
+    # Build lookup keys for all scrobbles
+    keys = scrobbles.map do |s|
+      if category == 'artist'
+        { category: category, artist: s.artist, name: nil }
+      else
+        { category: category, artist: s.artist, name: s.name }
+      end
+    end
+
+    # Batch load all matching images
+    images = TopScrobbleImage.where(category: category).where(
+      keys.map { |k| "(artist = ? AND name IS NOT DISTINCT FROM ?)" }.join(' OR '),
+      *keys.flat_map { |k| [k[:artist], k[:name]] }
+    ).index_by { |img| [img.artist, img.name] }
+
+    images
   end
 end

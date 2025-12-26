@@ -62,13 +62,26 @@ class Admin::LastfmController < Admin::BaseController
   end
   
   def plays
-    @week = params[:week].present? ? Date.parse(params[:week]) : Date.today.beginning_of_week
     @search = params[:search]
     @category = params[:category] || 'artist'
-    
+
     # Validate category
     @category = 'artist' unless %w[artist album].include?(@category)
-    
+
+    # Get available weeks for navigation (needed before setting @week default)
+    @available_weeks = ScrobblePlay.select(:played_on)
+                                   .distinct
+                                   .order(played_on: :desc)
+                                   .limit(52)
+                                   .pluck(:played_on)
+
+    # Default to the most recent available week if no week param provided
+    @week = if params[:week].present?
+              Date.parse(params[:week])
+            else
+              @available_weeks.first || Date.today
+            end
+
     if @search.present?
       # Search mode - show history for a specific artist/album
       search_plays_history
@@ -76,14 +89,7 @@ class Admin::LastfmController < Admin::BaseController
       # Week view mode - show top artists/albums for selected week
       load_weekly_plays
     end
-    
-    # Get available weeks for navigation
-    @available_weeks = ScrobblePlay.select(:played_on)
-                                   .distinct
-                                   .order(played_on: :desc)
-                                   .limit(52)
-                                   .pluck(:played_on)
-    
+
     # Calculate weekly stats
     calculate_weekly_stats
   end

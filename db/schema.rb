@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_12_200953) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_25_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -649,6 +649,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_12_200953) do
     t.text "url"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "image_url"
   end
 
   create_table "uploads", force: :cascade do |t|

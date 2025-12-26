@@ -11,44 +11,19 @@
           Tracking daily listening activity since 2008
         </p>
       </div>
-      <div class="flex flex-wrap gap-2 sm:gap-4">
-        <%= link_to admin_syncs_path(source: 'daily_scrobbles'), 
-                    class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
-                    data: { turbo_method: :post, turbo_confirm: "Start daily counts sync?" } do %>
-          <svg class="mr-2 -ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-          </svg>
-          Update Counts
-        <% end %>
-        
-        <%= link_to url_for(controller: 'admin/lastfm', action: 'top'), 
-                    class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" do %>
-          <svg class="mr-2 -ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-          </svg>
-          Top
-        <% end %>
-        
-        <%= link_to url_for(controller: 'admin/lastfm', action: 'plays'), 
-                    class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" do %>
-          <svg class="mr-2 -ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-          </svg>
-          Plays
-        <% end %>
-      </div>
+      <%= render 'nav', current_action: 'counts' %>
     </div>
   </div>
 
   <%# Quick Stats %>
-  <div class="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+  <div class="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 lg:gap-4">
     <div class="bg-white overflow-hidden shadow rounded-lg">
-      <div class="px-4 py-5 sm:p-6">
-        <dt class="text-sm font-medium text-gray-500 truncate">Today</dt>
-        <dd class="mt-1 text-3xl font-semibold text-gray-900"><%= number_with_delimiter(@recent_stats[:today]) %></dd>
+      <div class="px-3 py-4 sm:p-5">
+        <dt class="text-xs font-medium text-gray-500 truncate">Today</dt>
+        <dd class="mt-1 text-2xl font-semibold text-gray-900"><%= number_with_delimiter(@recent_stats[:today]) %></dd>
         <% if @recent_stats[:yesterday] > 0 %>
           <% change = ((@recent_stats[:today] - @recent_stats[:yesterday]).to_f / @recent_stats[:yesterday] * 100).round(1) %>
-          <p class="mt-2 flex items-center text-sm <%= change >= 0 ? 'text-green-600' : 'text-red-600' %>">
+          <p class="mt-1 text-xs <%= change >= 0 ? 'text-green-600' : 'text-red-600' %>">
             <%= change >= 0 ? '↑' : '↓' %> <%= change.abs %>% vs yesterday
           </p>
         <% end %>
@@ -56,12 +31,22 @@
     </div>
 
     <div class="bg-white overflow-hidden shadow rounded-lg">
-      <div class="px-4 py-5 sm:p-6">
-        <dt class="text-sm font-medium text-gray-500 truncate">This Week</dt>
-        <dd class="mt-1 text-3xl font-semibold text-gray-900"><%= number_with_delimiter(@recent_stats[:this_week]) %></dd>
+      <div class="px-3 py-4 sm:p-5">
+        <dt class="text-xs font-medium text-gray-500 truncate">Yesterday</dt>
+        <dd class="mt-1 text-2xl font-semibold text-gray-900"><%= number_with_delimiter(@recent_stats[:yesterday]) %></dd>
+        <p class="mt-1 text-xs text-gray-500">
+          <%= Date.yesterday.strftime("%b %d") %>
+        </p>
+      </div>
+    </div>
+
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="px-3 py-4 sm:p-5">
+        <dt class="text-xs font-medium text-gray-500 truncate">This Week</dt>
+        <dd class="mt-1 text-2xl font-semibold text-gray-900"><%= number_with_delimiter(@recent_stats[:this_week]) %></dd>
         <% if @recent_stats[:last_week] > 0 %>
           <% change = ((@recent_stats[:this_week] - @recent_stats[:last_week]).to_f / @recent_stats[:last_week] * 100).round(1) %>
-          <p class="mt-2 flex items-center text-sm <%= change >= 0 ? 'text-green-600' : 'text-red-600' %>">
+          <p class="mt-1 text-xs <%= change >= 0 ? 'text-green-600' : 'text-red-600' %>">
             <%= change >= 0 ? '↑' : '↓' %> <%= change.abs %>% vs last week
           </p>
         <% end %>
@@ -69,12 +54,22 @@
     </div>
 
     <div class="bg-white overflow-hidden shadow rounded-lg">
-      <div class="px-4 py-5 sm:p-6">
-        <dt class="text-sm font-medium text-gray-500 truncate">This Month</dt>
-        <dd class="mt-1 text-3xl font-semibold text-gray-900"><%= number_with_delimiter(@recent_stats[:this_month]) %></dd>
+      <div class="px-3 py-4 sm:p-5">
+        <dt class="text-xs font-medium text-gray-500 truncate">Last Week</dt>
+        <dd class="mt-1 text-2xl font-semibold text-gray-900"><%= number_with_delimiter(@recent_stats[:last_week]) %></dd>
+        <p class="mt-1 text-xs text-gray-500">
+          <%= 1.week.ago.beginning_of_week.strftime("%b %d") %> - <%= 1.week.ago.end_of_week.strftime("%b %d") %>
+        </p>
+      </div>
+    </div>
+
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="px-3 py-4 sm:p-5">
+        <dt class="text-xs font-medium text-gray-500 truncate">This Month</dt>
+        <dd class="mt-1 text-2xl font-semibold text-gray-900"><%= number_with_delimiter(@recent_stats[:this_month]) %></dd>
         <% if @recent_stats[:last_month] > 0 %>
           <% change = ((@recent_stats[:this_month] - @recent_stats[:last_month]).to_f / @recent_stats[:last_month] * 100).round(1) %>
-          <p class="mt-2 flex items-center text-sm <%= change >= 0 ? 'text-green-600' : 'text-red-600' %>">
+          <p class="mt-1 text-xs <%= change >= 0 ? 'text-green-600' : 'text-red-600' %>">
             <%= change >= 0 ? '↑' : '↓' %> <%= change.abs %>% vs last month
           </p>
         <% end %>
@@ -82,10 +77,10 @@
     </div>
 
     <div class="bg-white overflow-hidden shadow rounded-lg">
-      <div class="px-4 py-5 sm:p-6">
-        <dt class="text-sm font-medium text-gray-500 truncate">Daily Average</dt>
-        <dd class="mt-1 text-3xl font-semibold text-gray-900"><%= number_with_delimiter(@summaries[:daily_avg]) %></dd>
-        <p class="mt-2 text-sm text-gray-500">
+      <div class="px-3 py-4 sm:p-5">
+        <dt class="text-xs font-medium text-gray-500 truncate">Daily Average</dt>
+        <dd class="mt-1 text-2xl font-semibold text-gray-900"><%= number_with_delimiter(@summaries[:daily_avg]) %></dd>
+        <p class="mt-1 text-xs text-gray-500">
           Over selected period
         </p>
       </div>

@@ -11,32 +11,7 @@
           Detailed weekly breakdown of artist and album plays
         </p>
       </div>
-      <div class="flex flex-wrap gap-2 sm:gap-4">
-        <%= link_to admin_syncs_path(source: 'scrobble_plays'), 
-                    class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
-                    data: { turbo_method: :post, turbo_confirm: "Start weekly plays sync?" } do %>
-          <svg class="mr-2 -ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-          </svg>
-          Update Plays
-        <% end %>
-        
-        <%= link_to url_for(controller: 'admin/lastfm', action: 'top'), 
-                    class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" do %>
-          <svg class="mr-2 -ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-          </svg>
-          Top
-        <% end %>
-        
-        <%= link_to url_for(controller: 'admin/lastfm', action: 'counts'), 
-                    class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" do %>
-          <svg class="mr-2 -ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-          </svg>
-          Counts
-        <% end %>
-      </div>
+      <%= render 'nav', current_action: 'plays' %>
     </div>
   </div>
 
@@ -196,19 +171,19 @@
               </svg>
             <% end %>
           <% end %>
-          
+
           <div>
             <label class="text-sm text-gray-600">Week ending:</label>
             <select onchange="window.location.href=this.value" class="ml-2 rounded-md border-gray-300">
               <% @available_weeks.each do |week_date| %>
-                <option value="<%= url_for(controller: 'admin/lastfm', action: 'plays', week: week_date, category: @category) %>" 
+                <option value="<%= url_for(controller: 'admin/lastfm', action: 'plays', week: week_date, category: @category) %>"
                         <%= 'selected' if week_date == @week %>>
                   <%= week_date.strftime("%B %d, %Y") %>
                 </option>
               <% end %>
             </select>
           </div>
-          
+
           <% next_week = @available_weeks.reverse.find { |w| w > @week } %>
           <% if next_week %>
             <%= link_to url_for(controller: 'admin/lastfm', action: 'plays', week: next_week, category: @category),
@@ -219,10 +194,14 @@
             <% end %>
           <% end %>
         </div>
-        
-        <div class="text-sm text-gray-600">
+
+        <div class="hidden sm:block text-sm text-gray-600">
           <%= (@week - 6.days).strftime("%b %d") %> - <%= @week.strftime("%b %d, %Y") %>
         </div>
+      </div>
+      <%# Mobile date range - shown below on its own line %>
+      <div class="sm:hidden mt-3 pt-3 border-t border-gray-200 text-sm text-gray-600 text-center">
+        <%= (@week - 6.days).strftime("%b %d") %> - <%= @week.strftime("%b %d, %Y") %>
       </div>
     </div>
     

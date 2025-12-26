@@ -90,6 +90,11 @@ class HomeController < ApplicationController
     @top_artists_year = TopScrobble.where(category: 'artist', period: '12month')
                                     .order(rank: :asc)
                                     .limit(10)
+
+    # Preload artist images for listening cards
+    all_artists = (@top_artists_month + @top_artists_year).map(&:artist).uniq
+    @artist_images = TopScrobbleImage.where(category: 'artist', artist: all_artists, name: nil)
+                                      .index_by(&:artist)
     # ============================================
   end
 

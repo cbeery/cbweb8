@@ -1,16 +1,31 @@
 <%# app/views/home/cards/_listening_card.html.erb %>
 <%# Last.fm Top Artists Card with CSS bar charts %>
-<%# Expects: @top_artists_month, @top_artists_year %>
+<%# Expects: @top_artists_month, @top_artists_year, @artist_images %>
 
 <div class="bg-white rounded-lg shadow-lg">
-  <!-- Card Header -->
+  <%# Get top artist image for header %>
+  <% top_artist = @top_artists_month&.first %>
+  <% top_artist_image = top_artist ? @artist_images[top_artist.artist] : nil %>
+  <% has_header_image = top_artist_image&.has_image? %>
+
+  <!-- Cover Image - Only at xs size -->
+  <% if has_header_image %>
+    <div class="block sm:hidden h-48 overflow-hidden relative">
+      <img src="<%= top_artist_image.image_url %>"
+           class="w-full h-full object-cover object-center"
+           alt="<%= top_artist.artist %>"
+           loading="lazy">
+    </div>
+  <% end %>
+
+  <!-- Card Header - Below image on mobile -->
   <div class="p-4 border-b">
     <h2 class="text-xl font-bold">Listening</h2>
   </div>
 
-  <!-- Charts Area - 2 columns on sm+, stacked on xs -->
+  <!-- Charts Area - 2 columns on md+, stacked below -->
   <div class="p-4">
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
       <!-- Last Month Chart -->
       <div>
@@ -20,9 +35,18 @@
           <ul class="bar_chart list-unstyled artist font-light">
             <% @top_artists_month.each do |scrobble| %>
               <% percentage = max_plays > 0 ? ((scrobble.plays.to_f / max_plays) * 100).round : 0 %>
-              <li>
+              <% image_record = @artist_images[scrobble.artist] %>
+              <% has_image = image_record&.has_image? %>
+              <li class="has-[img:hover]:z-50">
                 <span class="name">
                   <span class="rank"><%= scrobble.rank %></span>
+                  <% if has_image %>
+                    <img src="<%= image_record.image_url %>"
+                         alt=""
+                         class="inline-block w-5 h-5 rounded-full object-cover align-middle mr-1 transition-transform hover:scale-[4] hover:z-50 relative"
+                         loading="lazy"
+                         onerror="this.style.display='none'">
+                  <% end %>
                   <a title="<%= scrobble.artist %>" href="<%= scrobble.url %>"><%= scrobble.artist %></a>
                 </span>
                 <span class="count"><%= number_with_delimiter(scrobble.plays) %></span>
@@ -43,9 +67,18 @@
           <ul class="bar_chart list-unstyled artist font-light">
             <% @top_artists_year.each do |scrobble| %>
               <% percentage = max_plays > 0 ? ((scrobble.plays.to_f / max_plays) * 100).round : 0 %>
-              <li>
+              <% image_record = @artist_images[scrobble.artist] %>
+              <% has_image = image_record&.has_image? %>
+              <li class="has-[img:hover]:z-50">
                 <span class="name">
                   <span class="rank"><%= scrobble.rank %></span>
+                  <% if has_image %>
+                    <img src="<%= image_record.image_url %>"
+                         alt=""
+                         class="inline-block w-5 h-5 rounded-full object-cover align-middle mr-1 transition-transform hover:scale-[4] hover:z-50 relative"
+                         loading="lazy"
+                         onerror="this.style.display='none'">
+                  <% end %>
                   <a title="<%= scrobble.artist %>" href="<%= scrobble.url %>"><%= scrobble.artist %></a>
                 </span>
                 <span class="count"><%= number_with_delimiter(scrobble.plays) %></span>

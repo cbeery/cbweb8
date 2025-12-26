@@ -80,8 +80,24 @@ class HomeController < ApplicationController
     @nba_bulls_count = bulls_data ? bulls_data[:data][@current_nba_season] : 0
     
     # ============================================
+
+    # ============================================
+    # Listening Card Data - Last.fm Top Artists
+    # ============================================
+    @top_artists_month = TopScrobble.where(category: 'artist', period: '1month')
+                                     .order(rank: :asc)
+                                     .limit(10)
+    @top_artists_year = TopScrobble.where(category: 'artist', period: '12month')
+                                    .order(rank: :asc)
+                                    .limit(10)
+
+    # Preload artist images for listening cards
+    all_artists = (@top_artists_month + @top_artists_year).map(&:artist).uniq
+    @artist_images = TopScrobbleImage.where(category: 'artist', artist: all_artists, name: nil)
+                                      .index_by(&:artist)
+    # ============================================
   end
-  
+
   def test1
     # Card grid layout example
     @recent_movies = Movie.joins(:viewings)

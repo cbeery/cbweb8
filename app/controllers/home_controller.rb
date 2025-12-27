@@ -74,11 +74,18 @@ class HomeController < ApplicationController
     # Actual games watched (not doubled)
     @nba_games_watched = NbaGame.by_season(@current_nba_season).watched.count
 
-    # Bulls team and count
-    @nba_bulls_team = NbaTeam.find_by(abbreviation: 'CHI')
-    bulls_data = @nba_chart_data.find { |t| t[:name] == 'CHI' }
-    @nba_bulls_count = bulls_data ? bulls_data[:data][@current_nba_season] : 0
-    
+    # Top watched teams (sorted by count descending, with team object and count)
+    # Used in footer to show top 3 (or 5 on xl+) most-watched teams
+    if team_counts.any?
+      sorted_team_ids = team_counts.sort_by { |_id, count| -count }.map(&:first)
+      teams_by_id = NbaTeam.where(id: sorted_team_ids).index_by(&:id)
+      @nba_top_teams = sorted_team_ids.map do |team_id|
+        { team: teams_by_id[team_id], count: team_counts[team_id] }
+      end.compact
+    else
+      @nba_top_teams = []
+    end
+
     # ============================================
 
     # ============================================

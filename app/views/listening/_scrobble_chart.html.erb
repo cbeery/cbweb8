@@ -1,0 +1,66 @@
+<%# app/views/listening/_scrobble_chart.html.erb %>
+<%#
+  Reusable CSS bar chart for scrobble data
+
+  Locals:
+    title: String - chart heading (e.g., "Last Month")
+    scrobbles: Array<TopScrobble> - the scrobble data to display
+    images: Hash - lookup for TopScrobbleImage records
+    category: String - 'artist', 'album', or 'track'
+    show_artist: Boolean - whether to show artist name below item name (for albums/tracks)
+%>
+
+<%
+  category ||= 'artist'
+  show_artist = local_assigns.fetch(:show_artist, category != 'artist')
+  chart_class = case category
+                when 'album' then 'album'
+                when 'track' then 'track'
+                else 'artist'
+                end
+  image_rounded = category == 'artist' ? 'rounded-full' : 'rounded'
+%>
+
+<div>
+  <h3 class="text-sm font-medium text-gray-500 mb-2"><%= title %></h3>
+  <% if scrobbles.present? && scrobbles.any? %>
+    <% max_plays = scrobbles.first.plays %>
+    <ul class="bar_chart list-unstyled <%= chart_class %> font-light">
+      <% scrobbles.each do |scrobble| %>
+        <% percentage = max_plays > 0 ? ((scrobble.plays.to_f / max_plays) * 100).round : 0 %>
+        <%
+          # Look up image based on category
+          if category == 'artist'
+            image_record = images[scrobble.artist]
+          else
+            image_record = images[[scrobble.artist, scrobble.name]]
+          end
+          has_image = image_record&.has_image?
+
+          # For artists, display artist name. For albums/tracks, display name field.
+          display_name = category == 'artist' ? scrobble.artist : scrobble.name
+        %>
+        <li class="has-[img:hover]:z-50">
+          <span class="name">
+            <span class="rank"><%= scrobble.rank %></span>
+            <% if has_image %>
+              <img src="<%= image_record.image_url %>"
+                   alt=""
+                   class="inline-block w-5 h-5 <%= image_rounded %> object-cover align-middle mr-1 transition-transform hover:scale-[4] hover:z-50 relative"
+                   loading="lazy"
+                   onerror="this.style.display='none'">
+            <% end %>
+            <a title="<%= display_name %>" href="<%= scrobble.url %>"><% if category == 'album' %><em><%= display_name %></em><% elsif category == 'track' %>"<%= display_name %>"<% else %><%= display_name %><% end %></a>
+            <% if show_artist && scrobble.artist.present? %>
+              <span class="text-gray-400 text-xs ml-1"><%= scrobble.artist %></span>
+            <% end %>
+          </span>
+          <span class="count"><%= number_with_delimiter(scrobble.plays) %></span>
+          <span class="index" style="width:<%= percentage %>%">(<%= percentage %>)</span>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <div class="py-4 text-center text-gray-400 text-sm">No data available</div>
+  <% end %>
+</div>

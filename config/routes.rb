@@ -41,6 +41,9 @@ Rails.application.routes.draw do
   get 'home/legacy/homepage', to: 'home#legacy_homepage'
   get 'home/legacy/homepage_modern', to: 'home#legacy_homepage_modern'
 
+  # Public pages
+  resources :listening, only: [:index]
+
   # Admin namespace
   namespace :admin do
     get "pages/index"
